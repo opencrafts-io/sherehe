@@ -1,6 +1,6 @@
-# Project Name Sherehe
+# Sherehe
 
-A Node.js RESTful API built with Express and PostgreSQL.
+This is the sherehe backend for academia.
 
 ## Table of Contents
 
