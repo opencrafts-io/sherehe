@@ -81,19 +81,20 @@ You should see something like this:
 Welcome to Sherehe Backend
 
 
-///////////////////////////////////////
-How to navigate
+
+## How to navigate
+
 1. index.js
-This is where middleware such as cors are implemented
-This is also where urls first segment are declared
+- This is where middleware such as cors are implemented
+- This is also where urls first segment are declared
 
 2. Route
-This is where subsequent segments of a url are assigned to a controller
+- This is where subsequent segments of a url are assigned to a controller
 
 3. Controller 
-This is where information from the user is recieved and any conditions are set so as to pass clean data to the models
-This is also where responses and their corresponding statuses are return back to the user not forgetting the data returned back to the user
-It goes without saying that this is where each model is given to a particular controller
+- This is where information from the user is recieved and any conditions are set so as to pass clean data to the models
+- This is also where responses and their corresponding statuses are return back to the user not forgetting the data returned back to the user
+- It goes without saying that this is where each model is given to a particular controller
 
 responses must be returned with their correct status
 
@@ -103,33 +104,33 @@ The model can only return message whether a values on a table have been changed 
 
 
 6. Migaration file
-This is where tables are given life and structure.
-The name of the file example (1751445846272_create-events-table.js) shows which table is in structured in the file
-to create such a table run the command
-## npx node-pg-migrate create create-(name_of_the_table)_-table
+- This is where tables are given life and structure.
+- The name of the file example (1751445846272_create-events-table.js) shows which table is in structured in the file
+to create such a table run the command:
+- - npx node-pg-migrate create create-(name_of_the_table)_-table
 
 to run migration
-## npx node-pg-migrate up 
-## npx node-pg-migrate down (rollback)
-In some instances you may have to drop the intended tables if rollback does not work
+- -  npx node-pg-migrate up 
+- -  npx node-pg-migrate down (rollback)
+ - In some instances you may have to drop the intended tables if rollback does not work
 
 (Note) the database to be used must be postgres
 
 7. Coding practices
-This project only uses camel case when naming variable , functions
-The project uses "type": "module" which mainly uses keyword import during importation rather than require which is the default
+- This project only uses camel case when naming variable , functions
+- The project uses "type": "module" which mainly uses keyword import during importation rather than require which is the default
 
 8. Env
 I do realise that I have repeated the credentials in database and migrations just bear with me
 
-# Database
+- Database
 DB_USER= * (Your username)
 DB_HOST=db
 DB_NAME=sherehe
 DB_PASSWORD= * (Your personal postgres database password)
 DB_PORT=5432
 
-# Migrations
+- Migrations
 PGHOST=db
 PGUSER=* (Your username)
 PGPASSWORD= * (Your personal postgres database password)
