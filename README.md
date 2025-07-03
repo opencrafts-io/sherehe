@@ -95,12 +95,11 @@ Welcome to Sherehe Backend
 - This is where information from the user is recieved and any conditions are set so as to pass clean data to the models
 - This is also where responses and their corresponding statuses are return back to the user not forgetting the data returned back to the user
 - It goes without saying that this is where each model is given to a particular controller
-
-responses must be returned with their correct status
+- Responses must be returned with their correct status
 
 5. Model
-This recieves data from the controller and performs either create , update , delete or get values on the table
-The model can only return message whether a values on a table have been changed , deleted or inserted . It shoul return data only or valid reponse messages
+- This recieves data from the controller and performs either create , update , delete or get values on the table
+- The model can only return message whether a values on a table have been changed , deleted or inserted . It should return data only or valid reponse messages
 
 
 6. Migaration file
@@ -114,14 +113,14 @@ to run migration
 - -  npx node-pg-migrate down (rollback)
  - In some instances you may have to drop the intended tables if rollback does not work
 
-(Note) the database to be used must be postgres
+(Note) The database to be used must be postgres
 
 7. Coding practices
 - This project only uses camel case when naming variable , functions
 - The project uses "type": "module" which mainly uses keyword import during importation rather than require which is the default
 
 8. Env
-I do realise that I have repeated the credentials in database and migrations just bear with me
+- I do realise that I have repeated the credentials in database and migrations just bear with me
 
 - Database
 DB_USER= * (Your username)
