@@ -4,6 +4,7 @@ This is the sherehe backend for academia.
 
 ## Table of Contents
 
+
 - [Overview](#overview)
 - [Features](#features)
 - [Tech Stack](#tech-stack)
@@ -53,7 +54,7 @@ npm install
 
 Create a .env file in the root and add:
 
-# vist the env documentation at the end
+- vist the env documentation at the end
 
 4. Create Database
 
