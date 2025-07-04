@@ -1,4 +1,4 @@
-import { insert, selectAll, selectById, update, remove } from "../Model/attendee-Model.js";
+import { insert, selectAll, selectById, updateFull, updatePartial , remove } from "../Model/attendee-Model.js";
 
 export const createAttendee = async (req, res) => {
   try {
@@ -46,16 +46,35 @@ export const getAttendeeById = async (req, res) => {
 };
 
 export const updateAttendee = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const attendee = await updateFull(id, req.body);
+
+        if (!attendee) {
+            return res.status(404).json({ message: "Attendee not found" });
+        }
+
+        res.status(200).json({
+            message: "Attendee updated successfully",
+            data: attendee,
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Error updating attendee" });
+    }
+};
+
+
+export const patchAttendee = async (req, res) => {
   try {
     const { id } = req.params;
-    const updatedAttendee = await update(id, req.body);
+    const updatedAttendee = await updatePartial(id, req.body);
 
     if (!updatedAttendee) {
       return res.status(404).json({ message: "Attendee not found" });
     }
 
     res.status(200).json({
-        message: "Attendee updated successfully",
+        message: "Attendee partially updated successfully",
         data: updatedAttendee,
     });
   } catch (error) {
