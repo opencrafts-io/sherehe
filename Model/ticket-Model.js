@@ -1,84 +1,94 @@
 import { client } from "../db.js";
 
-export const insert = async (req, res) => {
+export const insert = async ({ attendeeid, eventid, paymentcode }) => {
   try {
-    const { attendeeId, eventId, paymentCode } = req.body;
-
     const query = `
-      INSERT INTO ticket (attendeeId, eventId, paymentCode)
+      INSERT INTO ticket (attendeeid, eventid, paymentcode)
       VALUES ($1, $2, $3)
+      RETURNING *
     `;
-
-    const values = [attendeeId, eventId, paymentCode];
+    const values = [attendeeid, eventid, paymentcode];
     const result = await client.query(query, values);
-
-    res.status(201).json({message: "Ticket created successfully",});
+    return result.rows[0];
   } catch (error) {
-    res.status(500).json({ error: "Error creating ticket" });
+    throw error;
   }
 };
 
-export const selectAll = async (req, res) => {
+export const selectAll = async () => {
   try {
-    const query = "SELECT * FROM ticket";
-    const result = await client.query(query);
-    res.status(200).json(result.rows);
+    const result = await client.query("SELECT * FROM ticket");
+    return result.rows;
   } catch (error) {
-    res.status(500).json({message: "Error fetching tickets"});
+    throw error;
   }
 };
 
-export const selectById = async (req, res) => {
+export const selectById = async (id) => {
   try {
-    const { id } = req.params;
-    const query = "SELECT * FROM ticket WHERE id = $1";
-    const result = await client.query(query, [id]);
+    const result = await client.query("SELECT * FROM ticket WHERE id = $1", [id]);
+    return result.rows[0] || null;
+  } catch (error) {
+    throw error;
+  }
+};
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: "Ticket not found" });
+export const updateFull = async (id, { attendeeid, eventid, paymentcode }) => {
+  try {
+    const query = `
+      UPDATE ticket
+      SET attendeeid = $1, eventid = $2, paymentcode = $3
+      WHERE id = $4
+      RETURNING *
+    `;
+    const values = [attendeeid, eventid, paymentcode, id];
+    const result = await client.query(query, values);
+    return result.rows[0] || null;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updatePartial = async (id, fields) => {
+  if (!fields || typeof fields !== "object") {
+    throw new Error("No fields provided or invalid update data.");
+  }
+
+  try {
+    const columns = [];
+    const values = [];
+    let index = 1;
+
+    for (const [key, value] of Object.entries(fields)) {
+      columns.push(`${key} = $${index}`);
+      values.push(value);
+      index++;
     }
 
-    res.status(200).json(result.rows[0]);
-  } catch (error) {
-    res.status(500).json({ error: "Error fetching ticket" });
-  }
-};
-
-export const update = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { attendeeId, eventId, paymentCode } = req.body;
+    if (columns.length === 0) {
+      throw new Error("No fields to update.");
+    }
 
     const query = `
       UPDATE ticket
-      SET attendeeId = $1, eventId = $2, paymentCode = $3
-      WHERE id = $4
+      SET ${columns.join(", ")}
+      WHERE id = $${index}
+      RETURNING *
     `;
+    values.push(id);
 
-    const values = [attendeeId, eventId, paymentCode, id];
     const result = await client.query(query, values);
-
-    if (result.rowCount === 0) {
-      return res.status(404).json({ error: "Ticket not found" });
-    }
-
-    res.status(200).json({ message: "Ticket updated successfully" });
+    return result.rows[0] || null;
   } catch (error) {
-    res.status(500).json({ error: "Error updating ticket" });
+    throw error;
   }
 };
 
-export const remove = async (req, res) => {
+export const remove = async (id) => {
   try {
-    const { id } = req.params;
     const result = await client.query("DELETE FROM ticket WHERE id = $1", [id]);
-
-    if (result.rowCount === 0) {
-      return res.status(404).json({ error: "Ticket not found" });
-    }
-
-    res.status(200).json({ message: "Ticket deleted successfully" });
+    return result.rowCount > 0;
   } catch (error) {
-    res.status(500).json({ error: "Error deleting ticket" });
+    throw error;
   }
 };

@@ -1,74 +1,92 @@
-import { insert, selectAll, selectById, update, remove } from '../Model/ticket-Model.js'
+import { insert , selectAll , selectById , updateFull , updatePartial , remove } from "../Model/ticket-Model.js";
 
 export const createTicket = async (req, res) => {
-    try {
-        const result = await insert(req.body);
-        if (result === "Error creating ticket") {
-            res.status(500).json({message: "Error creating ticket"});
-        } else {
-            res.status(200).json({message: "Ticket created successfully"});
-        }
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({message: "Error creating ticket"});
-    }
+  try {
+    const ticket = await insert(req.body);
+    res.status(201).json({
+      message: "Ticket created successfully",
+      data: ticket,
+    });
+  } catch (error) {
+    console.error("Error creating ticket:", error);
+    res.status(500).json({ error: "Error creating ticket" });
+  }
 };
 
 export const getAllTickets = async (req, res) => {
-    try {
-        const result = await selectAll();
-        if (result === "Error fetching tickets") {
-            res.status(500).json({message: "Error fetching tickets"});
-        } else {
-            res.status(200).json({
-                message: "Tickets fetched successfully",
-                data: result
-            });
-        }
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({message: "Error fetching tickets"})
-    }
+  try {
+    const tickets = await selectAll();
+    res.status(200).json({
+      message: "Tickets fetched successfully",
+      data: tickets,
+    });
+  } catch (error) {
+    console.error("Error fetching tickets:", error);
+    res.status(500).json({ error: "Error fetching tickets" });
+  }
 };
 
 export const getTicketById = async (req, res) => {
   try {
-    const result = await selectById(req.params);
-    if(result === "Error fetching ticket"){
-      res.status(500).json({ message: "Error fetching ticket" });
-    }else{
-      res.status(200).json({ message: "Ticket fetched successfully", data: result });
+    const { id } = req.params;
+    const ticket = await selectById(id);
+    if (!ticket) {
+      return res.status(404).json({ message: "Ticket not found" });
     }
+    res.status(200).json({
+      message: "Ticket fetched successfully",
+      data: ticket,
+    });
   } catch (error) {
-    console.log(error)
-    res.status(500).json({ message: "Error fetching ticket" });
+    console.error("Error fetching ticket:", error);
+    res.status(500).json({ error: "Error fetching ticket" });
   }
-}
+};
 
-export const updateTicket = async (req, res) => {
+export const updateTicketFull = async (req, res) => {
   try {
-    const result = await update(req.body);
-    if(result === "Error updating ticket"){
-      res.status(500).json({ message: "Error updating ticket" });
-    }else{
-      res.status(200).json({ message: "Ticket updated successfully" });
+    const { id } = req.params;
+    const updatedTicket = await updateFull(id, req.body);
+    if (!updatedTicket) {
+      return res.status(404).json({ message: "Ticket not found" });
     }
+    res.status(200).json({
+      message: "Ticket updated successfully",
+      data: updatedTicket,
+    });
   } catch (error) {
-    console.log(error)
-    res.status(500).json({ message: "Error updating ticket" });
+    console.error("Error updating ticket (full):", error);
+    res.status(500).json({ error: "Error updating ticket" });
   }
-}
+};
+
+export const updateTicketPartial = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updatedTicket = await updatePartial(id, req.body);
+    if (!updatedTicket) {
+      return res.status(404).json({ message: "Ticket not found" });
+    }
+    res.status(200).json({
+      message: "Ticket updated successfully",
+      data: updatedTicket,
+    });
+  } catch (error) {
+    console.error("Error updating ticket (partial):", error);
+    res.status(500).json({ error: "Error updating ticket" });
+  }
+};
 
 export const deleteTicket = async (req, res) => {
   try {
-    const result = await remove(req.params);
-    if(result === "Error deleting ticket"){
-      res.status(500).json({ message: "Error deleting ticket" });
-    }else{
-      res.status(200).json({ message: "Ticket deleted successfully" });
+    const { id } = req.params;
+    const deleted = await remove(id);
+    if (!deleted) {
+      return res.status(404).json({ message: "Ticket not found" });
     }
+    res.status(200).json({ message: "Ticket deleted successfully" });
   } catch (error) {
-    console.log(error)
-    res.status(500).json({ message: "Error deleting ticket" });
+    console.error("Error deleting ticket:", error);
+    res.status(500).json({ error: "Error deleting ticket" });
   }
-}
+};
