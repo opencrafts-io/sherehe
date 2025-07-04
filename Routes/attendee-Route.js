@@ -1,0 +1,12 @@
+import { Router } from "express";
+import { createAttendee , getAllAttendees , getAttendeeById , updateAttendee , deleteAttendee } from "../Controller/attendee-Controller.js";
+
+const router = Router();
+
+router.post("/", createAttendee);
+router.get("/", getAllAttendees);
+router.get("/:id", getAttendeeById);
+router.put("/:id", updateAttendee);
+router.delete("/delete/:id", deleteAttendee);
+
+export default router;
