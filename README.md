@@ -84,6 +84,8 @@ node index.js        # Start server in production mode
 You should see something like this:
 - Welcome to Sherehe Backend
 
+(Note) it runs on port 3000
+
 
 
 ## How to navigate
