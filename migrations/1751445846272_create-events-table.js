@@ -12,15 +12,16 @@ export const shorthands = undefined;
 export const up = (pgm) => {
   pgm.createTable("events", {
     id: "id",
+    name: { type: "varchar", notNull: true },
     description: { type: "varchar", notNull: true },
     url: { type: "varchar", notNull: true},
     location: { type: "varchar", notNull: true },
-    time: { type: "varchar", notNull: true},
-    date: { type: "varchar", notNull: true},
+    time: { type: "time", notNull: true},
+    date: { type: "date", notNull: true},
     organizer: { type: "varchar", notNull: true},
     imageurl: { type: "varchar", notNull: true },
-    numberofattendees: { type: "varchar", notNull: true },
-    organizerid: { type: "varchar", notNull: true },
+    numberofattendees: { type: "integer", notNull: true },
+    organizerid: { type: "integer", notNull: true },
   });
 }
 

@@ -1,4 +1,5 @@
 import { insert , selectAll , selectById , update , remove } from "../Model/event-Model.js";
+
 export const createEvent = async (req, res) => {
   try {
     const result = await insert(req.body);
@@ -19,7 +20,7 @@ export const getAllEvents = async (req, res) => {
     if(result === "Error fetching events"){
       res.status(500).json({ message: "Error fetching events" });
     }else{
-      res.status(200).json({ message: "Events fetched successfully", data: result });
+      res.status(200).json({result});
     }
   } catch (error) {
     console.log(error)
@@ -33,7 +34,7 @@ export const getEventById = async (req, res) => {
     if(result === "Error fetching event"){
       res.status(500).json({ message: "Error fetching event" });
     }else{
-      res.status(200).json({ message: "Event fetched successfully", data: result });
+      res.status(200).json({ result });
     }
   } catch (error) {
     console.log(error)

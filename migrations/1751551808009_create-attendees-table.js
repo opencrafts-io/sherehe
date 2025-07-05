@@ -11,16 +11,16 @@ export const shorthands = undefined;
 export const up = (pgm) => {
     pgm.createTable("attendees", {
         id: "id",
-        firstName: {type: "varchar", notNull: true},
-        middleName: {type: "varchar", notNull: false},
-        lastName: {type: "varchar", notNull: true},
-        eventId: {
+        firstname: {type: "varchar", notNull: true},
+        middlename: {type: "varchar", notNull: false},
+        lastname: {type: "varchar", notNull: true},
+        eventid: {
             type: "integer",
             notNull: true,
             references: "events",
             onDelete: "CASCADE"
         },
-        createdAt: {
+        createdat: {
             type: "timestamp",
             notNull: true,
             default: pgm.func("TIMEZONE('UTC', CURRENT_TIMESTAMP)")

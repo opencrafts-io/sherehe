@@ -1,14 +1,17 @@
 import express from "express";
 import cors from "cors";
-import router from "./Routes/event-Route.js";
-import attendeeRouter from "./Routes/attendee-Route.js";
-import ticketRouter from "./Routes/ticket-Route.js";
 const app = express();
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-app.use("/events", router);
+// Routes
+import eventRouter from "./Routes/event-Route.js";
+import attendeeRouter from "./Routes/attendee-Route.js";
+import ticketRouter from "./Routes/ticket-Route.js";
+
+app.use("/events", eventRouter);
 app.use("/attendees", attendeeRouter);
 app.use("/tickets", ticketRouter);
 
