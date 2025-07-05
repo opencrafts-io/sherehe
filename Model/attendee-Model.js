@@ -1,4 +1,4 @@
-import { client } from "../db.js";
+import pool from "../db.js";
 
 export const insert = async ({ firstname, middlename, lastname, eventid, ticketid }) => {
     const query = `
@@ -9,7 +9,7 @@ export const insert = async ({ firstname, middlename, lastname, eventid, ticketi
 
     const values = [firstname, middlename || null, lastname, eventid, ticketid || null];
 
-    const result = await client.query(query, values);
+    const result = await pool.query(query, values);
     return result.rows[0]; 
 };
 
@@ -17,7 +17,7 @@ export const insert = async ({ firstname, middlename, lastname, eventid, ticketi
 export const selectAll = async () => {
   try {
     const query = "SELECT * FROM attendees";
-    const result = await client.query(query);
+    const result = await pool.query(query);
     return result.rows; 
   } catch (error) {
     throw error;
@@ -27,7 +27,7 @@ export const selectAll = async () => {
 export const selectById = async (id) => {
   try {
     const query = "SELECT * FROM attendees WHERE id = $1";
-    const result = await client.query(query, [id]);
+    const result = await pool.query(query, [id]);
 
     if (result.rows.length === 0) {
       return null; 
@@ -48,7 +48,7 @@ export const updateFull = async (id, { firstname, middlename, lastname, eventid,
             RETURNING *
         `;
         const values = [firstname, middlename || null, lastname, eventid, ticketid || null, id];
-        const result = await client.query(query, values);
+        const result = await pool.query(query, values);
         return result.rows[0] || null;
     } catch (error) {
         throw error;
@@ -84,7 +84,7 @@ export const updatePartial = async (id, fields) => {
 
         values.push(id);
 
-        const result = await client.query(query, values);
+        const result = await pool.query(query, values);
         return result.rows[0] || null;
     } catch (error) {
         throw error;
@@ -95,7 +95,7 @@ export const updatePartial = async (id, fields) => {
 export const remove = async (id) => {
   try {
     const query = "DELETE FROM attendees WHERE id = $1";
-    const result = await client.query(query, [id]);
+    const result = await pool.query(query, [id]);
 
     return result.rowCount > 0;
   } catch (error) {
