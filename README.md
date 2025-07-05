@@ -146,12 +146,12 @@ PGPORT=5432
 - The babel.config.js helps in making sure that jest knows we are using type: module
 - This options are provided by jest
 - Watch Usage
- › Press f to run only failed tests.
- › Press o to only run tests related to changed files.
- › Press p to filter by a filename regex pattern.
- › Press t to filter by a test name regex pattern.
- › Press q to quit watch mode.
- › Press Enter to trigger a test run.
+  - - Press f to run only failed tests.
+  - - Press o to only run tests related to changed files.
+  - - Press p to filter by a filename regex pattern.
+  - - Press t to filter by a test name regex pattern.
+  - - Press q to quit watch mode.
+  - - Press Enter to trigger a test run.
 - Jest is like nodemon it waits for any change of code then runs the tests according to what it has changed
 - When you first clone the repo no test will be done since thier is no change of code , so press a to start the tests
 - Errors under console.log are fine and intentionally induced and dislpayed 
