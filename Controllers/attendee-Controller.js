@@ -1,5 +1,7 @@
 import { insert, selectAll, selectById, updateFull, updatePartial , remove } from "../Model/attendee-Model.js";
 
+
+//controllers
 export const createAttendee = async (req, res) => {
   try {
     const result = await insert(req.body);
