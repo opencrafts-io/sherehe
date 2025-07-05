@@ -17,9 +17,12 @@
     "dotenv": "^17.0.1",
     "express": "^5.1.0",
     "node-pg-migrate": "^8.0.3",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "supertest": "^7.1.1"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.28.0",
+    "babel-jest": "^30.0.4",
     "jest": "^30.0.4",
     "nodemon": "^3.1.10"
   }

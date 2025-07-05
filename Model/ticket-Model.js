@@ -82,11 +82,11 @@ export const updateFull = async (id, { attendeeid, eventid, paymentcode }) => {
 };
 
 export const updatePartial = async (params) => {
+  const { id, fields } = params;
+
   if (!fields || typeof fields !== "object") {
     throw new Error("No fields provided or invalid update data.");
   }
-
-  const { id, fields } = params;
 
   try {
     const columns = [];
@@ -103,12 +103,7 @@ export const updatePartial = async (params) => {
       throw new Error("No fields to update.");
     }
 
-    const query = `
-      UPDATE tickets
-      SET ${columns.join(", ")}
-      WHERE id = $${index}
-      RETURNING *
-    `;
+    const query = `UPDATE tickets SET ${columns.join(", ")} WHERE id = $${index} RETURNING * `;
     values.push(id);
 
     const result = await pool.query(query, values);
