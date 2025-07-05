@@ -1,11 +1,9 @@
 import pool from "../db.js";
 
-
-
 export const insert = async (params) => {
   try {
     const { name , description , url , location , time , date , organizer , imageurl , numberofattendees , organizerid } = params;
-    const query = `INSERT INTO events (name, description, url, location , time , date , organizer , imageurl , numberofattendees , organizerid) VALUES ($1, $2, $3, $4)`;
+    const query = `INSERT INTO events (name, description, url, location , time , date , organizer , imageurl , numberofattendees , organizerid) VALUES ($1, $2, $3, $4 , $5 , $6 , $7 , $8 , $9 , $10) RETURNING *`;
     const values = [name , description , url , location , time , date , organizer , imageurl , numberofattendees , organizerid];
     const result = await pool.query(query, values);
     if(result.rowCount === 0){
@@ -14,7 +12,8 @@ export const insert = async (params) => {
       return "Event created successfully"
     }
   } catch (error) {
-    return "Error creating event"
+    console.log(error)
+    return "Internal server error"
   }
 };
 
@@ -28,7 +27,7 @@ export const selectAll = async () => {
       return result.rows
     }
   } catch (error) {
-    return "Error fetching events"
+    return "Internal server error"
   }
 };
 
@@ -44,7 +43,7 @@ export const selectById = async (params) => {
       return result.rows
     }
   } catch (error) {
-    return "Error fetching event"
+    return "Internal server error"
   }
 };
 
@@ -60,7 +59,7 @@ export const update = async (params) => {
       return "Event updated successfully"
     }
   } catch (error) {
-    return "Error updating event"
+    return "Internal server error"
   }
 };
 
@@ -77,6 +76,6 @@ export const remove = async (params) => {
       return "Event deleted successfully"
     }
   } catch (error) {
-    return "Error deleting event"
+    return "Internal server error"
   }
 };

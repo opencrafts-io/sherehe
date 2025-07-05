@@ -9,22 +9,22 @@ export const shorthands = undefined;
  * @returns {Promise<void> | void}
  */
 export const up = (pgm) => {
-    pgm.createTable("ticket", {
+    pgm.createTable("tickets", {
         id: "id",
-        attendeeId: {
+        attendeeid: {
             type: "integer",
             notNull: true,
-            references: "attendees",
+            references: "attendees(id)",
             onDelete: "CASCADE"
         },
-        eventId: {
+        eventid: {
             type: "integer",
             notNull: true,
             references: "events",
             onDelete: "CASCADE"
         },
-        paymentCode: {type: "varchar", notNull: true},
-        createdAt: {
+        paymentcode: {type: "varchar", notNull: true},
+        createdat: {
             type: "timestamp",
             notNull: true,
             default: pgm.func("TIMEZONE('UTC', CURRENT_TIMESTAMP)")
@@ -38,5 +38,5 @@ export const up = (pgm) => {
  * @returns {Promise<void> | void}
  */
 export const down = (pgm) => {
-    pgm.dropTable("ticket");
+    pgm.dropTable("tickets");
 };

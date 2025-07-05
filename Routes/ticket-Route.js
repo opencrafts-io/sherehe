@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { createTicket , getAllTickets , getTicketById , updateTicketFull, updateTicketPartial , deleteTicket } from "../Controller/ticket-Controller.js";
+import { createTicket , getAllTicketsByAttendeeId , getTicketByEventId , updateTicketFull, updateTicketPartial , deleteTicket } from "../Controllers/ticket-Controller.js";
 
 const router = Router();
 
 router.post("/", createTicket);
-router.get("/", getAllTickets);
-router.get("/:id", getTicketById);
+router.get("/attendee/:id", getAllTicketsByAttendeeId);
+router.get("/:id", getTicketByEventId);
 router.put("/:id", updateTicketFull);
 router.patch("/:id", updateTicketPartial);
 router.delete("/delete/:id", deleteTicket);

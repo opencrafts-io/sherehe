@@ -1,57 +1,80 @@
 import pool from "../db.js";
 
-export const insert = async ({ firstname, middlename, lastname, eventid, ticketid }) => {
-    const query = `
-        INSERT INTO attendees (firstname, middlename, lastname, eventid, ticketid)
-        VALUES ($1, $2, $3, $4, $5)
+export const insert = async (params) => {
+    try {
+      const { firstname, middlename, lastname, eventid } = params;
+      const query = `
+        INSERT INTO attendees (firstname, middlename, lastname, eventid)
+        VALUES ($1, $2, $3, $4)
         RETURNING *
     `;
 
-    const values = [firstname, middlename || null, lastname, eventid, ticketid || null];
+    const values = [firstname, middlename || null, lastname, eventid];
 
     const result = await pool.query(query, values);
-    return result.rows[0]; 
+    if(result.rowCount === 0){
+      return "Error creating attendee"
+    }else{
+      return "Attendee created successfully"
+    }
+    } catch (error) {
+      console.log(error)
+      return "Internal server error"
+    }
 };
 
 
-export const selectAll = async () => {
+export const selectAll = async (params) => {
   try {
-    const query = "SELECT * FROM attendees";
-    const result = await pool.query(query);
-    return result.rows; 
+    const {id} = params;
+    const query = "SELECT * FROM attendees WHERE eventid = $1";
+    const values = [id];
+    const result = await pool.query(query , values);
+    if(result.rows.length === 0){
+      return "No attendees found"
+    }else{
+      return result.rows
+    }
   } catch (error) {
-    throw error;
+        console.log(error)
+    return "Internal server error"
   }
 };
 
-export const selectById = async (id) => {
+export const selectById = async (params) => {
   try {
+    const { id } = params;
+    console.log(id)
     const query = "SELECT * FROM attendees WHERE id = $1";
     const result = await pool.query(query, [id]);
+    // console.log(result)
 
     if (result.rows.length === 0) {
-      return null; 
+      return "Attendee not found";
+    }else{
+      return result.rows
     }
 
-    return result.rows[0]; 
   } catch (error) {
-    throw error;
+    console.log(error)
+    return "Internal server error"
   }
 };
 
-export const updateFull = async (id, { firstname, middlename, lastname, eventid, ticketid }) => {
+export const updateFull = async (id, { firstname, middlename, lastname, eventid }) => {
     try {
         const query = `
             UPDATE attendees
-            SET firstname = $1, middlename = $2, lastname = $3, eventid = $4, ticketid = $5
+            SET firstname = $1, middlename = $2, lastname = $3, eventid = $4
             WHERE id = $6
             RETURNING *
         `;
-        const values = [firstname, middlename || null, lastname, eventid, ticketid || null, id];
+        const values = [firstname, middlename || null, lastname, eventid, id];
         const result = await pool.query(query, values);
         return result.rows[0] || null;
     } catch (error) {
-        throw error;
+    console.log(error)
+    return "Internal server error"
     }
 };
 
@@ -87,18 +110,26 @@ export const updatePartial = async (id, fields) => {
         const result = await pool.query(query, values);
         return result.rows[0] || null;
     } catch (error) {
-        throw error;
+    console.log(error)
+    return "Internal server error"
     }
 };
 
 
-export const remove = async (id) => {
+export const remove = async (params) => {
   try {
+    const { id } = params;
     const query = "DELETE FROM attendees WHERE id = $1";
     const result = await pool.query(query, [id]);
+    console.log(result)
 
-    return result.rowCount > 0;
+    if (result.rowCount === 0) {
+      return "Attendee not found";
+    }else{
+      return "Attendee deleted successfully"
+    }
   } catch (error) {
-    throw error;
+    console.log(error)
+    return "Internal server error"
   }
 };
