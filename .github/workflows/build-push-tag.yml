@@ -106,8 +106,9 @@ jobs:
           for TAG in $TAGS; do
             echo "🔨 Building and pushing $TAG"
             pack build "$TAG" \
-              --builder paketobuildpacks/builder:base \
-              --env NODE_ENV=production \
-              --cache-dir ~/.cache/pack \
-              --publish
+            --builder paketobuildpacks/builder:base \
+            --env NODE_ENV=production \
+            --cache "type=build;format=volume" \
+            --publish
           done
+
