@@ -14,6 +14,7 @@ This is the sherehe backend for academia.
 - [Scripts](#scripts)
 
 
+
 ## Overview
 
 This project provides a backend API for Events in academia using Express.js and PostgreSQL.
