@@ -1,4 +1,4 @@
-name: Build, Test, and Push Sherehe Backend (Staging or Prod)
+name: Build, Test, and Push Sherehe Backend (Prod or Dev)
 
 on:
   push:
@@ -81,34 +81,35 @@ jobs:
       - name: Set Docker tags
         id: tags
         run: |
-          BRANCH=$(echo "${GITHUB_REF##*/}" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
+          BRANCH=$(echo "${GITHUB_REF##*/}" | tr '[:upper:]' '[:lower:]' | tr '/' '-')
           SHA=$(git rev-parse --short HEAD)
 
-          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
-          echo "sha=$SHA" >> $GITHUB_OUTPUT
+          if [ "$BRANCH" = "main" ]; then
+            IMAGE_TAG="prod"
+            IMAGE_BASE="${{ secrets.DOCKERHUB_USERNAME }}/sherehe-backend-prod"
+          else
+            IMAGE_TAG="dev"
+            IMAGE_BASE="${{ secrets.DOCKERHUB_USERNAME }}/sherehe-backend-staging"
+          fi
+
+          echo "image_base=$IMAGE_BASE" >> $GITHUB_OUTPUT
+          echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
+          echo "sha_tag=$SHA" >> $GITHUB_OUTPUT
 
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
       - name: Build and push Docker image with Buildpacks
         run: |
-          BRANCH=${{ steps.tags.outputs.branch }}
-          SHA=${{ steps.tags.outputs.sha }}
+          IMAGE_BASE=${{ steps.tags.outputs.image_base }}
+          IMAGE_TAG=${{ steps.tags.outputs.image_tag }}
+          SHA_TAG=${{ steps.tags.outputs.sha_tag }}
 
-          if [ "$BRANCH" = "main" ]; then
-            IMAGE_BASE=${{ secrets.DOCKERHUB_USERNAME }}/sherehe-backend-prod
-            TAGS="$IMAGE_BASE:main $IMAGE_BASE:$SHA"
-          else
-            IMAGE_BASE=${{ secrets.DOCKERHUB_USERNAME }}/sherehe-backend-staging
-            TAGS="$IMAGE_BASE:$BRANCH $IMAGE_BASE:$SHA"
-          fi
-
-          for TAG in $TAGS; do
-            echo "🔨 Building and pushing $TAG"
-            pack build "$TAG" \
-            --builder paketobuildpacks/builder:base \
-            --env NODE_ENV=production \
-            --cache "type=build;format=volume" \
-            --publish
+          for TAG in "$IMAGE_TAG" "$SHA_TAG"; do
+            echo "🔨 Building and pushing $IMAGE_BASE:$TAG"
+            pack build "$IMAGE_BASE:$TAG" \
+              --builder paketobuildpacks/builder:base \
+              --env NODE_ENV=production \
+              --cache "type=build;format=volume" \
+              --publish
           done
-
