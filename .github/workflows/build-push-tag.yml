@@ -8,6 +8,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     services:
       postgres:
@@ -60,6 +61,7 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     needs: test
+    timeout-minutes: 15
 
     steps:
       - name: Checkout code
@@ -99,8 +101,6 @@ jobs:
             IMAGE_BASE="${{ secrets.DOCKERHUB_USERNAME }}/sherehe-backend-staging"
           fi
 
-          # Combine tags for single build command.
-          # Use proper quoting for the tags themselves to handle spaces or special characters if they ever appear.
           FULL_TAGS="-t \"${IMAGE_BASE}:${IMAGE_TAG}\" -t \"${IMAGE_BASE}:${SHA}\""
 
           echo "image_base=$IMAGE_BASE" >> $GITHUB_OUTPUT
@@ -111,12 +111,9 @@ jobs:
 
       - name: Build and push Docker image with Buildpacks
         run: |
-          set -euxo pipefail # Enable robust shell options for debugging and early exit
+          set -euxo pipefail
           IMAGE_BASE="${{ steps.tags.outputs.image_base }}"
           FULL_TAGS="${{ steps.tags.outputs.full_tags }}"
+
           echo "🔨 Building and pushing $IMAGE_BASE with tags: $FULL_TAGS"
-          eval pack build "$IMAGE_BASE" $FULL_TAGS \
-            --builder paketobuildpacks/builder:base \
-            --env NODE_ENV=production \
-            --cache "type=build;format=volume" \
-            --publish
+          eval pack build "$IMAGE_BASE" $FULL_TAGS --builder paketobuildpacks/builder:base --env NODE_ENV=production --cache "type=build;format=volume" --publish
