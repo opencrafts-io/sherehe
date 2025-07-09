@@ -8,6 +8,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+
     services:
       postgres:
         image: postgres:16
@@ -19,7 +20,7 @@ jobs:
           - 5432:5432
         options: >-
           --health-cmd "pg_isready -U shereheuser -d sherehe"
-          --health-interval 5s 
+          --health-interval 5s
           --health-timeout 5s
           --health-retries 5
 
@@ -87,7 +88,8 @@ jobs:
         id: tags
         run: |
           BRANCH=$(echo "${GITHUB_REF##*/}" | tr '[:upper:]' '[:lower:]' | tr '/' '-')
-          SHA=$(git rev-parse --short HEAD)
+          SHA=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+          echo "Debug: Resolved SHA for tagging is '$SHA'"
 
           if [ "$BRANCH" = "main" ]; then
             IMAGE_TAG="prod"
@@ -97,24 +99,24 @@ jobs:
             IMAGE_BASE="${{ secrets.DOCKERHUB_USERNAME }}/sherehe-backend-staging"
           fi
 
+          # Combine tags for single build command.
+          # Use proper quoting for the tags themselves to handle spaces or special characters if they ever appear.
+          FULL_TAGS="-t \"${IMAGE_BASE}:${IMAGE_TAG}\" -t \"${IMAGE_BASE}:${SHA}\""
+
           echo "image_base=$IMAGE_BASE" >> $GITHUB_OUTPUT
-          echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
-          echo "sha_tag=$SHA" >> $GITHUB_OUTPUT
+          echo "full_tags=$FULL_TAGS" >> $GITHUB_OUTPUT
 
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
       - name: Build and push Docker image with Buildpacks
         run: |
-          IMAGE_BASE=${{ steps.tags.outputs.image_base }}
-          IMAGE_TAG=${{ steps.tags.outputs.image_tag }}
-          SHA_TAG=${{ steps.tags.outputs.sha_tag }}
-
-          for TAG in "$IMAGE_TAG" "$SHA_TAG"; do
-            echo "🔨 Building and pushing $IMAGE_BASE:$TAG"
-            pack build "$IMAGE_BASE:$TAG" \
-              --builder paketobuildpacks/builder:base \
-              --env NODE_ENV=production \
-              --cache "type=build;format=volume" \
-              --publish
-          done
+          set -euxo pipefail # Enable robust shell options for debugging and early exit
+          IMAGE_BASE="${{ steps.tags.outputs.image_base }}"
+          FULL_TAGS="${{ steps.tags.outputs.full_tags }}"
+          echo "🔨 Building and pushing $IMAGE_BASE with tags: $FULL_TAGS"
+          eval pack build "$IMAGE_BASE" $FULL_TAGS \
+            --builder paketobuildpacks/builder:base \
+            --env NODE_ENV=production \
+            --cache "type=build;format=volume" \
+            --publish
