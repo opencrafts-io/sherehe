@@ -19,7 +19,7 @@ jobs:
           - 5432:5432
         options: >-
           --health-cmd "pg_isready -U shereheuser -d sherehe"
-          --health-interval 5s # Reduced interval
+          --health-interval 5s 
           --health-timeout 5s
           --health-retries 5
     env:
