@@ -72,7 +72,7 @@ jobs:
 
       - name: Install pack CLI
         run: |
-          curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.33.0/pack-v0.33.0-linux.tgz" | tar -xz
+          curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.38.2/pack-v0.38.2-linux.tgz" | tar -xz
           sudo mv pack /usr/local/bin/pack
 
       - name: Cache CNB Layers
