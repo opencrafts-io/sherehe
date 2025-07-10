@@ -115,6 +115,7 @@ jobs:
           # This ensures the image exists locally for the explicit docker push step
           echo "🔨 Building $IMAGE_BASE:$IMAGE_TAG and $IMAGE_BASE:$SHA_TAG"
           pack build "$IMAGE_BASE:$IMAGE_TAG" \
+            --env BP_NODE_VERSION="22.*" \
             --builder paketobuildpacks/builder:base \
             --env NODE_ENV=production \
             --cache "type=build;format=volume"
