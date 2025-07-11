@@ -126,9 +126,7 @@ describe('Attendee Model', () => {
     it('should return internal error on exception', async () => {
       pool.query.mockRejectedValue(new Error('fail'));
 
-      const result = await attendeeModel.updateFull(1, {});
-
-      expect(result).toBe('Internal server error');
+      await expect(attendeeModel.updateFull(1, {})).rejects.toThrow('Internal server error');
     });
   });
 
@@ -152,9 +150,9 @@ describe('Attendee Model', () => {
     it('should return internal error on exception', async () => {
       pool.query.mockRejectedValue(new Error('fail'));
 
-      const result = await attendeeModel.updatePartial(1, { firstname: 'Updated' });
-
-      expect(result).toBe('Internal server error');
+      await expect(attendeeModel.updatePartial(1, { firstname: 'Updated' }))
+        .rejects
+        .toThrow('Internal server error');
     });
   });
 
@@ -178,9 +176,9 @@ describe('Attendee Model', () => {
     it('should return internal error on exception', async () => {
       pool.query.mockRejectedValue(new Error('error'));
 
-      const result = await attendeeModel.remove({ id: 1 });
-
-      expect(result).toBe('Internal server error');
+      await expect(attendeeModel.remove({ id: 1 }))
+        .rejects
+        .toThrow('Internal server error');
     });
   });
 });

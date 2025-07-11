@@ -81,21 +81,22 @@ export const updateTicketFull = async (req, res) => {
 export const updateTicketPartial = async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await updatePartial(id, req.body);
-    if(result === "Ticket not found"){
-      res.status(404).json({ message: "Ticket not found" });
-    }else if(result === "Internal server error"){
-      res.status(500).json({ error: "Internal server error" });
-    }else{
-      res.status(200).json({
-       result,
-      });
+    const updatedTicket = await updatePartial(id, req.body);
+
+    if (!updatedTicket) {
+      return res.status(404).json({ message: "Ticket not found" });
     }
+
+    res.status(200).json({
+      message: "Ticket partially updated successfully",
+      data: updatedTicket,
+    });
   } catch (error) {
-    console.error("Error updating ticket (partial):", error);
-    res.status(500).json({ error: "Error updating ticket" });
+    console.error("Controller error updating ticket:", error);
+    res.status(500).json({ message: "Error updating ticket" });
   }
 };
+
 
 export const deleteTicket = async (req, res) => {
   try {
