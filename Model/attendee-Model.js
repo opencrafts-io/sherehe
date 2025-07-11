@@ -66,7 +66,7 @@ export const updateFull = async (id, { firstname, middlename, lastname, eventid 
         const query = `
             UPDATE attendees
             SET firstname = $1, middlename = $2, lastname = $3, eventid = $4
-            WHERE id = $6
+            WHERE id = $5
             RETURNING *
         `;
         const values = [firstname, middlename || null, lastname, eventid, id];
@@ -74,7 +74,7 @@ export const updateFull = async (id, { firstname, middlename, lastname, eventid 
         return result.rows[0] || null;
     } catch (error) {
     console.log(error)
-    return "Internal server error"
+    throw new Error("Internal server error");   
     }
 };
 
@@ -111,7 +111,7 @@ export const updatePartial = async (id, fields) => {
         return result.rows[0] || null;
     } catch (error) {
     console.log(error)
-    return "Internal server error"
+    throw new Error("Internal server error");
     }
 };
 
@@ -130,6 +130,7 @@ export const remove = async (params) => {
     }
   } catch (error) {
     console.log(error)
-    return "Internal server error"
+    throw new Error("Internal server error");
+
   }
 };

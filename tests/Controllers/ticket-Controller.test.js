@@ -147,11 +147,14 @@ describe('Ticket Controller', () => {
       await updateTicketPartial(req, res);
 
       expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({ result: patched });
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Ticket partially updated successfully',
+        data: patched,
+    });
     });
 
     it('should return 404 if ticket not found', async () => {
-      jest.spyOn(ticketModel, 'updatePartial').mockResolvedValue('Ticket not found');
+      jest.spyOn(ticketModel, 'updatePartial').mockResolvedValue(null);
 
       await updateTicketPartial(req, res);
 
@@ -160,12 +163,12 @@ describe('Ticket Controller', () => {
     });
 
     it('should return 500 on internal error', async () => {
-      jest.spyOn(ticketModel, 'updatePartial').mockResolvedValue('Internal server error');
+      jest.spyOn(ticketModel, 'updatePartial').mockRejectedValue(new Error('DB failure'));
 
       await updateTicketPartial(req, res);
 
       expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(res.json).toHaveBeenCalledWith({ message: "Error updating ticket" });
     });
   });
 
