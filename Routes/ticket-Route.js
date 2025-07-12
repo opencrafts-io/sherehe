@@ -6,7 +6,7 @@ const router = Router();
 
 router.post("/", createTicket);
 router.get("/attendee/:id", paginate ,getAllTicketsByAttendeeId);
-router.get("/:id", getTicketByEventId);
+router.get("/:id", paginate ,getTicketByEventId);
 router.put("/:id", updateTicketFull);
 router.patch("/:id", updateTicketPartial);
 router.delete("/delete/:id", deleteTicket);

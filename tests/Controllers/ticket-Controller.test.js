@@ -50,6 +50,22 @@ describe('Ticket Controller', () => {
   });
 
   describe('getAllTicketsByAttendeeId', () => {
+    beforeEach(() => {
+      req = {
+        params: { id: 1 },
+        pagination: {
+          page: 1,
+          limit: 10,
+          offset: 0,
+          limitPlusOne: 11
+        }
+      };
+      res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn()
+      };
+    });
+
     it('should return 200 with ticket list', async () => {
       const tickets = [{ id: 1 }];
       jest.spyOn(ticketModel, 'selectAllByAttendeeId').mockResolvedValue(tickets);
@@ -57,7 +73,12 @@ describe('Ticket Controller', () => {
       await getAllTicketsByAttendeeId(req, res);
 
       expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({ result: tickets });
+      expect(res.json).toHaveBeenCalledWith({
+        currentPage: 1,
+        nextPage: null,
+        previousPage: null,
+        data: tickets
+      });
     });
 
     it('should return 404 if no tickets found', async () => {
@@ -70,16 +91,34 @@ describe('Ticket Controller', () => {
     });
 
     it('should return 500 on server error', async () => {
-      jest.spyOn(ticketModel, 'selectAllByAttendeeId').mockResolvedValue('Internal server error');
+      jest
+        .spyOn(ticketModel, 'selectAllByAttendeeId')
+        .mockRejectedValue(new Error('Internal server error'));
 
       await getAllTicketsByAttendeeId(req, res);
 
       expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(res.json).toHaveBeenCalledWith({ message: 'Error fetching tickets' });
     });
   });
 
   describe('getTicketByEventId', () => {
+    beforeEach(() => {
+      req = {
+        params: { id: 1 },
+        pagination: {
+          page: 1,
+          limit: 10,
+          offset: 0,
+          limitPlusOne: 11
+        }
+      };
+      res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn()
+      };
+    });
+
     it('should return 200 with ticket info', async () => {
       const ticket = { id: 1 };
       jest.spyOn(ticketModel, 'selectByEventId').mockResolvedValue(ticket);
@@ -87,7 +126,12 @@ describe('Ticket Controller', () => {
       await getTicketByEventId(req, res);
 
       expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({ result: ticket });
+      expect(res.json).toHaveBeenCalledWith({
+        currentPage: 1,
+        nextPage: null,
+        previousPage: null,
+        data: ticket
+      });
     });
 
     it('should return 404 if ticket not found', async () => {
@@ -100,12 +144,14 @@ describe('Ticket Controller', () => {
     });
 
     it('should return 500 on internal server error', async () => {
-      jest.spyOn(ticketModel, 'selectByEventId').mockResolvedValue('Internal server error');
+      jest
+        .spyOn(ticketModel, 'selectByEventId')
+        .mockRejectedValue(new Error('DB error'));
 
       await getTicketByEventId(req, res);
 
       expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(res.json).toHaveBeenCalledWith({ message: 'Error fetching tickets' });
     });
   });
 

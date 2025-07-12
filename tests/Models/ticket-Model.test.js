@@ -74,8 +74,9 @@ describe('ticketModel', () => {
     it('should return internal error on DB failure', async () => {
       pool.query.mockRejectedValue(new Error());
 
-      const result = await ticketModel.selectAllByAttendeeId({ id: 1 });
-      expect(result).toBe('Internal server error');
+      await expect(
+        ticketModel.selectAllByAttendeeId({ id: 1, limitPlusOne: 11, offset: 0 })
+      ).rejects.toThrow('Internal server error');
     });
   });
 
@@ -98,8 +99,9 @@ describe('ticketModel', () => {
     it('should return internal error on DB failure', async () => {
       pool.query.mockRejectedValue(new Error());
 
-      const result = await ticketModel.selectByEventId({ id: 1 });
-      expect(result).toBe('Internal server error');
+      await expect(
+        ticketModel.selectByEventId({ id: 1, limitPlusOne: 11, offset: 0 })
+      ).rejects.toThrow('Internal server error');
     });
   });
 

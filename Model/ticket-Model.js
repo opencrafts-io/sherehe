@@ -54,15 +54,19 @@ export const selectAllByAttendeeId = async (params) => {
 
 export const selectByEventId = async (params) => {
   try {
-    const { id } = params;
-    const result = await pool.query("SELECT * FROM tickets WHERE eventid = $1", [id]);
+    const { id, limitPlusOne, offset } = params;
+    const query = "SELECT * FROM tickets WHERE eventid = $1 ORDER BY createdat DESC LIMIT $2 OFFSET $3";
+    const values = [id, limitPlusOne, offset];
+
+    const result = await pool.query(query, values);
     if (result.rows.length === 0) {
       return "Ticket not found";
     } else {
       return result.rows
     }
   } catch (error) {
-    return "Internal server error"
+    console.error("Error in selectByEventId:", error);
+    throw new Error("Internal server error");
   }
 };
 

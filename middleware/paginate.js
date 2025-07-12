@@ -1,8 +1,8 @@
 export const paginate = (req, res, next) => {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
+  const page = req.query.page !== undefined ? parseInt(req.query.page) : 1;
+  const limit = req.query.limit !== undefined ? parseInt(req.query.limit) : 10;
 
-  if (page < 1 || limit < 1) {
+  if (isNaN(page) || isNaN(limit) || page < 1 || limit < 1) {
     return res.status(400).json({ message: 'Page and limit must be positive integers.' });
   }
 

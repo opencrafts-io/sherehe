@@ -68,9 +68,9 @@ describe('Attendee Model', () => {
     it('should return internal error on failure', async () => {
       pool.query.mockRejectedValue(new Error('Error'));
 
-      const result = await attendeeModel.selectAll({ id: 1 });
-
-      expect(result).toBe('Internal server error');
+      await expect(
+        attendeeModel.selectAll({ id: 1, limitPlusOne: 11, offset: 0 })
+      ).rejects.toThrow('Internal server error');
     });
   });
 
