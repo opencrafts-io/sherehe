@@ -23,39 +23,54 @@ export const createTicket = async (req, res) => {
 
 export const getAllTicketsByAttendeeId = async (req, res) => {
   try {
-    const result = await selectAllByAttendeeId(req.params);
+    const { limit, page } = req.pagination;
+
+     const result = await selectAllByAttendeeId({ ...req.params, ...req.pagination });
+
     console.log(result)
     if(result === "No tickets found"){
-      res.status(404).json({ message: "No tickets found" });
-    }else if(result === "Internal server error"){
-      res.status(500).json({ error: "Internal server error" });
-    }else{
-      res.status(200).json({
-       result,
-      });
+      return res.status(404).json({ message: "No tickets found" });
     }
+
+    const hasNextPage = result.length > limit;
+    const tickets = hasNextPage ? result.slice(0, limit) : result;
+
+    res.status(200).json({
+      currentPage: page,
+      nextPage: hasNextPage ? page + 1 : null,
+      previousPage: page > 1 ? page - 1 : null,
+      data: tickets,
+    });
   } catch (error) {
     console.error("Error fetching tickets:", error);
-    res.status(500).json({ error: "Error fetching tickets" });
+    res.status(500).json({ message: "Error fetching tickets" });
   }
 };
 
 export const getTicketByEventId = async (req, res) => {
   try {
+    const { limit, page } = req.pagination;
     const { id } = req.params;
-    const result = await selectByEventId(req.params);
+
+    const result = await selectByEventId({ ...req.params, ...req.pagination });
+
     if(result === "Ticket not found"){
       res.status(404).json({ message: "Ticket not found" });
-    }else if(result === "Internal server error"){
-      res.status(500).json({ error: "Internal server error" });
-    }else{
-      res.status(200).json({
-       result,
-      });
     }
+    
+    const hasNextPage = result.length > limit;
+    const tickets = hasNextPage ? result.slice(0, limit) : result;
+
+    res.status(200).json({
+      currentPage: page,
+      nextPage: hasNextPage ? page + 1 : null,
+      previousPage: page > 1 ? page - 1 : null,
+      data: tickets
+    });
+    
   } catch (error) {
     console.error("Error fetching ticket:", error);
-    res.status(500).json({ error: "Error fetching ticket" });
+    res.status(500).json({ message: "Error fetching tickets" });
   }
 };
 

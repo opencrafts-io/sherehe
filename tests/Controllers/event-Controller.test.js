@@ -39,6 +39,22 @@ describe('Event Controller', () => {
   });
 
   describe('getAllEvents', () => {
+    beforeEach(() => {
+      req = {
+        query: {},
+        pagination: {
+          page: 1,
+          limit: 10,
+          offset: 0,
+          limitPlusOne: 11,
+        },
+      };
+      res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
+    });
+
     it('should return 200 with events', async () => {
       const fakeEvents = [{ id: 1 }];
       jest.spyOn(eventModel, 'selectAll').mockResolvedValue(fakeEvents);
@@ -46,17 +62,23 @@ describe('Event Controller', () => {
       await getAllEvents(req, res);
 
       expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({ result: fakeEvents });
+      expect(res.json).toHaveBeenCalledWith({
+        currentPage: 1,
+        nextPage: null,
+        previousPage: null,
+        data: fakeEvents
+      });
     });
 
     it('should return 500 on fetch error', async () => {
-      jest.spyOn(eventModel, 'selectAll').mockResolvedValue('Error fetching events');
+      jest.spyOn(eventModel, 'selectAll').mockRejectedValue(new Error('Internal server error'));
 
       await getAllEvents(req, res);
 
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({ message: 'Error fetching events' });
     });
+
   });
 
   describe('getEventById', () => {

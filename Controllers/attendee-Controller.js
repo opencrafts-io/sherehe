@@ -20,16 +20,25 @@ export const createAttendee = async (req, res) => {
 
 export const getAllAttendeesByEventId = async (req, res) => {
   try {
-    const result = await selectAll(req.params);
+    const { limit, page } = req.pagination;
+
+    const result = await selectAll({ ...req.params, ...req.pagination });
+
+
     if(result === "No attendees found"){
-      res.status(404).json({ message: "No attendees found" });
-    }else if(result === "Internal server error"){
-      res.status(500).json({ error: "Internal server error" });
-    }else{
-      res.status(200).json({
-       result,
-      });
+      return res.status(404).json({ message: "No attendees found" });
     }
+
+    const hasNextPage = result.length > limit;
+    const attendees = hasNextPage ? result.slice(0, limit) : result;
+
+    res.status(200).json({
+      currentPage: page,
+      nextPage: hasNextPage ? page + 1 : null,
+      previousPage: page > 1 ? page - 1 : null,
+      data: attendees
+    });
+    
   } catch (error) {
     console.error("Controller error fetching attendees:", error);
     res.status(500).json({ message: "Error fetching attendees" });
