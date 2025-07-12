@@ -16,12 +16,23 @@ export const createEvent = async (req, res) => {
 
 export const getAllEvents = async (req, res) => {
   try {
-    const result = await selectAll();
-    if(result === "Error fetching events"){
-      res.status(500).json({ message: "Error fetching events" });
-    }else{
-      res.status(200).json({result});
+    const { limit, page } = req.pagination;
+
+    const result = await selectAll(req.pagination);
+
+    if (result === "No events found") {
+      return res.status(404).json({ message: "No events found" });
     }
+
+    const hasNextPage = result.length > limit;
+    const events = hasNextPage ? result.slice(0, limit) : result;
+
+    res.status(200).json({
+      currentPage: page,
+      nextPage: hasNextPage ? page + 1 : null,
+      previousPage: page > 1 ? page - 1 : null,
+      data: events
+    });
   } catch (error) {
     console.log(error)
     res.status(500).json({ message: "Error fetching events" });

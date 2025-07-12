@@ -34,30 +34,39 @@ export const insert = async (params) => {
 
 export const selectAllByAttendeeId = async (params) => {
   try {
-    const { id } = params;
-    const result = await pool.query("SELECT * FROM tickets WHERE attendeeid = $1", [id]);
+    const { id, limitPlusOne, offset } = params;
+
+    const query = "SELECT * FROM tickets WHERE attendeeid = $1 ORDER BY createdat DESC LIMIT $2 OFFSET $3";
+
+    const values = [id, limitPlusOne, offset];
+    const result = await pool.query(query, values);
     if (result.rows.length === 0) {
       return "No tickets found"
     } else {
       return result.rows
     }
   } catch (error) {
-    return "Internal server error"
+    console.error(error);
+    throw new Error("Internal server error");
   }
 };
 
 
 export const selectByEventId = async (params) => {
   try {
-    const { id } = params;
-    const result = await pool.query("SELECT * FROM tickets WHERE eventid = $1", [id]);
+    const { id, limitPlusOne, offset } = params;
+    const query = "SELECT * FROM tickets WHERE eventid = $1 ORDER BY createdat DESC LIMIT $2 OFFSET $3";
+    const values = [id, limitPlusOne, offset];
+
+    const result = await pool.query(query, values);
     if (result.rows.length === 0) {
       return "Ticket not found";
     } else {
       return result.rows
     }
   } catch (error) {
-    return "Internal server error"
+    console.error("Error in selectByEventId:", error);
+    throw new Error("Internal server error");
   }
 };
 
@@ -81,10 +90,8 @@ export const updateFull = async (id, { attendeeid, eventid, paymentcode }) => {
   }
 };
 
-export const updatePartial = async (params) => {
-  const { id, fields } = params;
-
-  if (!fields || typeof fields !== "object") {
+export const updatePartial = async (id, fields) => {
+  if (!fields || typeof fields !== 'object') {
     throw new Error("No fields provided or invalid update data.");
   }
 
@@ -100,18 +107,24 @@ export const updatePartial = async (params) => {
     }
 
     if (columns.length === 0) {
-      throw new Error("No fields to update.");
+      throw new Error("No fields provided for update.");
     }
 
-    const query = `UPDATE tickets SET ${columns.join(", ")} WHERE id = $${index} RETURNING * `;
+    const query = `
+      UPDATE tickets SET ${columns.join(", ")} WHERE id = $${index} RETURNING *
+    `;
+
     values.push(id);
 
     const result = await pool.query(query, values);
     return result.rows[0] || null;
+
   } catch (error) {
-    return "Internal server error"
+    console.error("updatePartial error:", error);
+    throw new Error("Internal server error");
   }
 };
+
 
 export const remove = async (params) => {
   try {

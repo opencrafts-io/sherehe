@@ -52,23 +52,28 @@ describe('eventModel', () => {
       const fakeRows = [{ id: 1 }, { id: 2 }];
       pool.query.mockResolvedValue({ rows: fakeRows });
 
-      const result = await eventModel.selectAll();
+      const result = await eventModel.selectAll({
+        limitPlusOne: 11,
+        offset: 0
+    });
       expect(result).toEqual(fakeRows);
     });
 
     it('should return "No events found" if no rows', async () => {
       pool.query.mockResolvedValue({ rows: [] });
 
-      const result = await eventModel.selectAll();
+      const result = await eventModel.selectAll({ limitPlusOne: 11, offset: 0 });
       expect(result).toBe('No events found');
     });
 
     it('should return internal error on DB failure', async () => {
       pool.query.mockRejectedValue(new Error());
 
-      const result = await eventModel.selectAll();
-      expect(result).toBe('Internal server error');
+      await expect(eventModel.selectAll({ limitPlusOne: 11, offset: 0 }))
+        .rejects
+        .toThrow('Internal server error');
     });
+
   });
 
   describe('selectById', () => {

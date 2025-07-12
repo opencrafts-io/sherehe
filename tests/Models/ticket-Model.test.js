@@ -74,8 +74,9 @@ describe('ticketModel', () => {
     it('should return internal error on DB failure', async () => {
       pool.query.mockRejectedValue(new Error());
 
-      const result = await ticketModel.selectAllByAttendeeId({ id: 1 });
-      expect(result).toBe('Internal server error');
+      await expect(
+        ticketModel.selectAllByAttendeeId({ id: 1, limitPlusOne: 11, offset: 0 })
+      ).rejects.toThrow('Internal server error');
     });
   });
 
@@ -98,8 +99,9 @@ describe('ticketModel', () => {
     it('should return internal error on DB failure', async () => {
       pool.query.mockRejectedValue(new Error());
 
-      const result = await ticketModel.selectByEventId({ id: 1 });
-      expect(result).toBe('Internal server error');
+      await expect(
+        ticketModel.selectByEventId({ id: 1, limitPlusOne: 11, offset: 0 })
+      ).rejects.toThrow('Internal server error');
     });
   });
 
@@ -131,7 +133,7 @@ describe('ticketModel', () => {
       const updatedRow = { id: 1, paymentcode: 'newcode' };
       pool.query.mockResolvedValue({ rows: [updatedRow] });
 
-      const result = await ticketModel.updatePartial({ id: 1, fields: { paymentcode: 'newcode' } });
+      const result = await ticketModel.updatePartial( 1, { paymentcode: 'newcode' });
       expect(result).toEqual(updatedRow);
       expect(pool.query).toHaveBeenCalledWith(
         expect.stringContaining('UPDATE tickets SET paymentcode = $1 WHERE id = $2 RETURNING *'),
@@ -142,15 +144,16 @@ describe('ticketModel', () => {
     it('should return null if no row updated', async () => {
       pool.query.mockResolvedValue({ rows: [] });
 
-      const result = await ticketModel.updatePartial({ id: 1, fields: { paymentcode: 'newcode' } });
+      const result = await ticketModel.updatePartial(1, { paymentcode: 'newcode' });
       expect(result).toBeNull();
     });
 
     it('should return internal error on DB failure', async () => {
       pool.query.mockRejectedValue(new Error());
 
-      const result = await ticketModel.updatePartial({ id: 1, fields: { paymentcode: 'newcode' } });
-      expect(result).toBe('Internal server error');
+      await expect(ticketModel.updatePartial(1, { paymentcode: 'newcode' }))
+        .rejects
+        .toThrow('Internal server error');
     });
 
     it('should throw error if fields param missing or invalid', async () => {

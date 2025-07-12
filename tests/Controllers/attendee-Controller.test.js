@@ -55,6 +55,23 @@ describe('Attendee Controller', () => {
   });
 
   describe('getAllAttendeesByEventId', () => {
+    beforeEach(() => {
+      req = {
+        params: { id: 1 },
+        pagination: {
+          page: 1,
+          limit: 10,
+          offset: 0,
+          limitPlusOne: 11
+        }
+      };
+
+      res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn()
+      };
+    });
+
     it('should return 200 with attendees', async () => {
       const attendees = [{ id: 1 }];
       jest.spyOn(attendeeModel, 'selectAll').mockResolvedValue(attendees);
@@ -62,7 +79,12 @@ describe('Attendee Controller', () => {
       await getAllAttendeesByEventId(req, res);
 
       expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({ result: attendees });
+      expect(res.json).toHaveBeenCalledWith({
+        currentPage: 1,
+        nextPage: null,
+        previousPage: null,
+        data: attendees
+      });
     });
 
     it('should return 404 if no attendees found', async () => {
@@ -75,12 +97,12 @@ describe('Attendee Controller', () => {
     });
 
     it('should return 500 on internal server error', async () => {
-      jest.spyOn(attendeeModel, 'selectAll').mockResolvedValue('Internal server error');
+      jest.spyOn(attendeeModel, 'selectAll').mockRejectedValue(new Error('Internal server error'));
 
       await getAllAttendeesByEventId(req, res);
 
       expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(res.json).toHaveBeenCalledWith({ message: 'Error fetching attendees' });
     });
   });
 

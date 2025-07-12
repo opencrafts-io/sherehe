@@ -17,17 +17,21 @@ export const insert = async (params) => {
   }
 };
 
-export const selectAll = async () => {
+export const selectAll = async (params) => {
   try {
-    const query = "SELECT * FROM events";
-    const result = await pool.query(query);
+    const { limitPlusOne, offset } = params;
+
+    const query = "SELECT * FROM events ORDER BY createdat DESC LIMIT $1 OFFSET $2";
+    const values = [limitPlusOne, offset];
+    const result = await pool.query(query, values);
     if(result.rows.length === 0){
       return "No events found"
     }else{
       return result.rows
     }
   } catch (error) {
-    return "Internal server error"
+    console.error(error);
+    throw new Error ("Internal server error");
   }
 };
 
