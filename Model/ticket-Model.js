@@ -6,12 +6,12 @@ export const insert = async (params) => {
 
     const checkEvent = await pool.query("SELECT * FROM events WHERE id = $1", [eventid]);
     if (checkEvent.rows.length === 0) {
-      return "Wrong Event ID"
-    } else {
-      const checkAttendee = await pool.query("SELECT * FROM attendees WHERE id = $1", [attendeeid]);
-      if (checkAttendee.rows.length === 0) {
-        return "Wrong Attendee ID"
-      }
+      throw new Error("Wrong Event ID");
+    }
+
+    const checkAttendee = await pool.query("SELECT * FROM attendees WHERE id = $1", [attendeeid]);
+    if (checkAttendee.rows.length === 0) {
+      throw new Error("Wrong Attendee ID"); 
     }
 
     const query = `
@@ -21,43 +21,47 @@ export const insert = async (params) => {
     `;
     const values = [attendeeid, eventid, paymentcode];
     const result = await pool.query(query, values);
+
     if (result.rowCount === 0) {
-      return "Error creating ticket"
+      throw new Error("Error creating ticket");
     } else {
-      return "Ticket created successfully"
+      return "Ticket created successfully";
     }
   } catch (error) {
-    console.log(error)
-    return "Internal server error"
+    throw error;
   }
 };
 
 export const selectAllByAttendeeId = async (params) => {
   try {
-    const { id } = params;
-    const result = await pool.query("SELECT * FROM tickets WHERE attendeeid = $1", [id]);
+    const { id, limitPlusOne, offset } = params;
+    const query = "SELECT * FROM tickets WHERE attendeeid = $1 ORDER BY createdat DESC LIMIT $2 OFFSET $3";
+    const values = [id, limitPlusOne, offset];
+    const result = await pool.query(query, values);
     if (result.rows.length === 0) {
-      return "No tickets found"
+      throw new Error("No tickets found");
     } else {
-      return result.rows
+      return result.rows;
     }
   } catch (error) {
-    return "Internal server error"
+    throw error;
   }
 };
 
-
 export const selectByEventId = async (params) => {
   try {
-    const { id } = params;
-    const result = await pool.query("SELECT * FROM tickets WHERE eventid = $1", [id]);
+    const { id, limitPlusOne, offset } = params;
+    const query = "SELECT * FROM tickets WHERE eventid = $1 ORDER BY createdat DESC LIMIT $2 OFFSET $3";
+    const values = [id, limitPlusOne, offset];
+    const result = await pool.query(query, values);
+
     if (result.rows.length === 0) {
-      return "Ticket not found";
+      throw new Error("Ticket not found");
     } else {
-      return result.rows
+      return result.rows;
     }
   } catch (error) {
-    return "Internal server error"
+    throw error;
   }
 };
 
@@ -71,23 +75,20 @@ export const updateFull = async (id, { attendeeid, eventid, paymentcode }) => {
     `;
     const values = [attendeeid, eventid, paymentcode, id];
     const result = await pool.query(query, values);
-    if (result.rowCount === 0) {
-      return "Ticket not found"
+    if (result.rows.length === 0) {
+      throw new Error("Ticket not found");
     } else {
-      return "Ticket updated successfully"
+      return result.rows[0];
     }
   } catch (error) {
-    return "Internal server error"
+    throw error;
   }
 };
 
-export const updatePartial = async (params) => {
-  const { id, fields } = params;
-
-  if (!fields || typeof fields !== "object") {
+export const updatePartial = async (id, fields) => {
+  if (!fields || typeof fields !== 'object' || Object.keys(fields).length === 0) {
     throw new Error("No fields provided or invalid update data.");
   }
-
   try {
     const columns = [];
     const values = [];
@@ -99,30 +100,38 @@ export const updatePartial = async (params) => {
       index++;
     }
 
-    if (columns.length === 0) {
-      throw new Error("No fields to update.");
-    }
+    const query = `
+      UPDATE tickets
+      SET ${columns.join(", ")}
+      WHERE id = $${index}
+      RETURNING *
+    `;
 
-    const query = `UPDATE tickets SET ${columns.join(", ")} WHERE id = $${index} RETURNING * `;
     values.push(id);
 
     const result = await pool.query(query, values);
-    return result.rows[0] || null;
+    if (result.rows.length === 0) {
+      throw new Error("Ticket not found");
+    } else {
+      return result.rows[0];
+    }
   } catch (error) {
-    return "Internal server error"
+    throw error;
   }
 };
 
 export const remove = async (params) => {
   try {
-    const { id } = params
-    const result = await pool.query("DELETE FROM tickets WHERE id = $1", [id]);
+    const { id } = params;
+    const query = "DELETE FROM tickets WHERE id = $1";
+    const result = await pool.query(query, [id]);
+
     if (result.rowCount === 0) {
-      return "Ticket not found"
+      throw new Error("Ticket not found");
     } else {
-      return "Ticket deleted successfully"
+      return "Ticket deleted successfully";
     }
   } catch (error) {
-    return "Internal server error"
+    throw error;
   }
 };

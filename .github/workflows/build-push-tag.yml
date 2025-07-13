@@ -117,7 +117,6 @@ jobs:
           pack build "$IMAGE_BASE:$IMAGE_TAG" \
             --buildpack paketo-buildpacks/nodejs \
             --builder paketobuildpacks/builder-jammy-base \
-            --env NODE_ENV=production \
             --cache "type=build;format=volume"
           
           # Tag the SHA version explicitly for consistent pushing
