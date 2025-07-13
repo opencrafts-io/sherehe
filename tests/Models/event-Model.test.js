@@ -11,152 +11,131 @@ describe('eventModel', () => {
   });
 
   describe('insert', () => {
-    it('should return success message on successful insert', async () => {
-      pool.query.mockResolvedValue({ rowCount: 1, rows: [{}] });
+    it('should return "Event created successfully" on successful insert', async () => {
+      pool.query.mockResolvedValueOnce({ rowCount: 1, rows: [{ id: 1, name: 'Test Event', date: '2025-12-25', location: 'Test Loc' }] });
 
-      const params = {
-        name: 'Event 1',
-        description: 'Desc',
-        url: 'http://example.com',
-        location: 'Loc',
-        time: '12:00',
-        date: '2025-07-05',
-        organizer: 'Org',
-        imageurl: 'http://image.com/img.png',
-        numberofattendees: 100,
-        organizerid: 1,
-      };
-
-      const result = await eventModel.insert(params);
+      const result = await eventModel.insert({ name: 'Test Event', date: '2025-12-25', location: 'Test Loc' });
       expect(result).toBe('Event created successfully');
-      expect(pool.query).toHaveBeenCalledWith(expect.any(String), expect.any(Array));
     });
 
-    it('should return error message if no rows inserted', async () => {
-      pool.query.mockResolvedValue({ rowCount: 0 });
+    it('should throw "Error creating event" if no rows inserted', async () => {
+      pool.query.mockResolvedValueOnce({ rowCount: 0 });
 
-      const result = await eventModel.insert({});
-      expect(result).toBe('Error creating event');
+      await expect(eventModel.insert({ name: 'Test Event', date: '2025-12-25', location: 'Test Loc' }))
+        .rejects
+        .toThrow('Error creating event');
     });
 
-    it('should return internal error on DB failure', async () => {
-      pool.query.mockRejectedValue(new Error('DB failure'));
+    it('should throw internal error on DB failure', async () => {
+      pool.query.mockRejectedValue(new Error('DB insert failure'));
 
-      const result = await eventModel.insert({});
-      expect(result).toBe('Internal server error');
+      await expect(eventModel.insert({ name: 'Test Event', date: '2025-12-25', location: 'Test Loc' }))
+        .rejects
+        .toThrow('DB insert failure');
     });
   });
 
   describe('selectAll', () => {
-    it('should return events array when found', async () => {
-      const fakeRows = [{ id: 1 }, { id: 2 }];
-      pool.query.mockResolvedValue({ rows: fakeRows });
-
-      const result = await eventModel.selectAll({
-        limitPlusOne: 11,
-        offset: 0
-    });
-      expect(result).toEqual(fakeRows);
-    });
-
-    it('should return "No events found" if no rows', async () => {
-      pool.query.mockResolvedValue({ rows: [] });
+    it('should return events when found', async () => {
+      const fakeEvents = [{ id: 1, name: 'Event 1' }, { id: 2, name: 'Event 2' }];
+      pool.query.mockResolvedValueOnce({ rows: fakeEvents });
 
       const result = await eventModel.selectAll({ limitPlusOne: 11, offset: 0 });
-      expect(result).toBe('No events found');
+      expect(result).toEqual(fakeEvents);
     });
 
-    it('should return internal error on DB failure', async () => {
-      pool.query.mockRejectedValue(new Error());
+    it('should throw "No events found" if none found', async () => {
+      pool.query.mockResolvedValueOnce({ rows: [] });
 
       await expect(eventModel.selectAll({ limitPlusOne: 11, offset: 0 }))
         .rejects
-        .toThrow('Internal server error');
+        .toThrow('No events found');
     });
 
+    it('should throw internal error on DB failure', async () => {
+      pool.query.mockRejectedValue(new Error('DB selectAll failure'));
+
+      await expect(eventModel.selectAll({ limitPlusOne: 11, offset: 0 }))
+        .rejects
+        .toThrow('DB selectAll failure');
+    });
   });
 
   describe('selectById', () => {
-    it('should return event rows if found', async () => {
-      const fakeRows = [{ id: 1 }];
-      pool.query.mockResolvedValue({ rows: fakeRows });
+    it('should return an event when found', async () => {
+      const fakeEvent = { id: 1, name: 'Specific Event' };
+      pool.query.mockResolvedValueOnce({ rows: [fakeEvent] });
 
       const result = await eventModel.selectById({ id: 1 });
-      expect(result).toEqual(fakeRows);
+      expect(result).toEqual(fakeEvent);
     });
 
-    it('should return "Event not found" if no rows', async () => {
-      pool.query.mockResolvedValue({ rows: [] });
+    it('should throw "Event not found" if no event found', async () => {
+      pool.query.mockResolvedValueOnce({ rows: [] });
 
-      const result = await eventModel.selectById({ id: 999 });
-      expect(result).toBe('Event not found');
+      await expect(eventModel.selectById({ id: 999 }))
+        .rejects
+        .toThrow('Event not found');
     });
 
-    it('should return internal error on DB failure', async () => {
-      pool.query.mockRejectedValue(new Error());
+    it('should throw internal error on DB failure', async () => {
+      pool.query.mockRejectedValue(new Error('DB selectById failure'));
 
-      const result = await eventModel.selectById({ id: 1 });
-      expect(result).toBe('Internal server error');
+      await expect(eventModel.selectById({ id: 1 }))
+        .rejects
+        .toThrow('DB selectById failure');
     });
   });
 
-  describe('update', () => {
-    it('should return success message if row updated', async () => {
-      pool.query.mockResolvedValue({ rowCount: 1 });
+describe('update', () => {
+    it('should return the updated event object on successful update', async () => {
+      const updatedEvent = { id: 1, name: 'Updated Event', date: '2025-12-26', location: 'New Loc' };
+      pool.query.mockResolvedValueOnce({ rowCount: 1, rows: [updatedEvent] });
 
-      const params = {
-        id: 1,
-        name: 'Updated',
-        description: 'Desc',
-        url: 'http://url.com',
-        location: 'Loc',
-        time: '13:00',
-        date: '2025-07-06',
-        organizer: 'Org',
-        imageurl: 'http://img.com',
-        numberofattendees: 50,
-        organizerid: 2,
-      };
-
-      const result = await eventModel.update(params);
-      expect(result).toBe('Event updated successfully');
+      const result = await eventModel.update(1, { name: 'Updated Event', date: '2025-12-26', location: 'New Loc' });
+      expect(result).toEqual(updatedEvent);
     });
 
-    it('should return "Event not found" if no row updated', async () => {
-      pool.query.mockResolvedValue({ rowCount: 0 });
+    it('should throw "Event not found" if no row updated', async () => {
+      // Ensure 'rows' is an empty array when 'rowCount' is 0
+      pool.query.mockResolvedValueOnce({ rowCount: 0, rows: [] });
 
-      const result = await eventModel.update({ id: 999 });
-      expect(result).toBe('Event not found');
+      await expect(eventModel.update(999, { name: 'Updated Event', date: '2025-12-26', location: 'New Loc' }))
+        .rejects
+        .toThrow('Event not found');
     });
 
-    it('should return internal error on DB failure', async () => {
-      pool.query.mockRejectedValue(new Error());
+    it('should throw internal error on DB failure', async () => {
+      pool.query.mockRejectedValue(new Error('DB update failure'));
 
-      const result = await eventModel.update({ id: 1 });
-      expect(result).toBe('Internal server error');
+      await expect(eventModel.update(1, { name: 'Updated Event', date: '2025-12-26', location: 'New Loc' }))
+        .rejects
+        .toThrow('DB update failure');
     });
   });
 
   describe('remove', () => {
-    it('should return success message if row deleted', async () => {
-      pool.query.mockResolvedValue({ rowCount: 1 });
+    it('should return "Event deleted successfully" on successful deletion', async () => {
+      pool.query.mockResolvedValueOnce({ rowCount: 1 });
 
       const result = await eventModel.remove({ id: 1 });
       expect(result).toBe('Event deleted successfully');
     });
 
-    it('should return "Event not found" if no row deleted', async () => {
-      pool.query.mockResolvedValue({ rowCount: 0 });
+    it('should throw "Event not found" if no row deleted', async () => {
+      pool.query.mockResolvedValueOnce({ rowCount: 0 });
 
-      const result = await eventModel.remove({ id: 999 });
-      expect(result).toBe('Event not found');
+      await expect(eventModel.remove({ id: 999 }))
+        .rejects
+        .toThrow('Event not found');
     });
 
-    it('should return internal error on DB failure', async () => {
-      pool.query.mockRejectedValue(new Error());
+    it('should throw internal error on DB failure', async () => {
+      pool.query.mockRejectedValue(new Error('DB remove failure'));
 
-      const result = await eventModel.remove({ id: 1 });
-      expect(result).toBe('Internal server error');
+      await expect(eventModel.remove({ id: 1 }))
+        .rejects
+        .toThrow('DB remove failure');
     });
   });
 });
