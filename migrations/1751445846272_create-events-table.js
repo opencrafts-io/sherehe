@@ -22,6 +22,11 @@ export const up = (pgm) => {
     imageurl: { type: "varchar", notNull: true },
     numberofattendees: { type: "integer", notNull: true },
     organizerid: { type: "integer", notNull: true },
+    createdat: {
+      type: "timestamp",
+      notNull: true,
+      default: pgm.func("TIMEZONE('UTC', CURRENT_TIMESTAMP)")
+    },
   });
 }
 
