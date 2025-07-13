@@ -97,7 +97,6 @@ describe('update', () => {
     });
 
     it('should throw "Event not found" if no row updated', async () => {
-      // Ensure 'rows' is an empty array when 'rowCount' is 0
       pool.query.mockResolvedValueOnce({ rowCount: 0, rows: [] });
 
       await expect(eventModel.update(999, { name: 'Updated Event', date: '2025-12-26', location: 'New Loc' }))

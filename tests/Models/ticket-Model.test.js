@@ -145,7 +145,7 @@ describe('ticketModel', () => {
       const result = await ticketModel.updatePartial(1, { paymentcode: 'newcode' });
       expect(result).toEqual(updatedRow);
       expect(pool.query).toHaveBeenCalledWith(
-        // Corrected regex to target 'tickets' table
+
         expect.stringMatching(/UPDATE tickets\s+SET\s+paymentcode\s+=\s+\$1\s+WHERE\s+id\s+=\s+\$2\s+RETURNING\s+\*/),
         ['newcode', 1]
       );

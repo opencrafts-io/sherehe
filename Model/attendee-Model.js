@@ -1,4 +1,4 @@
-// Model/attendee-Model.js
+
 import pool from "../db.js";
 
 export const insert = async (params) => {
@@ -24,7 +24,6 @@ export const insert = async (params) => {
 export const selectAll = async (params) => {
   try {
     const { id, limitPlusOne, offset } = params;
-    // Assuming 'id' here is eventid for selecting all attendees for a specific event
     const query = "SELECT * FROM attendees WHERE eventid = $1 ORDER BY createdat DESC LIMIT $2 OFFSET $3";
     const values = [id, limitPlusOne, offset];
     const result = await pool.query(query, values);
@@ -47,7 +46,7 @@ export const selectById = async (params) => {
     if (result.rows.length === 0) {
       throw new Error("Attendee not found");
     } else {
-      return result.rows[0]; // Assuming selectById returns a single object
+      return result.rows[0];
     }
   } catch (error) {
     throw error;

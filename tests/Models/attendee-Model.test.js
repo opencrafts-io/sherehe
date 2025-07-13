@@ -1,5 +1,5 @@
-// tests/Models/attendee-Model.test.js
-import * as attendeeModel from '../../Model/attendee-Model.js'; // Corrected import
+
+import * as attendeeModel from '../../Model/attendee-Model.js'; 
 import pool from '../../db.js';
 
 jest.mock('../../db.js', () => ({
@@ -41,7 +41,7 @@ describe('Attendee Model', () => {
       const fakeAttendees = [{ id: 1, firstname: 'Jane' }, { id: 2, firstname: 'Bob' }];
       pool.query.mockResolvedValueOnce({ rows: fakeAttendees });
 
-      const result = await attendeeModel.selectAll({ id: 1, limitPlusOne: 11, offset: 0 }); // Assuming id is eventId
+      const result = await attendeeModel.selectAll({ id: 1, limitPlusOne: 11, offset: 0 }); 
       expect(result).toEqual(fakeAttendees);
     });
 
@@ -68,7 +68,7 @@ describe('Attendee Model', () => {
       pool.query.mockResolvedValueOnce({ rows: [fakeAttendee] });
 
       const result = await attendeeModel.selectById({ id: 1 });
-      expect(result).toEqual(fakeAttendee); // selectById returns a single object
+      expect(result).toEqual(fakeAttendee);
     });
 
     it('should throw "Attendee not found" if no rows', async () => {

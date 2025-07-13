@@ -11,7 +11,7 @@ export const insert = async (params) => {
 
     const checkAttendee = await pool.query("SELECT * FROM attendees WHERE id = $1", [attendeeid]);
     if (checkAttendee.rows.length === 0) {
-      throw new Error("Wrong Attendee ID"); // FIXED: Removed extra 'new'
+      throw new Error("Wrong Attendee ID"); 
     }
 
     const query = `
