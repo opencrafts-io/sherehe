@@ -29,7 +29,7 @@ This project provides a backend API for Events in academia using Express.js and 
 
 ## Tech Stack
 
-- **Runtime:** Node.js
+- **Runtime:** Node.js.
 - **Framework:** Express.js
 - **Database:** PostgreSQL
 - **Env Handling:** dotenv
