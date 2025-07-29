@@ -1,4 +1,5 @@
-import * as attendeeModel from '../../Model/attendee-Model.js';
+
+import * as attendeeModel from '../../Model/attendee-Model.js'; 
 import pool from '../../db.js';
 
 jest.mock('../../db.js', () => ({
@@ -6,181 +7,171 @@ jest.mock('../../db.js', () => ({
 }));
 
 describe('Attendee Model', () => {
-
   afterEach(() => {
     jest.clearAllMocks();
   });
 
   describe('insert', () => {
-    it('should return success if row is inserted', async () => {
-      pool.query.mockResolvedValue({ rowCount: 1 });
+    it('should return "Attendee created successfully" on successful insert', async () => {
+      pool.query.mockResolvedValueOnce({ rowCount: 1, rows: [{ id: 1, firstname: 'John', lastname: 'Doe', eventid: 1 }] });
 
-      const result = await attendeeModel.insert({
-        firstname: 'John',
-        middlename: 'K',
-        lastname: 'Doe',
-        eventid: 1
-      });
-
+      const result = await attendeeModel.insert({ firstname: 'John', lastname: 'Doe', eventid: 1 });
       expect(result).toBe('Attendee created successfully');
     });
 
-    it('should return error if no row inserted', async () => {
-      pool.query.mockResolvedValue({ rowCount: 0 });
+    it('should throw "Error creating attendee" if no row inserted', async () => {
+      pool.query.mockResolvedValueOnce({ rowCount: 0 });
 
-      const result = await attendeeModel.insert({
-        firstname: 'John',
-        middlename: '',
-        lastname: 'Doe',
-        eventid: 1
-      });
-
-      expect(result).toBe('Error creating attendee');
+      await expect(attendeeModel.insert({ firstname: 'John', lastname: 'Doe', eventid: 1 }))
+        .rejects
+        .toThrow('Error creating attendee');
     });
 
-    it('should return internal server error on exception', async () => {
-      pool.query.mockRejectedValue(new Error('DB error'));
+    it('should throw DB insert error on exception', async () => {
+      pool.query.mockRejectedValue(new Error('DB insert error'));
 
-      const result = await attendeeModel.insert({});
-
-      expect(result).toBe('Internal server error');
+      await expect(attendeeModel.insert({ firstname: 'John', lastname: 'Doe', eventid: 1 }))
+        .rejects
+        .toThrow('DB insert error');
     });
   });
 
   describe('selectAll', () => {
-    it('should return attendees if found', async () => {
-      const rows = [{ id: 1 }];
-      pool.query.mockResolvedValue({ rows });
+    it('should return attendees when found', async () => {
+      const fakeAttendees = [{ id: 1, firstname: 'Jane' }, { id: 2, firstname: 'Bob' }];
+      pool.query.mockResolvedValueOnce({ rows: fakeAttendees });
 
-      const result = await attendeeModel.selectAll({ id: 1 });
-
-      expect(result).toEqual(rows);
+      const result = await attendeeModel.selectAll({ id: 1, limitPlusOne: 11, offset: 0 }); 
+      expect(result).toEqual(fakeAttendees);
     });
 
-    it('should return not found if no attendees', async () => {
-      pool.query.mockResolvedValue({ rows: [] });
+    it('should throw "No attendees found" if none found', async () => {
+      pool.query.mockResolvedValueOnce({ rows: [] });
 
-      const result = await attendeeModel.selectAll({ id: 1 });
-
-      expect(result).toBe('No attendees found');
+      await expect(attendeeModel.selectAll({ id: 1, limitPlusOne: 11, offset: 0 }))
+        .rejects
+        .toThrow('No attendees found');
     });
 
-    it('should return internal error on failure', async () => {
-      pool.query.mockRejectedValue(new Error('Error'));
+    it('should throw DB selectAll error on exception', async () => {
+      pool.query.mockRejectedValue(new Error('DB selectAll error'));
 
-      const result = await attendeeModel.selectAll({ id: 1 });
-
-      expect(result).toBe('Internal server error');
+      await expect(attendeeModel.selectAll({ id: 1, limitPlusOne: 11, offset: 0 }))
+        .rejects
+        .toThrow('DB selectAll error');
     });
   });
 
   describe('selectById', () => {
     it('should return attendee if found', async () => {
-      const rows = [{ id: 1 }];
-      pool.query.mockResolvedValue({ rows });
+      const fakeAttendee = { id: 1, firstname: 'Jane' };
+      pool.query.mockResolvedValueOnce({ rows: [fakeAttendee] });
 
       const result = await attendeeModel.selectById({ id: 1 });
-
-      expect(result).toEqual(rows);
+      expect(result).toEqual(fakeAttendee);
     });
 
-    it('should return not found if no rows', async () => {
-      pool.query.mockResolvedValue({ rows: [] });
+    it('should throw "Attendee not found" if no rows', async () => {
+      pool.query.mockResolvedValueOnce({ rows: [] });
 
-      const result = await attendeeModel.selectById({ id: 1 });
-
-      expect(result).toBe('Attendee not found');
+      await expect(attendeeModel.selectById({ id: 999 }))
+        .rejects
+        .toThrow('Attendee not found');
     });
 
-    it('should return internal server error on exception', async () => {
-      pool.query.mockRejectedValue(new Error('error'));
+    it('should throw DB selectById error on exception', async () => {
+      pool.query.mockRejectedValue(new Error('DB selectById error'));
 
-      const result = await attendeeModel.selectById({ id: 1 });
-
-      expect(result).toBe('Internal server error');
+      await expect(attendeeModel.selectById({ id: 1 }))
+        .rejects
+        .toThrow('DB selectById error');
     });
   });
 
   describe('updateFull', () => {
-    it('should return updated attendee', async () => {
-      pool.query.mockResolvedValue({ rows: [{ id: 1 }] });
+    it('should return updated attendee if successful', async () => {
+      const updatedAttendee = { id: 1, firstname: 'Jane', lastname: 'Smith', eventid: 1 };
+      pool.query.mockResolvedValueOnce({ rowCount: 1, rows: [updatedAttendee] });
 
-      const result = await attendeeModel.updateFull(1, {
-        firstname: 'Jane',
-        middlename: 'M',
-        lastname: 'Doe',
-        eventid: 2,
-      });
-
-      expect(result).toEqual({ id: 1 });
+      const result = await attendeeModel.updateFull(1, { firstname: 'Jane', middlename: null, lastname: 'Smith', eventid: 1 });
+      expect(result).toEqual(updatedAttendee);
     });
 
-    it('should return null if no rows', async () => {
-      pool.query.mockResolvedValue({ rows: [] });
+    it('should throw "Attendee not found" if no rows', async () => {
+      pool.query.mockResolvedValueOnce({ rowCount: 0, rows: [] });
 
-      const result = await attendeeModel.updateFull(1, {});
-
-      expect(result).toBeNull();
+      await expect(attendeeModel.updateFull(999, { firstname: 'Jane', middlename: null, lastname: 'Smith', eventid: 1 }))
+        .rejects
+        .toThrow('Attendee not found');
     });
 
-    it('should return internal error on exception', async () => {
-      pool.query.mockRejectedValue(new Error('fail'));
+    it('should throw DB updateFull error on exception', async () => {
+      pool.query.mockRejectedValue(new Error('DB updateFull error'));
 
-      const result = await attendeeModel.updateFull(1, {});
-
-      expect(result).toBe('Internal server error');
+      await expect(attendeeModel.updateFull(1, { firstname: 'Jane', middlename: null, lastname: 'Smith', eventid: 1 }))
+        .rejects
+        .toThrow('DB updateFull error');
     });
   });
 
   describe('updatePartial', () => {
-    it('should return updated attendee on valid fields', async () => {
-      pool.query.mockResolvedValue({ rows: [{ id: 1, firstname: 'Updated' }] });
+    it('should return updated attendee if successful', async () => {
+      const updatedAttendee = { id: 1, firstname: 'Jane', eventid: 1 };
+      pool.query.mockResolvedValueOnce({ rows: [updatedAttendee] });
 
-      const result = await attendeeModel.updatePartial(1, { firstname: 'Updated' });
-
-      expect(result).toEqual({ id: 1, firstname: 'Updated' });
+      const result = await attendeeModel.updatePartial(1, { firstname: 'Jane' });
+      expect(result).toEqual(updatedAttendee);
+      expect(pool.query).toHaveBeenCalledWith(
+        expect.stringMatching(/UPDATE attendees\s+SET\s+firstname\s+=\s+\$1\s+WHERE\s+id\s+=\s+\$2\s+RETURNING\s+\*/),
+        ['Jane', 1]
+      );
     });
 
-    it('should return null if no row found', async () => {
-      pool.query.mockResolvedValue({ rows: [] });
+    it('should throw "Attendee not found" if no row updated', async () => {
+      pool.query.mockResolvedValueOnce({ rows: [] });
 
-      const result = await attendeeModel.updatePartial(1, { firstname: 'Updated' });
-
-      expect(result).toBeNull();
+      await expect(attendeeModel.updatePartial(1, { firstname: 'Jane' }))
+        .rejects
+        .toThrow('Attendee not found');
     });
 
-    it('should return internal error on exception', async () => {
-      pool.query.mockRejectedValue(new Error('fail'));
+    it('should throw DB updatePartial error on exception', async () => {
+      pool.query.mockRejectedValue(new Error('DB updatePartial error'));
 
-      const result = await attendeeModel.updatePartial(1, { firstname: 'Updated' });
+      await expect(attendeeModel.updatePartial(1, { firstname: 'Jane' }))
+        .rejects
+        .toThrow('DB updatePartial error');
+    });
 
-      expect(result).toBe('Internal server error');
+    it('should throw error if fields param missing or invalid', async () => {
+      await expect(attendeeModel.updatePartial(1, undefined)).rejects.toThrow('No fields provided or invalid update data.');
+      await expect(attendeeModel.updatePartial(1, null)).rejects.toThrow('No fields provided or invalid update data.');
+      await expect(attendeeModel.updatePartial(1, {})).rejects.toThrow('No fields provided or invalid update data.');
     });
   });
 
   describe('remove', () => {
-    it('should return success if attendee deleted', async () => {
-      pool.query.mockResolvedValue({ rowCount: 1 });
+    it('should return "Attendee deleted successfully" if successful', async () => {
+      pool.query.mockResolvedValueOnce({ rowCount: 1 });
 
       const result = await attendeeModel.remove({ id: 1 });
-
       expect(result).toBe('Attendee deleted successfully');
     });
 
-    it('should return not found if no deletion', async () => {
-      pool.query.mockResolvedValue({ rowCount: 0 });
+    it('should throw "Attendee not found" if no deletion', async () => {
+      pool.query.mockResolvedValueOnce({ rowCount: 0 });
 
-      const result = await attendeeModel.remove({ id: 1 });
-
-      expect(result).toBe('Attendee not found');
+      await expect(attendeeModel.remove({ id: 999 }))
+        .rejects
+        .toThrow('Attendee not found');
     });
 
-    it('should return internal error on exception', async () => {
-      pool.query.mockRejectedValue(new Error('error'));
+    it('should throw DB remove error on exception', async () => {
+      pool.query.mockRejectedValue(new Error('DB remove error'));
 
-      const result = await attendeeModel.remove({ id: 1 });
-
-      expect(result).toBe('Internal server error');
+      await expect(attendeeModel.remove({ id: 1 }))
+        .rejects
+        .toThrow('DB remove error');
     });
   });
 });
