@@ -3,13 +3,13 @@ import pool from "../db.js";
 
 export const insert = async (params) => {
   try {
-    const { firstname, middlename, lastname, eventid } = params;
+    const { first_name, middle_name, last_name, event_id } = params;
     const query = `
-        INSERT INTO attendees (firstname, middlename, lastname, eventid)
+        INSERT INTO attendees (first_name, middle_name, last_name, event_id)
         VALUES ($1, $2, $3, $4)
         RETURNING *
     `;
-    const values = [firstname, middlename || null, lastname, eventid];
+    const values = [first_name, middle_name || null, last_name, event_id];
     const result = await pool.query(query, values);
     if (result.rowCount === 0) {
       throw new Error("Error creating attendee");
@@ -24,7 +24,7 @@ export const insert = async (params) => {
 export const selectAll = async (params) => {
   try {
     const { id, limitPlusOne, offset } = params;
-    const query = "SELECT * FROM attendees WHERE eventid = $1 ORDER BY createdat DESC LIMIT $2 OFFSET $3";
+    const query = "SELECT * FROM attendees WHERE event_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3";
     const values = [id, limitPlusOne, offset];
     const result = await pool.query(query, values);
     if (result.rows.length === 0) {
@@ -53,15 +53,15 @@ export const selectById = async (params) => {
   }
 };
 
-export const updateFull = async (id, { firstname, middlename, lastname, eventid }) => {
+export const updateFull = async (id, { first_name, middle_name, last_name, event_id }) => {
   try {
     const query = `
             UPDATE attendees
-            SET firstname = $1, middlename = $2, lastname = $3, eventid = $4
+            SET first_name = $1, middle_name = $2, last_name = $3, event_id = $4
             WHERE id = $5
             RETURNING *
         `;
-    const values = [firstname, middlename || null, lastname, eventid, id];
+    const values = [first_name, middle_name || null, last_name, event_id, id];
     const result = await pool.query(query, values);
     if (result.rows.length === 0) {
       throw new Error("Attendee not found");

@@ -2,24 +2,24 @@ import pool from "../db.js";
 
 export const insert = async (params) => {
   try {
-    const { attendeeid, eventid, paymentcode } = params;
+    const { attendee_id, event_id, payment_code } = params;
 
-    const checkEvent = await pool.query("SELECT * FROM events WHERE id = $1", [eventid]);
+    const checkEvent = await pool.query("SELECT * FROM events WHERE id = $1", [event_id]);
     if (checkEvent.rows.length === 0) {
       throw new Error("Wrong Event ID");
     }
 
-    const checkAttendee = await pool.query("SELECT * FROM attendees WHERE id = $1", [attendeeid]);
+    const checkAttendee = await pool.query("SELECT * FROM attendees WHERE id = $1", [attendee_id]);
     if (checkAttendee.rows.length === 0) {
       throw new Error("Wrong Attendee ID"); 
     }
 
     const query = `
-      INSERT INTO tickets (attendeeid, eventid, paymentcode)
+      INSERT INTO tickets (attendee_id, event_id, payment_code)
       VALUES ($1, $2, $3)
       RETURNING *
     `;
-    const values = [attendeeid, eventid, paymentcode];
+    const values = [attendee_id, event_id, payment_code];
     const result = await pool.query(query, values);
 
     if (result.rowCount === 0) {
@@ -35,7 +35,7 @@ export const insert = async (params) => {
 export const selectAllByAttendeeId = async (params) => {
   try {
     const { id, limitPlusOne, offset } = params;
-    const query = "SELECT * FROM tickets WHERE attendeeid = $1 ORDER BY createdat DESC LIMIT $2 OFFSET $3";
+    const query = "SELECT * FROM tickets WHERE attendee_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3";
     const values = [id, limitPlusOne, offset];
     const result = await pool.query(query, values);
     if (result.rows.length === 0) {
@@ -51,7 +51,7 @@ export const selectAllByAttendeeId = async (params) => {
 export const selectByEventId = async (params) => {
   try {
     const { id, limitPlusOne, offset } = params;
-    const query = "SELECT * FROM tickets WHERE eventid = $1 ORDER BY createdat DESC LIMIT $2 OFFSET $3";
+    const query = "SELECT * FROM tickets WHERE event_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3";
     const values = [id, limitPlusOne, offset];
     const result = await pool.query(query, values);
 
@@ -69,7 +69,7 @@ export const updateFull = async (id, { attendeeid, eventid, paymentcode }) => {
   try {
     const query = `
       UPDATE tickets
-      SET attendeeid = $1, eventid = $2, paymentcode = $3
+      SET attendee_id = $1, event_id = $2, payment_code = $3
       WHERE id = $4
       RETURNING *
     `;

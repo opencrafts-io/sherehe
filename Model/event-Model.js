@@ -2,13 +2,13 @@ import pool from "../db.js";
 
 export const insert = async (params) => {
   try {
-    const { name, description, url , time , imageurl , date, location , organizer , numberofattendees , organizerid, genre  } = params;
+    const { name, description, url , time , image_url , date, location , organizer , number_of_attendees , organizer_id, genre  } = params;
     const query = `
-      INSERT INTO events (name, date, location , description, url , time , imageurl , organizer , numberofattendees , organizerid, genre)
+      INSERT INTO events (name, date, location , description, url , time , image_url , organizer , number_of_attendees , organizer_id, genre)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
       RETURNING *
     `;
-    const values = [name, date, location , description, url , time , imageurl , organizer , numberofattendees , organizerid, genre]; ;
+    const values = [name, date, location , description, url , time , image_url , organizer , number_of_attendees , organizer_id, genre]; ;
     const result = await pool.query(query, values);
     if (result.rowCount === 0) {
       throw new Error("Error creating event");
@@ -23,7 +23,7 @@ export const insert = async (params) => {
 export const selectAll = async (params) => {
   try {
     const { limitPlusOne, offset } = params;
-    const query = "SELECT * FROM events ORDER BY createdat DESC LIMIT $1 OFFSET $2";
+    const query = "SELECT * FROM events ORDER BY created_at DESC LIMIT $1 OFFSET $2";
     const values = [limitPlusOne, offset];
     const result = await pool.query(query, values);
     if (result.rows.length === 0) {

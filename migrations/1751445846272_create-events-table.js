@@ -22,7 +22,6 @@ export const up = (pgm) => {
     imageurl: { type: "varchar", notNull: true },
     numberofattendees: { type: "integer", notNull: true },
     organizerid: { type: "integer", notNull: true },
-    genre: { type: "text[]", notNull: true },
     createdat: {
       type: "timestamp",
       notNull: true,
