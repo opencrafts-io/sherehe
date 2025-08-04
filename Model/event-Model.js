@@ -27,9 +27,16 @@ export const selectAll = async (params) => {
     const values = [limitPlusOne, offset];
     const result = await pool.query(query, values);
     if (result.rows.length === 0) {
-      throw new Error("No events found");
+      throw new Error("No events found"); 
     } else {
-      return result.rows;
+      // Convert `id` and `organization_id` to strings here
+      const formattedRows = result.rows.map(row => ({
+        ...row,
+        id: row.id?.toString() ?? null,
+        organizer_id: row.organizer_id?.toString() ?? null,
+      }));
+
+      return formattedRows;
     }
   } catch (error) {
     throw error;
@@ -45,7 +52,16 @@ export const selectById = async (params) => {
     if (result.rows.length === 0) {
       throw new Error("Event not found");
     } else {
-      return result.rows[0];
+      const row = result.rows[0];
+
+      // Convert id and organization_id to strings
+      const formattedRow = {
+        ...row,
+        id: row.id?.toString() ?? null,
+        organizer_id: row.organizer_id?.toString() ?? null,
+      };
+
+      return formattedRow;
     }
   } catch (error) {
     throw error;

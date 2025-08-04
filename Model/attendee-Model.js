@@ -30,7 +30,14 @@ export const selectAll = async (params) => {
     if (result.rows.length === 0) {
       throw new Error("No attendees found");
     } else {
-      return result.rows;
+      //converted id to be of type string
+      const formattedRows = result.rows.map(row => ({
+        ...row,
+        id: row.id?.toString() ?? null,
+        event_id: row.event_id?.toString() ?? null,
+      }));
+
+      return formattedRows;
     }
   } catch (error) {
     throw error;
