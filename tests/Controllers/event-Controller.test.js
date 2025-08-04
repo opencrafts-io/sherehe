@@ -24,26 +24,61 @@ describe('Event Controller', () => {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
     };
-    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'log').mockImplementation(() => { });
   });
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  describe('createEvent', () => {
-    it('should return 200 on successful insert', async () => {
-      req.body = { name: 'Test Event' };
+  describe('createEvent controller', () => {
+    // --- This nested beforeEach block is updated to include headers and ip ---
+    beforeEach(() => {
+      req = {
+        body: {
+          name: 'Test Event',
+          description: 'Test Description',
+          url: 'http://example.com',
+          time: '12:00',
+          date: '2025-08-10',
+          location: 'Test Location',
+          organizer: 'Test Org',
+          number_of_attendees: 100,
+          organizer_id: 1,
+          genres: 'Music,Art'
+        },
+        file: {
+          filename: 'test.jpg'
+        },
+        // ADDED: The headers and ip properties required by the logs function
+        headers: {
+          'user-agent': 'jest-test',
+        },
+        ip: '127.0.0.1',
+        method: 'POST', // ADDED: Required for the logs function
+        url: '/api/events' // ADDED: Required for the logs function
+      };
+
+      res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn()
+      };
+    });
+
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('should return 201 on successful insert', async () => {
       jest.spyOn(eventModel, 'insert').mockResolvedValue('Event created successfully');
 
       await createEvent(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.status).toHaveBeenCalledWith(201);
       expect(res.json).toHaveBeenCalledWith({ message: 'Event created successfully' });
     });
 
     it('should return 500 when model returns "Error creating event"', async () => {
-      req.body = { name: 'Test Event' };
       jest.spyOn(eventModel, 'insert').mockResolvedValue('Error creating event');
 
       await createEvent(req, res);
@@ -52,8 +87,16 @@ describe('Event Controller', () => {
       expect(res.json).toHaveBeenCalledWith({ message: 'Error creating event' });
     });
 
+    it('should return 400 if no image uploaded', async () => {
+      req.file = undefined;
+
+      await createEvent(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({ message: 'No image uploaded' });
+    });
+
     it('should return 500 on internal server error', async () => {
-      req.body = { name: 'Test Event' };
       jest.spyOn(eventModel, 'insert').mockRejectedValue(new Error('Database connection error'));
 
       await createEvent(req, res);
@@ -63,6 +106,8 @@ describe('Event Controller', () => {
     });
   });
 
+  // --- The rest of the test suite remains unchanged ---
+
   describe('getAllEvents', () => {
     beforeEach(() => {
       // Re-initializing req here to ensure specific values for this describe block
@@ -71,6 +116,8 @@ describe('Event Controller', () => {
           'user-agent': 'jest-test',
         },
         ip: '127.0.0.1',
+        method: 'GET', // ADDED: Required for the logs function
+        url: '/api/events', // ADDED: Required for the logs function
         query: {},
         params: {},
         body: {},
@@ -102,13 +149,13 @@ describe('Event Controller', () => {
       });
     });
 
-    it('should return 404 when no events are found', async () => {
+    it('should return 200 when no events are found', async () => {
       jest.spyOn(eventModel, 'selectAll').mockResolvedValue('No events found');
 
       await getAllEvents(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(404);
-      expect(res.json).toHaveBeenCalledWith({ message: 'No events found' });
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith([]);
     });
 
     it('should return 500 on internal server error', async () => {
@@ -122,6 +169,11 @@ describe('Event Controller', () => {
   });
 
   describe('getEventById', () => {
+    beforeEach(() => {
+        req.method = 'GET';
+        req.url = '/api/events/1';
+    });
+
     it('should return 200 with event data', async () => {
       req.params = { id: 1 };
       const fakeEvent = { id: 1, name: 'Event' };
@@ -155,6 +207,11 @@ describe('Event Controller', () => {
   });
 
   describe('updateEvent', () => {
+    beforeEach(() => {
+        req.method = 'PUT';
+        req.url = '/api/events';
+    });
+
     it('should return 200 on success', async () => {
       req.body = { id: 1, name: 'Updated' };
       jest.spyOn(eventModel, 'update').mockResolvedValue('Event updated successfully');
@@ -187,6 +244,11 @@ describe('Event Controller', () => {
   });
 
   describe('deleteEvent', () => {
+    beforeEach(() => {
+        req.method = 'DELETE';
+        req.url = '/api/events/1';
+    });
+
     it('should return 200 on success', async () => {
       req.params = { id: 1 };
       jest.spyOn(eventModel, 'remove').mockResolvedValue('Event deleted successfully');

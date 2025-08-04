@@ -14,6 +14,7 @@ export const insert = async (params) => {
     if (result.rowCount === 0) {
       throw new Error("Error creating attendee");
     } else {
+      const updateNumberofAttendee = await pool.query("UPDATE events SET number_of_attendees = number_of_attendees + 1 WHERE id = $1", [event_id]);
       return "Attendee created successfully";
     }
   } catch (error) {
@@ -117,6 +118,7 @@ export const remove = async (params) => {
     if (result.rowCount === 0) {
       throw new Error("Attendee not found");
     } else {
+      const reducenumberofAttendee = await pool.query("UPDATE events SET number_of_attendees = number_of_attendees - 1 WHERE id = (SELECT event_id FROM attendees WHERE id = $1)", [id]);
       return "Attendee deleted successfully";
     }
   } catch (error) {

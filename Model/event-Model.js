@@ -1,14 +1,14 @@
 import pool from "../db.js";
 
-export const insert = async (params) => {
+export const insert = async (name, description, url , time , image_url , date, location , organizer   , organizer_id, genre ) => {
   try {
-    const { name, description, url , time , image_url , date, location , organizer , number_of_attendees , organizer_id, genre  } = params;
+    const number_of_attendees = 0
     const query = `
-      INSERT INTO events (name, date, location , description, url , time , image_url , organizer , number_of_attendees , organizer_id, genre)
+      INSERT INTO events (name, date, location , description, url , time , image_url , organizer , number_of_attendees  , organizer_id, genre)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
       RETURNING *
     `;
-    const values = [name, date, location , description, url , time , image_url , organizer , number_of_attendees , organizer_id, genre]; ;
+    const values = [name, date, location , description, url , time , image_url , organizer , number_of_attendees  , organizer_id, genre]; ;
     const result = await pool.query(query, values);
     if (result.rowCount === 0) {
       throw new Error("Error creating event");

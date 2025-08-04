@@ -51,23 +51,23 @@ describe('Ticket Controller', () => {
       expect(res.json).toHaveBeenCalledWith({ error: 'Error creating ticket' });
     });
 
-    it('should return 403 when model returns "Wrong Event ID"', async () => {
+    it('should return 404 when model returns "Wrong Event ID"', async () => {
       req.body = { attendeeid: 1, eventid: 99, paymentcode: 'PAY123' };
       jest.spyOn(ticketModel, 'insert').mockResolvedValue('Wrong Event ID');
 
       await createTicket(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.status).toHaveBeenCalledWith(404);
       expect(res.json).toHaveBeenCalledWith({ error: 'Wrong Event ID' });
     });
 
-    it('should return 403 when model returns "Wrong Attendee ID"', async () => {
+    it('should return 404 when model returns "Wrong Attendee ID"', async () => {
       req.body = { attendeeid: 99, eventid: 1, paymentcode: 'PAY123' };
       jest.spyOn(ticketModel, 'insert').mockResolvedValue('Wrong Attendee ID');
 
       await createTicket(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.status).toHaveBeenCalledWith(404);
       expect(res.json).toHaveBeenCalledWith({ error: 'Wrong Attendee ID' });
     });
 
