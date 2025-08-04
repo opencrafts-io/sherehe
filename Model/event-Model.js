@@ -2,7 +2,7 @@ import pool from "../db.js";
 
 export const insert = async (name, description, url , time , image_url , date, location , organizer   , organizer_id, genre ) => {
   try {
-    const number_of_attendees = 0
+    const number_of_attendees = 1;
     const query = `
       INSERT INTO events (name, date, location , description, url , time , image_url , organizer , number_of_attendees  , organizer_id, genre)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)

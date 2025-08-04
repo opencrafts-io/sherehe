@@ -1,4 +1,4 @@
-import { insert , selectAll , selectById , update , remove } from "../Model/event-Model.js";
+import { insert, selectAll, selectById, update, remove } from "../Model/event-Model.js";
 import dotenv from "dotenv";
 import { logs } from "../utils/logs.js";
 
@@ -11,27 +11,26 @@ export const createEvent = async (req, res) => {
   let msg;
 
   try {
-    const {name, description, url , time  , date, location , organizer  , organizer_id, genres} = req.body;
+    const { name, description, url, time, date, location, organizer, organizer_id, genre } = req.body;
+
     if (!req.file) {
-  msg = "No image uploaded";
-  level = "ERR";
-  return res.status(400).json({ message: 'No image uploaded' });
-}
+      msg = "No image uploaded";
+      level = "ERR";
+      return res.status(400).json({ message: 'No image uploaded' });
+    }
 
 
-    const image_url = `http://localhost:${process.env.PORT}/uploads/${req.file.filename}`;
-    console.log(image_url);
+    const image_url = `${process.env.BASE_URL}/${req.file.filename}`;
 
-    const genre = genres.split(",");
-    const result = await insert(name, description, url , time , image_url , date, location , organizer  , organizer_id, genre);
-    if(result === "Error creating event"){
+    const result = await insert(name, description, url, time, image_url, date, location, organizer, organizer_id, genre);
+    if (result === "Error creating event") {
       msg = "Error creating event from model";
       level = "ERR";
-     return res.status(500).json({ message: "Error creating event" });
-    }else if(result === "Event created successfully"){
+      return res.status(500).json({ message: "Error creating event" });
+    } else if (result === "Event created successfully") {
       msg = "Event created successfully";
       level = "INF";
-     return res.status(201).json({ message: msg });
+      return res.status(201).json({ message: msg });
     }
   } catch (error) {
     msg = `Controller error creating event: ${error.message}`;
@@ -89,11 +88,11 @@ export const getEventById = async (req, res) => {
 
   try {
     const result = await selectById(req.params);
-    if(result === "Error fetching event"){
+    if (result === "Error fetching event") {
       msg = "Error fetching event from model";
       level = "ERR";
       res.status(500).json({ message: "Error fetching event" });
-    }else{
+    } else {
       msg = "Event fetched successfully by ID";
       level = "INF";
       res.status(200).json({ result });
@@ -116,11 +115,11 @@ export const updateEvent = async (req, res) => {
 
   try {
     const result = await update(req.body);
-    if(result === "Error updating event"){
+    if (result === "Error updating event") {
       msg = "Error updating event from model";
       level = "ERR";
       res.status(500).json({ message: "Error updating event" });
-    }else{
+    } else {
       msg = "Event updated successfully";
       level = "INF";
       res.status(200).json({ message: msg });
@@ -143,11 +142,11 @@ export const deleteEvent = async (req, res) => {
 
   try {
     const result = await remove(req.params);
-    if(result === "Error deleting event"){
+    if (result === "Error deleting event") {
       msg = "Error deleting event from model";
       level = "ERR";
       res.status(500).json({ message: "Error deleting event" });
-    }else{
+    } else {
       msg = "Event deleted successfully";
       level = "INF";
       res.status(200).json({ message: msg });
