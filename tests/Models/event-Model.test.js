@@ -37,12 +37,23 @@ describe('eventModel', () => {
 
   describe('selectAll', () => {
     it('should return events when found', async () => {
-      const fakeEvents = [{ id: 1, name: 'Event 1' }, { id: 2, name: 'Event 2' }];
+      const fakeEvents = [
+        { id: 1, name: 'Event 1', organizer_id: 10 },
+        { id: 2, name: 'Event 2', organizer_id: 20 },
+      ];
+
       pool.query.mockResolvedValueOnce({ rows: fakeEvents });
 
+      const expected = fakeEvents.map(event => ({
+        ...event,
+        id: event.id.toString(),
+        organizer_id: event.organizer_id.toString(),
+      }));
+
       const result = await eventModel.selectAll({ limitPlusOne: 11, offset: 0 });
-      expect(result).toEqual(fakeEvents);
+      expect(result).toEqual(expected);
     });
+
 
     it('should throw "No events found" if none found', async () => {
       pool.query.mockResolvedValueOnce({ rows: [] });
@@ -51,6 +62,7 @@ describe('eventModel', () => {
         .rejects
         .toThrow('No events found');
     });
+
 
     it('should throw internal error on DB failure', async () => {
       pool.query.mockRejectedValue(new Error('DB selectAll failure'));
@@ -63,12 +75,24 @@ describe('eventModel', () => {
 
   describe('selectById', () => {
     it('should return an event when found', async () => {
-      const fakeEvent = { id: 1, name: 'Specific Event' };
+      const fakeEvent = {
+        id: 1,
+        name: 'Specific Event',
+        organizer_id: 55, // include this if your real event has it
+      };
+
       pool.query.mockResolvedValueOnce({ rows: [fakeEvent] });
 
+      const expected = {
+        ...fakeEvent,
+        id: fakeEvent.id.toString(),
+        organizer_id: fakeEvent.organizer_id?.toString() ?? null,
+      };
+
       const result = await eventModel.selectById({ id: 1 });
-      expect(result).toEqual(fakeEvent);
-    });
+      expect(result).toEqual(expected);
+});
+
 
     it('should throw "Event not found" if no event found', async () => {
       pool.query.mockResolvedValueOnce({ rows: [] });

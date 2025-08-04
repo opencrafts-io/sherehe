@@ -38,12 +38,19 @@ describe('Attendee Model', () => {
 
   describe('selectAll', () => {
     it('should return attendees when found', async () => {
-      const fakeAttendees = [{ id: 1, firstname: 'Jane' }, { id: 2, firstname: 'Bob' }];
+      const fakeAttendees = [{ id: 1, event_id: 99, firstname: 'Jane' }, { id: 2, event_id: 99, firstname: 'Bob' }];
       pool.query.mockResolvedValueOnce({ rows: fakeAttendees });
 
-      const result = await attendeeModel.selectAll({ id: 1, limitPlusOne: 11, offset: 0 }); 
-      expect(result).toEqual(fakeAttendees);
-    });
+      const expected = fakeAttendees.map(row => ({
+        ...row,
+        id: row.id.toString(),
+        event_id: row.event_id.toString(),
+      }));
+
+  const result = await attendeeModel.selectAll({ id: 1, limitPlusOne: 11, offset: 0 });
+  expect(result).toEqual(expected);
+});
+
 
     it('should throw "No attendees found" if none found', async () => {
       pool.query.mockResolvedValueOnce({ rows: [] });
