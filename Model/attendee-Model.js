@@ -119,15 +119,14 @@ export const updatePartial = async (id, fields) => {
 export const remove = async (params) => {
   try {
     const { id } = params;
-    const query = "DELETE FROM attendees WHERE id = $1";
-    const result = await pool.query(query, [id]);
 
-    if (result.rowCount === 0) {
+    const eventIdResult = await pool.query("SELECT event_id FROM attendees WHERE id = $1", [id]);
+
+    if (eventIdResult.rowCount === 0) {
       throw new Error("Attendee not found");
-    } else {
-      const reducenumberofAttendee = await pool.query("UPDATE events SET number_of_attendees = number_of_attendees - 1 WHERE id = (SELECT event_id FROM attendees WHERE id = $1)", [id]);
-      return "Attendee deleted successfully";
     }
+
+    return "Attendee deleted successfully";
   } catch (error) {
     throw error;
   }
