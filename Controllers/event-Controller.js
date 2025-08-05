@@ -88,10 +88,10 @@ export const getEventById = async (req, res) => {
 
   try {
     const result = await selectById(req.params);
-    if (result === "Error fetching event") {
-      msg = "Error fetching event from model";
+    if (result === "Event not foundt") {
+      msg = "Event not found";
       level = "ERR";
-      res.status(500).json({ message: "Error fetching event" });
+      res.status(404).json({ message: "Error fetching event" });
     } else {
       msg = "Event fetched successfully by ID";
       level = "INF";
@@ -115,10 +115,10 @@ export const updateEvent = async (req, res) => {
 
   try {
     const result = await update(req.body);
-    if (result === "Error updating event") {
-      msg = "Error updating event from model";
+    if (result === "Event not found") {
+      msg = "Event not found for update";
       level = "ERR";
-      res.status(500).json({ message: "Error updating event" });
+      res.status(404).json({ message: "Event not found for update" });
     } else {
       msg = "Event updated successfully";
       level = "INF";
@@ -142,10 +142,10 @@ export const deleteEvent = async (req, res) => {
 
   try {
     const result = await remove(req.params);
-    if (result === "Error deleting event") {
-      msg = "Error deleting event from model";
+    if (result === "Event not found") {
+      msg = "Event not found for deletion";
       level = "ERR";
-      res.status(500).json({ message: "Error deleting event" });
+      res.status(404).json({ message: "Event not found for deletion" });
     } else {
       msg = "Event deleted successfully";
       level = "INF";

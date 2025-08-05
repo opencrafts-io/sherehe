@@ -10,17 +10,13 @@ export const createAttendee = async (req, res) => {
     const result = await insert(req.body);
 
     if (result === "Error creating attendee") {
-      msg = "Error creating attendee from model";
-      level = "ERR";
-      res.status(500).json({ error: "Error creating attendee" });
+      msg = "Missing required fields";
+      level = "INF";
+      res.status(400).json({ error: "Missing required fields" });
     } else if (result === "Attendee created successfully") {
       msg = "Attendee created successfully";
       level = "INF";
       res.status(201).json({ message: msg });
-    } else {
-      msg = "Unexpected response from model during attendee creation";
-      level = "ERR";
-      res.status(500).json({ error: "Internal server error" });
     }
   } catch (error) {
     msg = `Controller error creating attendee: ${error.message}`;
@@ -83,11 +79,7 @@ export const getAttendeeById = async (req, res) => {
       msg = "Attendee not found by ID";
       level = "INF";
       res.status(404).json({ message: msg });
-    } else if (result === "Internal server error") {
-      msg = "Internal server error from model for get attendee by ID";
-      level = "ERR";
-      res.status(500).json({ error: "Internal server error" });
-    } else {
+    }else {
       msg = "Attendee fetched successfully by ID";
       level = "INF";
       res.status(200).json({
@@ -182,11 +174,7 @@ export const deleteAttendee = async (req, res) => {
       msg = "Attendee not found for deletion";
       level = "INF";
       res.status(404).json({ message: msg });
-    } else if (result === "Internal server error") {
-      msg = "Internal server error from model for attendee deletion";
-      level = "ERR";
-      res.status(500).json({ error: "Internal server error" });
-    } else {
+    }else {
       msg = "Attendee deleted successfully";
       level = "INF";
       res.status(200).json({

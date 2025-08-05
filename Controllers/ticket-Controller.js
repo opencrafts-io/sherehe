@@ -10,14 +10,13 @@ export const createTicket = async (req, res) => {
   try {
     const result = await insert(req.body);
     if(result === "Ticket created successfully"){
-      status = 201;
       msg = "Ticket created successfully";
       level = "INF";
       res.status(201).json({ message: msg });
     }else if(result === "Error creating ticket"){
-      msg = "Error creating ticket from model due to business logic";
+      msg = "Error creating ticket";
       level = "ERR";
-      res.status(403).json({ error: "Error creating ticket" });
+      res.status(404).json({ error: "Missing required fields" });
     }else if(result === "Wrong Event ID"){
       msg = "Wrong Event ID provided for ticket creation";
       level = "ERR";
@@ -26,11 +25,6 @@ export const createTicket = async (req, res) => {
       msg = "Wrong Attendee ID provided for ticket creation";
       level = "ERR";
       res.status(404).json({ error: "Wrong Attendee ID" });
-    }
-    else{
-      msg = "Unexpected internal server error from model during ticket creation";
-      level = "ERR";
-      res.status(500).json({ error: "Internal server error" });
     }
   } catch (error) {
     msg = `Controller error creating ticket: ${error.message}`;
@@ -55,7 +49,7 @@ export const getAllTicketsByAttendeeId = async (req, res) => {
     if(result === "No tickets found"){
       msg = "No tickets found for attendee ID";
       level = "INF";
-      return res.status(404).json({ message: msg });
+      return res.status(200).json([]);
     }
 
     const hasNextPage = result.length > limit;
@@ -93,7 +87,7 @@ export const getTicketByEventId = async (req, res) => {
     if(result === "Ticket not found"){
       msg = "Ticket not found by Event ID";
       level = "INF";
-      res.status(404).json({ message: msg });
+      res.status(200).json([]);
     } else {
       const hasNextPage = result.length > limit;
       const tickets = hasNextPage ? result.slice(0, limit) : result;
@@ -130,10 +124,6 @@ export const updateTicketFull = async (req, res) => {
       msg = "Ticket not found for full update";
       level = "INF";
       res.status(404).json({ message: msg });
-    }else if(result === "Internal server error"){
-      msg = "Internal server error from model for full ticket update";
-      level = "ERR";
-      res.status(500).json({ error: "Internal server error" });
     }else{
       msg = "Ticket updated successfully (full)";
       level = "INF";
@@ -160,8 +150,9 @@ export const updateTicketPartial = async (req, res) => {
   try {
     const { id } = req.params;
     const updatedTicket = await updatePartial(id, req.body);
+    
 
-    if (!updatedTicket) {
+    if (updatedTicket === "No fields provided or invalid update data.") {
       msg = "Ticket not found for partial update";
       level = "INF";
       return res.status(404).json({ message: msg });
@@ -197,10 +188,6 @@ export const deleteTicket = async (req, res) => {
       msg = "Ticket not found for deletion";
       level = "INF";
       res.status(404).json({ message: msg });
-    }else if(result === "Internal server error"){
-      msg = "Internal server error from model for ticket deletion";
-      level = "ERR";
-      res.status(500).json({ error: "Internal server error" });
     }else{
       msg = "Ticket deleted successfully";
       level = "INF";

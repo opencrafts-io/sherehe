@@ -12,7 +12,7 @@ export const insert = async (params) => {
     const values = [first_name, middle_name || null, last_name, event_id];
     const result = await pool.query(query, values);
     if (result.rowCount === 0) {
-      throw new Error("Error creating attendee");
+      return "Error creating attendee";
     } else {
       const updateNumberofAttendee = await pool.query("UPDATE events SET number_of_attendees = number_of_attendees + 1 WHERE id = $1", [event_id]);
       return "Attendee created successfully";
@@ -52,7 +52,7 @@ export const selectById = async (params) => {
     const result = await pool.query(query, [id]);
 
     if (result.rows.length === 0) {
-      throw new Error("Attendee not found");
+      return "Attendee not found";
     } else {
       return result.rows[0];
     }
@@ -123,7 +123,7 @@ export const remove = async (params) => {
     const eventIdResult = await pool.query("SELECT event_id FROM attendees WHERE id = $1", [id]);
 
     if (eventIdResult.rowCount === 0) {
-      throw new Error("Attendee not found");
+     return "Attendee not found";
     }
 
     return "Attendee deleted successfully";

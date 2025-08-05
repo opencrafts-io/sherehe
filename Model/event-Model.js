@@ -27,7 +27,7 @@ export const selectAll = async (params) => {
     const values = [limitPlusOne, offset];
     const result = await pool.query(query, values);
     if (result.rows.length === 0) {
-      throw new Error("No events found"); 
+      return "No events found";
     } else {
       // Convert `id` and `organization_id` to strings here
       const formattedRows = result.rows.map(row => ({
@@ -50,7 +50,7 @@ export const selectById = async (params) => {
     const result = await pool.query(query, [id]);
 
     if (result.rows.length === 0) {
-      throw new Error("Event not found");
+      return "Event not found";
     } else {
       const row = result.rows[0];
 
@@ -79,7 +79,7 @@ export const update = async (id, { name, date, location }) => {
     const values = [name, date, location, id];
     const result = await pool.query(query, values);
     if (result.rowCount === 0) {
-      throw new Error("Event not found");
+      return "Event not found";
     } else {
       return result.rows[0];
     }
@@ -95,7 +95,7 @@ export const remove = async (params) => {
     const result = await pool.query(query, [id]);
 
     if (result.rowCount === 0) {
-      throw new Error("Event not found");
+      return "Event not found";
     } else {
       return "Event deleted successfully";
     }

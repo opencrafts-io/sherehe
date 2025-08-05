@@ -6,12 +6,12 @@ export const insert = async (params) => {
 
     const checkEvent = await pool.query("SELECT * FROM events WHERE id = $1", [event_id]);
     if (checkEvent.rows.length === 0) {
-      throw new Error("Wrong Event ID");
+     return "Wrong Event ID";
     }
 
     const checkAttendee = await pool.query("SELECT * FROM attendees WHERE id = $1", [attendee_id]);
     if (checkAttendee.rows.length === 0) {
-      throw new Error("Wrong Attendee ID"); 
+      return "Wrong Attendee ID"; 
     }
 
     const query = `
@@ -23,7 +23,7 @@ export const insert = async (params) => {
     const result = await pool.query(query, values);
 
     if (result.rowCount === 0) {
-      throw new Error("Error creating ticket");
+      return "Error creating ticket";
     } else {
       return "Ticket created successfully";
     }
@@ -39,7 +39,7 @@ export const selectAllByAttendeeId = async (params) => {
     const values = [id, limitPlusOne, offset];
     const result = await pool.query(query, values);
     if (result.rows.length === 0) {
-      throw new Error("No tickets found");
+      return "No tickets found";
     } else {
       return result.rows;
     }
@@ -56,7 +56,7 @@ export const selectByEventId = async (params) => {
     const result = await pool.query(query, values);
 
     if (result.rows.length === 0) {
-      throw new Error("Ticket not found");
+      return "Ticket not found";
     } else {
       return result.rows;
     }
@@ -76,7 +76,7 @@ export const updateFull = async (id, { attendeeid, eventid, paymentcode }) => {
     const values = [attendeeid, eventid, paymentcode, id];
     const result = await pool.query(query, values);
     if (result.rows.length === 0) {
-      throw new Error("Ticket not found");
+      return "Ticket not found";
     } else {
       return result.rows[0];
     }
@@ -87,7 +87,7 @@ export const updateFull = async (id, { attendeeid, eventid, paymentcode }) => {
 
 export const updatePartial = async (id, fields) => {
   if (!fields || typeof fields !== 'object' || Object.keys(fields).length === 0) {
-    throw new Error("No fields provided or invalid update data.");
+    return "No fields provided or invalid update data.";
   }
   try {
     const columns = [];
@@ -127,7 +127,7 @@ export const remove = async (params) => {
     const result = await pool.query(query, [id]);
 
     if (result.rowCount === 0) {
-      throw new Error("Ticket not found");
+      return "Ticket not found";
     } else {
       return "Ticket deleted successfully";
     }
