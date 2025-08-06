@@ -21,7 +21,7 @@ export const createAttendee = async (req, res) => {
   } catch (error) {
     msg = `Controller error creating attendee: ${error.message}`;
     level = "ERR";
-    res.status(500).json({ error: "Error creating attendee" });
+  return  res.status(500).json({ error: "Error creating attendee" });
   } finally {
     const endTime = process.hrtime.bigint();
     const durationMicroseconds = Number(endTime - startTime) / 1000;
@@ -49,7 +49,7 @@ export const getAllAttendeesByEventId = async (req, res) => {
 
     msg = "Attendees fetched successfully";
     level = "INF";
-    res.status(200).json({
+   return res.status(200).json({
       currentPage: page,
       nextPage: hasNextPage ? page + 1 : null,
       previousPage: page > 1 ? page - 1 : null,
@@ -58,7 +58,7 @@ export const getAllAttendeesByEventId = async (req, res) => {
   } catch (error) {
     msg = `Controller error fetching attendees by event ID: ${error.message}`;
     level = "ERR";
-    res.status(500).json({ message: "Error fetching attendees" });
+   return res.status(500).json({ message: "Error fetching attendees" });
   } finally {
     const endTime = process.hrtime.bigint();
     const durationMicroseconds = Number(endTime - startTime) / 1000;
@@ -78,18 +78,18 @@ export const getAttendeeById = async (req, res) => {
     if (result === "Attendee not found") {
       msg = "Attendee not found by ID";
       level = "INF";
-      res.status(404).json({ message: msg });
+      return res.status(404).json({ message: msg });
     }else {
       msg = "Attendee fetched successfully by ID";
       level = "INF";
-      res.status(200).json({
+   return res.status(200).json({
         result,
       });
     }
   } catch (error) {
     msg = `Controller error fetching attendee by ID: ${error.message}`;
     level = "ERR";
-    res.status(500).json({ message: "Error fetching attendee" });
+   return res.status(500).json({ message: "Error fetching attendee" });
   } finally {
         const endTime = process.hrtime.bigint();
     const durationMicroseconds = Number(endTime - startTime) / 1000;
@@ -114,14 +114,14 @@ export const updateAttendee = async (req, res) => {
 
     msg = "Attendee updated successfully";
     level = "INF";
-    res.status(200).json({
+   return   res.status(200).json({
       message: msg,
       data: attendee,
     });
   } catch (error) {
     msg = `Controller error updating attendee: ${error.message}`;
     level = "ERR";
-    res.status(500).json({ message: "Error updating attendee" });
+   return  res.status(500).json({ message: "Error updating attendee" });
   } finally {
         const endTime = process.hrtime.bigint();
     const durationMicroseconds = Number(endTime - startTime) / 1000;
@@ -146,14 +146,14 @@ export const patchAttendee = async (req, res) => {
 
     msg = "Attendee partially updated successfully";
     level = "INF";
-    res.status(200).json({
+    return  res.status(200).json({
       message: msg,
       data: updatedAttendee,
     });
   } catch (error) {
     msg = `Controller error patching attendee: ${error.message}`;
     level = "ERR";
-    res.status(500).json({ message: "Error updating attendee" });
+   return  res.status(500).json({ message: "Error updating attendee" });
   } finally {
     const endTime = process.hrtime.bigint();
     const durationMicroseconds = Number(endTime - startTime) / 1000;
@@ -173,7 +173,7 @@ export const deleteAttendee = async (req, res) => {
     if (result === "Attendee not found") {
       msg = "Attendee not found for deletion";
       level = "INF";
-      res.status(404).json({ message: msg });
+   return   res.status(404).json({ message: msg });
     }else {
       msg = "Attendee deleted successfully";
       level = "INF";
@@ -184,7 +184,7 @@ export const deleteAttendee = async (req, res) => {
   } catch (error) {
     msg = `Controller error deleting attendee: ${error.message}`;
     level = "ERR";
-    res.status(500).json({ message: "Error deleting attendee" });
+   return res.status(500).json({ message: "Error deleting attendee" });
   } finally {
     const endTime = process.hrtime.bigint();
     const durationMicroseconds = Number(endTime - startTime) / 1000;

@@ -56,7 +56,7 @@ export const getAllEvents = async (req, res) => {
     if (result === "No events found") {
       msg = "No events found";
       level = "INF";
-      res.status(200).json([]);
+     return res.status(200).json([]);
     }
 
     const hasNextPage = result.length > limit;
@@ -64,7 +64,7 @@ export const getAllEvents = async (req, res) => {
 
     msg = "Events fetched successfully";
     level = "INF";
-    res.status(200).json({
+   return res.status(200).json({
       currentPage: page,
       nextPage: hasNextPage ? page + 1 : null,
       previousPage: page > 1 ? page - 1 : null,
@@ -73,13 +73,14 @@ export const getAllEvents = async (req, res) => {
   } catch (error) {
     msg = `Controller error fetching all events: ${error.message}`;
     level = "ERR";
-    res.status(500).json({ message: "Error fetching events" });
+  return  res.status(500).json({ message: "Error fetching events" });
   } finally {
     const endTime = process.hrtime.bigint();
     const durationMicroseconds = Number(endTime - startTime) / 1000;
     await logs(durationMicroseconds, level, req.ip, req.method, msg, req.url, res.statusCode, req.headers["user-agent"]);
   }
 }
+
 
 export const getEventById = async (req, res) => {
   const startTime = process.hrtime.bigint();
@@ -91,16 +92,16 @@ export const getEventById = async (req, res) => {
     if (result === "Event not foundt") {
       msg = "Event not found";
       level = "ERR";
-      res.status(404).json({ message: "Error fetching event" });
+     return res.status(404).json({ message: "Error fetching event" });
     } else {
       msg = "Event fetched successfully by ID";
       level = "INF";
-      res.status(200).json({ result });
+    return  res.status(200).json({ result });
     }
   } catch (error) {
     msg = `Controller error fetching event by ID: ${error.message}`;
     level = "ERR";
-    res.status(500).json({ message: "Error fetching event" });
+  return res.status(500).json({ message: "Error fetching event" });
   } finally {
     const endTime = process.hrtime.bigint();
     const durationMicroseconds = Number(endTime - startTime) / 1000;
@@ -118,16 +119,16 @@ export const updateEvent = async (req, res) => {
     if (result === "Event not found") {
       msg = "Event not found for update";
       level = "ERR";
-      res.status(404).json({ message: "Event not found for update" });
+    return  res.status(404).json({ message: "Event not found for update" });
     } else {
       msg = "Event updated successfully";
       level = "INF";
-      res.status(200).json({ message: msg });
+     return res.status(200).json({ message: msg });
     }
   } catch (error) {
     msg = `Controller error updating event: ${error.message}`;
     level = "ERR";
-    res.status(500).json({ message: "Error updating event" });
+  return  res.status(500).json({ message: "Error updating event" });
   } finally {
     const endTime = process.hrtime.bigint();
     const durationMicroseconds = Number(endTime - startTime) / 1000;
@@ -145,16 +146,16 @@ export const deleteEvent = async (req, res) => {
     if (result === "Event not found") {
       msg = "Event not found for deletion";
       level = "ERR";
-      res.status(404).json({ message: "Event not found for deletion" });
+    return  res.status(404).json({ message: "Event not found for deletion" });
     } else {
       msg = "Event deleted successfully";
       level = "INF";
-      res.status(200).json({ message: msg });
+     return res.status(200).json({ message: msg });
     }
   } catch (error) {
     msg = `Controller error deleting event: ${error.message}`;
     level = "ERR";
-    res.status(500).json({ message: "Error deleting event" });
+   return res.status(500).json({ message: "Error deleting event" });
   } finally {
     const endTime = process.hrtime.bigint();
     const durationMicroseconds = Number(endTime - startTime) / 1000;
