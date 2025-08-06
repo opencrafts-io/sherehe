@@ -29,7 +29,7 @@ export const selectAll = async (params) => {
     const values = [id, limitPlusOne, offset];
     const result = await pool.query(query, values);
     if (result.rows.length === 0) {
-      throw new Error("No attendees found");
+      return "No attendees found";
     } else {
       //converted id to be of type string
       const formattedRows = result.rows.map(row => ({

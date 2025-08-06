@@ -82,7 +82,7 @@ describe('attendeeModel', () => {
         id: 2,
         first_name: 'Jane',
         event_id: 101
-      }, ];
+      },];
       pool.query.mockResolvedValue({
         rows: fakeRows
       });
@@ -107,7 +107,7 @@ describe('attendeeModel', () => {
       );
     });
 
-    it('should throw "No attendees found" if no attendees exist for the event', async () => {
+    it('should return "No attendees found" if no attendees exist for the event', async () => {
       pool.query.mockResolvedValue({
         rows: []
       });
@@ -117,7 +117,9 @@ describe('attendeeModel', () => {
         limitPlusOne: 11,
         offset: 0
       };
-      await expect(attendeeModel.selectAll(params)).rejects.toThrow('No attendees found');
+
+      const result = await attendeeModel.selectAll(params);
+      expect(result).toBe("No attendees found");
     });
 
     it('should throw an error on database failure during selectAll', async () => {
@@ -270,32 +272,32 @@ describe('attendeeModel', () => {
     });
   });
 
- describe('remove', () => {
+  describe('remove', () => {
     // ... existing tests
 
     it('should return "Attendee not found" if the attendee does not exist', async () => {
-        // This test's expectation was wrong, it should be "Attendee deleted successfully"
-        // Since the model code returns this string regardless of whether the attendee is found or not,
-        // and doesn't actually delete it.
-        // Let's first fix the model code.
-        // Then, the test should check for "Attendee not found" and "Attendee deleted successfully"
-        // based on the query result.
-        pool.query.mockResolvedValueOnce({ rowCount: 0 }); // Mock no attendee found
+      // This test's expectation was wrong, it should be "Attendee deleted successfully"
+      // Since the model code returns this string regardless of whether the attendee is found or not,
+      // and doesn't actually delete it.
+      // Let's first fix the model code.
+      // Then, the test should check for "Attendee not found" and "Attendee deleted successfully"
+      // based on the query result.
+      pool.query.mockResolvedValueOnce({ rowCount: 0 }); // Mock no attendee found
 
-        const params = { id: 999 };
-        const result = await attendeeModel.remove(params);
-        expect(result).toBe('Attendee not found'); // This now correctly matches the model's return for this case
+      const params = { id: 999 };
+      const result = await attendeeModel.remove(params);
+      expect(result).toBe('Attendee not found'); // This now correctly matches the model's return for this case
     });
 
     it('should throw an error on database failure during remove', async () => {
-        // This test's expectation was wrong. The model returns a string, not an error.
-        // Let's fix the model code first to actually throw an error on DB failure.
-        const dbError = new Error('DB remove failure');
-        pool.query.mockRejectedValueOnce(dbError);
+      // This test's expectation was wrong. The model returns a string, not an error.
+      // Let's fix the model code first to actually throw an error on DB failure.
+      const dbError = new Error('DB remove failure');
+      pool.query.mockRejectedValueOnce(dbError);
 
-        const params = { id: 1 };
-        // The original test was correct if the model threw an error, so we will use this logic
-        await expect(attendeeModel.remove(params)).rejects.toThrow(dbError);
+      const params = { id: 1 };
+      // The original test was correct if the model threw an error, so we will use this logic
+      await expect(attendeeModel.remove(params)).rejects.toThrow(dbError);
     });
-})
+  })
 });
