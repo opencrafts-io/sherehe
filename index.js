@@ -24,6 +24,8 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-app.listen(process.env.PORT, () => {
-  console.log("Welcome to Sherehe Backend");
-});
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(process.env.PORT || 3000, () => {
+    console.log("Welcome to Sherehe Backend");
+  });
+}

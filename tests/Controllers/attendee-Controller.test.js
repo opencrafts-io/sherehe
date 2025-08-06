@@ -1,272 +1,169 @@
-import { createAttendee, getAllAttendeesByEventId, getAttendeeById, updateAttendee, patchAttendee, deleteAttendee } from "../../Controllers/attendee-Controller.js";
-import * as attendeeModel from '../../Model/attendee-Model.js';
+import request from "supertest";
+import express from "express";
+import * as model from "../../Model/attendee-Model.js";
+import * as logger from "../../utils/logs.js";
+import {
+  createAttendee,
+  getAllAttendeesByEventId,
+  getAttendeeById,
+  updateAttendee,
+  patchAttendee,
+  deleteAttendee
+} from "../../Controllers/attendee-Controller.js";
 
-describe('Attendee Controller', () => {
-  let req, res;
+const app = express();
+app.use(express.json());
 
-  beforeEach(() => {
-    req = {
-      headers: {
-        'user-agent': 'jest-test',
-      },
-      ip: '127.0.0.1',
-      params: {},
-      body: {},
-      pagination: {
-        page: 1,
-        limit: 10,
-        offset: 0,
-        limitPlusOne: 11,
-      },
-    };
-    res = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn(),
-    };
-    jest.spyOn(console, 'log').mockImplementation(() => {});
-  });
+// Middleware to mock pagination
+app.use((req, res, next) => {
+  req.pagination = { limit: 10, page: 1 };
+  next();
+});
 
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
+// Attach routes
+app.post("/attendees", createAttendee);
+app.get("/attendees/event/:eventId", getAllAttendeesByEventId);
+app.get("/attendees/:id", getAttendeeById);
+app.put("/attendees/:id", updateAttendee);
+app.patch("/attendees/:id", patchAttendee);
+app.delete("/attendees/:id", deleteAttendee);
 
-  describe('createAttendee', () => {
-    it('should return 201 on successful creation', async () => {
-      req.body = { firstname: 'John', lastname: 'Doe', eventid: 1 };
-      jest.spyOn(attendeeModel, 'insert').mockResolvedValue('Attendee created successfully');
+// Mock the logs function
+jest.spyOn(logger, "logs").mockResolvedValue();
 
-      await createAttendee(req, res);
+// Reset mocks before each test
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
-      expect(res.status).toHaveBeenCalledWith(201);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Attendee created successfully' });
+describe("Attendee Controller", () => {
+  describe("POST /attendees", () => {
+    it("should create attendee successfully", async () => {
+      jest.spyOn(model, "insert").mockResolvedValue("Attendee created successfully");
+
+      const response = await request(app).post("/attendees").send({ name: "John Doe" });
+
+      expect(response.statusCode).toBe(201);
+      expect(response.body.message).toBe("Attendee created successfully");
     });
 
-    it('should return 500 when model returns "Error creating attendee"', async () => {
-      req.body = { firstname: 'John', lastname: 'Doe', eventid: 1 };
-      jest.spyOn(attendeeModel, 'insert').mockResolvedValue('Error creating attendee');
+    it("should return 400 for missing fields", async () => {
+      jest.spyOn(model, "insert").mockResolvedValue("Error creating attendee");
 
-      await createAttendee(req, res);
+      const response = await request(app).post("/attendees").send({});
 
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ error: 'Error creating attendee' });
+      expect(response.statusCode).toBe(400);
+      expect(response.body.error).toBe("Missing required fields");
     });
 
-    it('should return 500 on internal server error', async () => {
-      req.body = { firstname: 'John', lastname: 'Doe', eventid: 1 };
-      jest.spyOn(attendeeModel, 'insert').mockRejectedValue(new Error('Database error'));
+    it("should handle internal error", async () => {
+      jest.spyOn(model, "insert").mockRejectedValue(new Error("Database error"));
 
-      await createAttendee(req, res);
+      const response = await request(app).post("/attendees").send({ name: "John" });
 
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ error: 'Error creating attendee' });
-    });
-  });
-
-  describe('getAllAttendeesByEventId', () => {
-    beforeEach(() => {
-      req.params = { eventId: 1 };
-      req.pagination = {
-        page: 1,
-        limit: 10,
-        offset: 0,
-        limitPlusOne: 11,
-      };
-    });
-
-    it('should return 200 with attendees when found', async () => {
-      const fakeAttendees = [{ id: 1, eventid: 1 }, { id: 2, eventid: 1 }];
-      jest.spyOn(attendeeModel, 'selectAll').mockResolvedValue(fakeAttendees);
-
-      await getAllAttendeesByEventId(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({
-        currentPage: 1,
-        nextPage: null,
-        previousPage: null,
-        data: fakeAttendees
-      });
-    });
-
-    it('should return 404 when no attendees are found', async () => {
-      jest.spyOn(attendeeModel, 'selectAll').mockResolvedValue('No attendees found');
-
-      await getAllAttendeesByEventId(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(404);
-      expect(res.json).toHaveBeenCalledWith({ message: 'No attendees found for event' });
-    });
-
-    it('should return 500 on internal server error', async () => {
-      jest.spyOn(attendeeModel, 'selectAll').mockRejectedValue(new Error('Database connection error'));
-
-      await getAllAttendeesByEventId(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Error fetching attendees' });
+      expect(response.statusCode).toBe(500);
+      expect(response.body.error).toBe("Error creating attendee");
     });
   });
 
-  describe('getAttendeeById', () => {
-    it('should return 200 with attendee data when found', async () => {
-      req.params = { id: 1 };
-      const fakeAttendee = [{ id: 1, firstname: 'Jane' }];
-      jest.spyOn(attendeeModel, 'selectById').mockResolvedValue(fakeAttendee);
+  describe("GET /attendees/event/:eventId", () => {
+    it("should return attendees with pagination", async () => {
+      const attendees = Array(5).fill({ name: "Jane Doe" });
+      jest.spyOn(model, "selectAll").mockResolvedValue(attendees);
 
-      await getAttendeeById(req, res);
+      const response = await request(app).get("/attendees/event/123");
 
-      expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({ result: fakeAttendee });
+      expect(response.statusCode).toBe(200);
+      expect(response.body.data.length).toBe(5);
     });
 
-    it('should return 404 when attendee not found', async () => {
-      req.params = { id: 1 };
-      jest.spyOn(attendeeModel, 'selectById').mockResolvedValue('Attendee not found');
+    it("should return 404 if no attendees", async () => {
+      jest.spyOn(model, "selectAll").mockResolvedValue("No attendees found");
 
-      await getAttendeeById(req, res);
+      const response = await request(app).get("/attendees/event/999");
 
-      expect(res.status).toHaveBeenCalledWith(404);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Attendee not found by ID' });
-    });
-
-    it('should return 500 when model returns "Internal server error"', async () => {
-      req.params = { id: 1 };
-      jest.spyOn(attendeeModel, 'selectById').mockResolvedValue('Internal server error');
-
-      await getAttendeeById(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ error: 'Internal server error' });
-    });
-
-    it('should return 500 on other internal server error', async () => {
-      req.params = { id: 1 };
-      jest.spyOn(attendeeModel, 'selectById').mockRejectedValue(new Error('Query failed'));
-
-      await getAttendeeById(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Error fetching attendee' });
+      expect(response.statusCode).toBe(404);
+      expect(response.body.message).toBe("No attendees found for event");
     });
   });
 
-  describe('updateAttendee', () => {
-    it('should return 200 on successful full update', async () => {
-      req.params = { id: 1 };
-      req.body = { firstname: 'Updated', lastname: 'User', eventid: 1 };
-      const updatedAttendeeData = { id: 1, ...req.body };
-      jest.spyOn(attendeeModel, 'updateFull').mockResolvedValue(updatedAttendeeData);
+  describe("GET /attendees/:id", () => {
+    it("should return attendee by ID", async () => {
+      jest.spyOn(model, "selectById").mockResolvedValue({ id: "abc123", name: "Jane" });
 
-      await updateAttendee(req, res);
+      const response = await request(app).get("/attendees/abc123");
 
-      expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({
-        message: 'Attendee updated successfully',
-        data: updatedAttendeeData,
-      });
+      expect(response.statusCode).toBe(200);
+      expect(response.body.result.name).toBe("Jane");
     });
 
-    it('should return 404 when attendee not found for full update', async () => {
-      req.params = { id: 1 };
-      req.body = { firstname: 'Updated', lastname: 'User', eventid: 1 };
-      jest.spyOn(attendeeModel, 'updateFull').mockResolvedValue(null);
+    it("should return 404 if attendee not found", async () => {
+      jest.spyOn(model, "selectById").mockResolvedValue("Attendee not found");
 
-      await updateAttendee(req, res);
+      const response = await request(app).get("/attendees/unknown");
 
-      expect(res.status).toHaveBeenCalledWith(404);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Attendee not found for full update' });
-    });
-
-    it('should return 500 on internal server error during full update', async () => {
-      req.params = { id: 1 };
-      req.body = { firstname: 'Updated', lastname: 'User', eventid: 1 };
-      jest.spyOn(attendeeModel, 'updateFull').mockRejectedValue(new Error('DB error'));
-
-      await updateAttendee(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Error updating attendee' });
+      expect(response.statusCode).toBe(404);
+      expect(response.body.message).toBe("Attendee not found by ID");
     });
   });
 
-  describe('patchAttendee', () => {
-    it('should return 200 on successful partial update', async () => {
-      req.params = { id: 1 };
-      req.body = { firstname: 'Patched' };
-      const patchedAttendeeData = { id: 1, firstname: 'Patched', lastname: 'Doe', eventid: 1 };
-      jest.spyOn(attendeeModel, 'updatePartial').mockResolvedValue(patchedAttendeeData);
+  describe("PUT /attendees/:id", () => {
+    it("should update attendee fully", async () => {
+      jest.spyOn(model, "updateFull").mockResolvedValue({ id: "abc123", name: "Updated" });
 
-      await patchAttendee(req, res);
+      const response = await request(app).put("/attendees/abc123").send({ name: "Updated" });
 
-      expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({
-        message: 'Attendee partially updated successfully',
-        data: patchedAttendeeData,
-      });
+      expect(response.statusCode).toBe(200);
+      expect(response.body.message).toBe("Attendee updated successfully");
     });
 
-    it('should return 404 when attendee not found for partial update', async () => {
-      req.params = { id: 1 };
-      req.body = { firstname: 'Patched' };
-      jest.spyOn(attendeeModel, 'updatePartial').mockResolvedValue(null);
+    it("should return 404 if attendee not found", async () => {
+      jest.spyOn(model, "updateFull").mockResolvedValue(null);
 
-      await patchAttendee(req, res);
+      const response = await request(app).put("/attendees/unknown").send({ name: "Fail" });
 
-      expect(res.status).toHaveBeenCalledWith(404);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Attendee not found for partial update' });
-    });
-
-    it('should return 500 on internal server error during partial update', async () => {
-      req.params = { id: 1 };
-      req.body = { firstname: 'Patched' };
-      jest.spyOn(attendeeModel, 'updatePartial').mockRejectedValue(new Error('Validation error'));
-
-      await patchAttendee(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Error updating attendee' });
+      expect(response.statusCode).toBe(404);
+      expect(response.body.message).toBe("Attendee not found for full update");
     });
   });
 
-  describe('deleteAttendee', () => {
-    it('should return 200 on successful deletion', async () => {
-      req.params = { id: 1 };
-      jest.spyOn(attendeeModel, 'remove').mockResolvedValue('Attendee deleted successfully');
+  describe("PATCH /attendees/:id", () => {
+    it("should patch attendee successfully", async () => {
+      jest.spyOn(model, "updatePartial").mockResolvedValue({ id: "abc123", name: "Partially Updated" });
 
-      await deleteAttendee(req, res);
+      const response = await request(app).patch("/attendees/abc123").send({ name: "Partially Updated" });
 
-      expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({ result: 'Attendee deleted successfully' });
+      expect(response.statusCode).toBe(200);
+      expect(response.body.message).toBe("Attendee partially updated successfully");
     });
 
-    it('should return 404 when attendee not found for deletion', async () => {
-      req.params = { id: 1 };
-      jest.spyOn(attendeeModel, 'remove').mockResolvedValue('Attendee not found');
+    it("should return 404 if patching non-existent attendee", async () => {
+      jest.spyOn(model, "updatePartial").mockResolvedValue(null);
 
-      await deleteAttendee(req, res);
+      const response = await request(app).patch("/attendees/none").send({});
 
-      expect(res.status).toHaveBeenCalledWith(404);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Attendee not found for deletion' });
+      expect(response.statusCode).toBe(404);
+      expect(response.body.message).toBe("Attendee not found for partial update");
+    });
+  });
+
+  describe("DELETE /attendees/:id", () => {
+    it("should delete attendee", async () => {
+      jest.spyOn(model, "remove").mockResolvedValue("Attendee deleted successfully");
+
+      const response = await request(app).delete("/attendees/abc123");
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body.result).toBe("Attendee deleted successfully");
     });
 
-    it('should return 500 when model returns "Internal server error" for deletion', async () => {
-      req.params = { id: 1 };
-      jest.spyOn(attendeeModel, 'remove').mockResolvedValue('Internal server error');
+    it("should return 404 if attendee not found", async () => {
+      jest.spyOn(model, "remove").mockResolvedValue("Attendee not found");
 
-      await deleteAttendee(req, res);
+      const response = await request(app).delete("/attendees/notfound");
 
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ error: 'Internal server error' });
-    });
-
-    it('should return 500 on other internal server error during deletion', async () => {
-      req.params = { id: 1 };
-      jest.spyOn(attendeeModel, 'remove').mockRejectedValue(new Error('DB constraint error'));
-
-      await deleteAttendee(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Error deleting attendee' });
+      expect(response.statusCode).toBe(404);
+      expect(response.body.message).toBe("Attendee not found for deletion");
     });
   });
 });

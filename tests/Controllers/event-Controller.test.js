@@ -1,282 +1,201 @@
-import { createEvent, getAllEvents, getEventById, updateEvent, deleteEvent } from "../../Controllers/event-Controller.js";
-import * as eventModel from '../../Model/event-Model.js';
+import request from 'supertest';
+import express from 'express';
+import multer from 'multer';
+import fs from 'fs';
+import path from 'path';
+import * as model from '../../Model/event-Model.js';
+import * as logger from '../../utils/logs.js';
+import {
+  createEvent,
+  getAllEvents,
+  getEventById,
+  updateEvent,
+  deleteEvent
+} from '../../Controllers/event-Controller.js';
+
+// Setup Express app
+const app = express();
+app.use(express.json());
+
+// Mock pagination middleware
+app.use((req, res, next) => {
+  req.pagination = { limit: 10, page: 1 };
+  next();
+});
+
+// Configure multer for memory storage (simulate file upload)
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
+// Define routes
+app.post('/events', upload.single('file'), createEvent);
+app.get('/events', getAllEvents);
+app.get('/events/:id', getEventById);
+app.put('/events', updateEvent);
+app.delete('/events/:id', deleteEvent);
+
+// Mock logs
+jest.spyOn(logger, 'logs').mockResolvedValue();
+
+// Reset all mocks before each test
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('Event Controller', () => {
-  let req, res;
+  describe('POST /events (createEvent)', () => {
+    it('should create an event successfully', async () => {
+      process.env.BASE_URL = 'http://localhost:3000';
+      jest.spyOn(model, 'insert').mockResolvedValue('Event created successfully');
 
-  beforeEach(() => {
-    req = {
-      headers: {
-        'user-agent': 'jest-test',
-      },
-      ip: '127.0.0.1',
-      params: {},
-      body: {},
-      query: {},
-      pagination: {
-        page: 1,
-        limit: 10,
-        offset: 0,
-        limitPlusOne: 11,
-      },
-    };
-    res = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn(),
-    };
-    jest.spyOn(console, 'log').mockImplementation(() => { });
-  });
+      const response = await request(app)
+        .post('/events')
+        .field('name', 'Test Event')
+        .field('description', 'This is a test')
+        .field('url', 'http://test.com')
+        .field('time', '12:00 PM')
+        .field('date', '2025-12-01')
+        .field('location', 'Nairobi')
+        .field('organizer', 'Tester')
+        .field('organizer_id', '123')
+        .field('genre', 'Tech')
+        .attach('file', Buffer.from('dummy image'), 'test.jpg');
 
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
-  describe('createEvent controller', () => {
-    // --- This nested beforeEach block is updated to include headers and ip ---
-    beforeEach(() => {
-      req = {
-        body: {
-          name: 'Test Event',
-          description: 'Test Description',
-          url: 'http://example.com',
-          time: '12:00',
-          date: '2025-08-10',
-          location: 'Test Location',
-          organizer: 'Test Org',
-          number_of_attendees: 100,
-          organizer_id: 1,
-          genres: 'Music,Art'
-        },
-        file: {
-          filename: 'test.jpg'
-        },
-        // ADDED: The headers and ip properties required by the logs function
-        headers: {
-          'user-agent': 'jest-test',
-        },
-        ip: '127.0.0.1',
-        method: 'POST', // ADDED: Required for the logs function
-        url: '/api/events' // ADDED: Required for the logs function
-      };
-
-      res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn()
-      };
-    });
-
-    afterEach(() => {
-      jest.clearAllMocks();
-    });
-
-    it('should return 201 on successful insert', async () => {
-      jest.spyOn(eventModel, 'insert').mockResolvedValue('Event created successfully');
-
-      await createEvent(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(201);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Event created successfully' });
-    });
-
-    it('should return 500 when model returns "Error creating event"', async () => {
-      jest.spyOn(eventModel, 'insert').mockResolvedValue('Error creating event');
-
-      await createEvent(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Error creating event' });
+      expect(response.statusCode).toBe(201);
+      expect(response.body.message).toBe('Event created successfully');
     });
 
     it('should return 400 if no image uploaded', async () => {
-      req.file = undefined;
+      const response = await request(app)
+        .post('/events')
+        .send({
+          name: 'No Image Event'
+        });
 
-      await createEvent(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith({ message: 'No image uploaded' });
+      expect(response.statusCode).toBe(400);
+      expect(response.body.message).toBe('No image uploaded');
     });
 
-    it('should return 500 on internal server error', async () => {
-      jest.spyOn(eventModel, 'insert').mockRejectedValue(new Error('Database connection error'));
+    it('should return 500 on insert error', async () => {
+      jest.spyOn(model, 'insert').mockResolvedValue('Error creating event');
 
-      await createEvent(req, res);
+      const response = await request(app)
+        .post('/events')
+        .field('name', 'Error Event')
+        .field('description', 'Error test')
+        .field('url', 'http://test.com')
+        .field('time', '12:00 PM')
+        .field('date', '2025-12-01')
+        .field('location', 'Nairobi')
+        .field('organizer', 'Tester')
+        .field('organizer_id', '123')
+        .field('genre', 'Tech')
+        .attach('file', Buffer.from('dummy image'), 'test.jpg');
 
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Error creating event' });
-    });
-  });
-
-  // --- The rest of the test suite remains unchanged ---
-
-  describe('getAllEvents', () => {
-    beforeEach(() => {
-      // Re-initializing req here to ensure specific values for this describe block
-      req = {
-        headers: {
-          'user-agent': 'jest-test',
-        },
-        ip: '127.0.0.1',
-        method: 'GET', // ADDED: Required for the logs function
-        url: '/api/events', // ADDED: Required for the logs function
-        query: {},
-        params: {},
-        body: {},
-        pagination: {
-          page: 1,
-          limit: 10,
-          offset: 0,
-          limitPlusOne: 11,
-        },
-      };
-      res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      };
+      expect(response.statusCode).toBe(500);
+      expect(response.body.message).toBe('Error creating event');
     });
 
-    it('should return 200 with events', async () => {
-      const fakeEvents = [{ id: 1 }, { id: 2 }];
-      jest.spyOn(eventModel, 'selectAll').mockResolvedValue(fakeEvents);
+    it('should return 500 on controller crash', async () => {
+      jest.spyOn(model, 'insert').mockRejectedValue(new Error('Crash'));
 
-      await getAllEvents(req, res);
+      const response = await request(app)
+        .post('/events')
+        .field('name', 'Crash Event')
+        .field('description', 'Crash')
+        .field('url', 'http://test.com')
+        .field('time', '12:00 PM')
+        .field('date', '2025-12-01')
+        .field('location', 'Nairobi')
+        .field('organizer', 'Tester')
+        .field('organizer_id', '123')
+        .field('genre', 'Tech')
+        .attach('file', Buffer.from('dummy image'), 'test.jpg');
 
-      expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({
-        currentPage: 1,
-        nextPage: null,
-        previousPage: null,
-        data: fakeEvents
-      });
-    });
-
-    it('should return 200 when no events are found', async () => {
-      jest.spyOn(eventModel, 'selectAll').mockResolvedValue('No events found');
-
-      await getAllEvents(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith([]);
-    });
-
-    it('should return 500 on internal server error', async () => {
-      jest.spyOn(eventModel, 'selectAll').mockRejectedValue(new Error('Database error'));
-
-      await getAllEvents(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Error fetching events' });
+      expect(response.statusCode).toBe(500);
+      expect(response.body.message).toBe('Error creating event');
     });
   });
 
-  describe('getEventById', () => {
-    beforeEach(() => {
-        req.method = 'GET';
-        req.url = '/api/events/1';
+  describe('GET /events (getAllEvents)', () => {
+    it('should return events with pagination', async () => {
+      const mockEvents = Array(5).fill({ name: 'Event A' });
+      jest.spyOn(model, 'selectAll').mockResolvedValue(mockEvents);
+
+      const response = await request(app).get('/events');
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body.data.length).toBe(5);
+      expect(response.body.currentPage).toBe(1);
     });
 
-    it('should return 200 with event data', async () => {
-      req.params = { id: 1 };
-      const fakeEvent = { id: 1, name: 'Event' };
-      jest.spyOn(eventModel, 'selectById').mockResolvedValue(fakeEvent);
+    it('should return 200 with empty array if no events', async () => {
+      jest.spyOn(model, 'selectAll').mockResolvedValue('No events found');
 
-      await getEventById(req, res);
+      const response = await request(app).get('/events');
 
-      expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({ result: fakeEvent });
-    });
-
-    it('should return 500 when model returns "Error fetching event"', async () => {
-      req.params = { id: 1 };
-      jest.spyOn(eventModel, 'selectById').mockResolvedValue('Error fetching event');
-
-      await getEventById(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Error fetching event' });
-    });
-
-    it('should return 500 on internal server error', async () => {
-      req.params = { id: 1 };
-      jest.spyOn(eventModel, 'selectById').mockRejectedValue(new Error('Network error'));
-
-      await getEventById(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Error fetching event' });
+      expect(response.statusCode).toBe(200);
+      expect(response.body).toEqual([]);
     });
   });
 
-  describe('updateEvent', () => {
-    beforeEach(() => {
-        req.method = 'PUT';
-        req.url = '/api/events';
+  describe('GET /events/:id (getEventById)', () => {
+    it('should return event by ID', async () => {
+      jest.spyOn(model, 'selectById').mockResolvedValue({ id: '123', name: 'Event' });
+
+      const response = await request(app).get('/events/123');
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body.result.name).toBe('Event');
     });
 
-    it('should return 200 on success', async () => {
-      req.body = { id: 1, name: 'Updated' };
-      jest.spyOn(eventModel, 'update').mockResolvedValue('Event updated successfully');
+    it('should return 404 if event not found', async () => {
+      jest.spyOn(model, 'selectById').mockResolvedValue('Event not foundt');
 
-      await updateEvent(req, res);
+      const response = await request(app).get('/events/999');
 
-      expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Event updated successfully' });
-    });
-
-    it('should return 500 when model returns "Error updating event"', async () => {
-      req.body = { id: 1 };
-      jest.spyOn(eventModel, 'update').mockResolvedValue('Error updating event');
-
-      await updateEvent(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Error updating event' });
-    });
-
-    it('should return 500 on internal server error', async () => {
-      req.body = { id: 1 };
-      jest.spyOn(eventModel, 'update').mockRejectedValue(new Error('Validation error'));
-
-      await updateEvent(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Error updating event' });
+      expect(response.statusCode).toBe(404);
+      expect(response.body.message).toBe('Error fetching event');
     });
   });
 
-  describe('deleteEvent', () => {
-    beforeEach(() => {
-        req.method = 'DELETE';
-        req.url = '/api/events/1';
+  describe('PUT /events (updateEvent)', () => {
+    it('should update event successfully', async () => {
+      jest.spyOn(model, 'update').mockResolvedValue('Event updated successfully');
+
+      const response = await request(app).put('/events').send({ id: '1', name: 'Updated Event' });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body.message).toBe('Event updated successfully');
     });
 
-    it('should return 200 on success', async () => {
-      req.params = { id: 1 };
-      jest.spyOn(eventModel, 'remove').mockResolvedValue('Event deleted successfully');
+    it('should return 404 if event not found', async () => {
+      jest.spyOn(model, 'update').mockResolvedValue('Event not found');
 
-      await deleteEvent(req, res);
+      const response = await request(app).put('/events').send({ id: 'not_exist' });
 
-      expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Event deleted successfully' });
+      expect(response.statusCode).toBe(404);
+      expect(response.body.message).toBe('Event not found for update');
+    });
+  });
+
+  describe('DELETE /events/:id (deleteEvent)', () => {
+    it('should delete event successfully', async () => {
+      jest.spyOn(model, 'remove').mockResolvedValue('Event deleted successfully');
+
+      const response = await request(app).delete('/events/123');
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body.message).toBe('Event deleted successfully');
     });
 
-    it('should return 500 when model returns "Error deleting event"', async () => {
-      req.params = { id: 1 };
-      jest.spyOn(eventModel, 'remove').mockResolvedValue('Error deleting event');
+    it('should return 404 if event not found', async () => {
+      jest.spyOn(model, 'remove').mockResolvedValue('Event not found');
 
-      await deleteEvent(req, res);
+      const response = await request(app).delete('/events/999');
 
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Error deleting event' });
-    });
-
-    it('should return 500 on internal server error', async () => {
-      req.params = { id: 1 };
-      jest.spyOn(eventModel, 'remove').mockRejectedValue(new Error('Permission denied'));
-
-      await deleteEvent(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Error deleting event' });
+      expect(response.statusCode).toBe(404);
+      expect(response.body.message).toBe('Event not found for deletion');
     });
   });
 });

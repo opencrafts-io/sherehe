@@ -5,6 +5,10 @@ jest.mock('../../db.js', () => ({
   query: jest.fn()
 }));
 
+jest.mock('../../utils/logs.js', () => ({
+  logs: jest.fn()
+}));
+
 describe('ticketModel', () => {
   afterEach(() => {
     jest.clearAllMocks();
@@ -14,188 +18,194 @@ describe('ticketModel', () => {
     it('should return "Wrong Event ID" if event does not exist', async () => {
       pool.query.mockResolvedValueOnce({ rows: [] });
 
-      await expect(ticketModel.insert({ attendeeid: 1, eventid: 1, paymentcode: 'abc' }))
-        .rejects
-        .toThrow('Wrong Event ID');
+      const result = await ticketModel.insert({ attendee_id: 1, event_id: 1, payment_code: 'abc' });
+      expect(result).toBe('Wrong Event ID');
     });
 
     it('should return "Wrong Attendee ID" if attendee does not exist', async () => {
       pool.query
-        .mockResolvedValueOnce({ rows: [{ id: 1 }] })
-        .mockResolvedValueOnce({ rows: [] });
+        .mockResolvedValueOnce({ rows: [{ id: 1 }] }) // Mock event found
+        .mockResolvedValueOnce({ rows: [] }); // Mock attendee not found
 
-      await expect(ticketModel.insert({ attendeeid: 1, eventid: 1, paymentcode: 'abc' }))
-        .rejects
-        .toThrow('Wrong Attendee ID');
+      const result = await ticketModel.insert({ attendee_id: 1, event_id: 1, payment_code: 'abc' });
+      expect(result).toBe('Wrong Attendee ID');
     });
 
-    it('should return success message on successful insert', async () => {
+    it('should return "Ticket created successfully" on successful insert', async () => {
       pool.query
-        .mockResolvedValueOnce({ rows: [{ id: 1 }] })
-        .mockResolvedValueOnce({ rows: [{ id: 1 }] })
-        .mockResolvedValueOnce({ rowCount: 1, rows: [{ id: 1, attendeeid: 1, eventid: 1, paymentcode: 'abc' }] });
+        .mockResolvedValueOnce({ rows: [{ id: 1 }] }) // Mock event found
+        .mockResolvedValueOnce({ rows: [{ id: 1 }] }) // Mock attendee found
+        .mockResolvedValueOnce({ rowCount: 1, rows: [{ id: 1, attendee_id: 1, event_id: 1, payment_code: 'abc' }] }); // Mock insert successful
 
-      const result = await ticketModel.insert({ attendeeid: 1, eventid: 1, paymentcode: 'abc' });
+      const result = await ticketModel.insert({ attendee_id: 1, event_id: 1, payment_code: 'abc' });
       expect(result).toBe('Ticket created successfully');
     });
 
-    it('should return error message if insert failed', async () => {
+    it('should return "Error creating ticket" if no row inserted', async () => {
       pool.query
-        .mockResolvedValueOnce({ rows: [{ id: 1 }] })
-        .mockResolvedValueOnce({ rows: [{ id: 1 }] })
-        .mockResolvedValueOnce({ rowCount: 0 });
+        .mockResolvedValueOnce({ rows: [{ id: 1 }] }) // Mock event found
+        .mockResolvedValueOnce({ rows: [{ id: 1 }] }) // Mock attendee found
+        .mockResolvedValueOnce({ rowCount: 0 }); // Mock insert failed
 
-      await expect(ticketModel.insert({ attendeeid: 1, eventid: 1, paymentcode: 'abc' }))
-        .rejects
-        .toThrow('Error creating ticket');
+      const result = await ticketModel.insert({ attendee_id: 1, event_id: 1, payment_code: 'abc' });
+      expect(result).toBe('Error creating ticket');
     });
 
-    it('should return internal error on DB failure', async () => {
-      pool.query.mockRejectedValue(new Error('DB failure'));
+    it('should throw an error on database failure', async () => {
+      const dbError = new Error('DB insert failure');
+      pool.query.mockRejectedValue(dbError);
 
-      await expect(ticketModel.insert({ attendeeid: 1, eventid: 1, paymentcode: 'abc' }))
+      await expect(ticketModel.insert({ attendee_id: 1, event_id: 1, payment_code: 'abc' }))
         .rejects
-        .toThrow('DB failure');
+        .toThrow(dbError);
     });
   });
 
   describe('selectAllByAttendeeId', () => {
-    it('should return tickets when found', async () => {
-      const fakeRows = [{ id: 1 }, { id: 2 }];
+    it('should return an array of tickets when found', async () => {
+      const fakeRows = [{ id: 1, attendee_id: 1 }, { id: 2, attendee_id: 1 }];
       pool.query.mockResolvedValue({ rows: fakeRows });
 
-      const result = await ticketModel.selectAllByAttendeeId({ id: 1 });
+      const result = await ticketModel.selectAllByAttendeeId({ id: 1, limitPlusOne: 11, offset: 0 });
       expect(result).toEqual(fakeRows);
+      expect(pool.query).toHaveBeenCalledWith(
+        "SELECT * FROM tickets WHERE attendee_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3",
+        [1, 11, 0]
+      );
     });
 
     it('should return "No tickets found" if none found', async () => {
       pool.query.mockResolvedValue({ rows: [] });
 
-      await expect(ticketModel.selectAllByAttendeeId({ id: 1 }))
-        .rejects
-        .toThrow('No tickets found');
+      const result = await ticketModel.selectAllByAttendeeId({ id: 1, limitPlusOne: 11, offset: 0 });
+      expect(result).toBe('No tickets found');
     });
 
-    it('should return internal error on DB failure', async () => {
-      pool.query.mockRejectedValue(new Error('DB connection failed'));
+    it('should throw an error on database failure', async () => {
+      const dbError = new Error('DB select failure');
+      pool.query.mockRejectedValue(dbError);
 
-      await expect(
-        ticketModel.selectAllByAttendeeId({ id: 1, limitPlusOne: 11, offset: 0 })
-      ).rejects.toThrow('DB connection failed');
+      await expect(ticketModel.selectAllByAttendeeId({ id: 1, limitPlusOne: 11, offset: 0 }))
+        .rejects
+        .toThrow(dbError);
     });
   });
 
   describe('selectByEventId', () => {
-    it('should return tickets when found', async () => {
-      const fakeRows = [{ id: 1 }];
+    it('should return an array of tickets when found', async () => {
+      const fakeRows = [{ id: 1, event_id: 99 }, { id: 2, event_id: 99 }];
       pool.query.mockResolvedValue({ rows: fakeRows });
 
-      const result = await ticketModel.selectByEventId({ id: 1 });
+      const result = await ticketModel.selectByEventId({ id: 99, limitPlusOne: 11, offset: 0 });
       expect(result).toEqual(fakeRows);
+      expect(pool.query).toHaveBeenCalledWith(
+        "SELECT * FROM tickets WHERE event_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3",
+        [99, 11, 0]
+      );
     });
 
     it('should return "Ticket not found" if none found', async () => {
       pool.query.mockResolvedValue({ rows: [] });
 
-      await expect(ticketModel.selectByEventId({ id: 999 }))
-        .rejects
-        .toThrow('Ticket not found');
+      const result = await ticketModel.selectByEventId({ id: 999, limitPlusOne: 11, offset: 0 });
+      expect(result).toBe('Ticket not found');
     });
 
-    it('should return internal error on DB failure', async () => {
-      pool.query.mockRejectedValue(new Error('DB query failed'));
+    it('should throw an error on database failure', async () => {
+      const dbError = new Error('DB select failure');
+      pool.query.mockRejectedValue(dbError);
 
-      await expect(
-        ticketModel.selectByEventId({ id: 1, limitPlusOne: 11, offset: 0 })
-      ).rejects.toThrow('DB query failed');
+      await expect(ticketModel.selectByEventId({ id: 99, limitPlusOne: 11, offset: 0 }))
+        .rejects
+        .toThrow(dbError);
     });
   });
 
   describe('updateFull', () => {
-    it('should return the updated ticket data if ticket updated', async () => {
-      const updatedTicket = { id: 1, attendeeid: 1, eventid: 1, paymentcode: 'abc' };
+    it('should return the updated ticket object on successful update', async () => {
+      const updatedTicket = { id: 1, attendee_id: 1, event_id: 1, payment_code: 'new_code' };
       pool.query.mockResolvedValue({ rowCount: 1, rows: [updatedTicket] });
 
-      const result = await ticketModel.updateFull(1, { attendeeid: 1, eventid: 1, paymentcode: 'abc' });
+      const result = await ticketModel.updateFull(1, { attendeeid: 1, eventid: 1, paymentcode: 'new_code' });
       expect(result).toEqual(updatedTicket);
     });
 
-    it('should return "Ticket not found" if no rows updated', async () => {
+    it('should return "Ticket not found" if no row is updated', async () => {
       pool.query.mockResolvedValue({ rowCount: 0, rows: [] });
 
-      await expect(ticketModel.updateFull(999, { attendeeid: 1, eventid: 1, paymentcode: 'abc' }))
-        .rejects
-        .toThrow('Ticket not found');
+      const result = await ticketModel.updateFull(999, { attendeeid: 1, eventid: 1, paymentcode: 'new_code' });
+      expect(result).toBe('Ticket not found');
     });
 
-    it('should return internal error on DB failure', async () => {
-      pool.query.mockRejectedValue(new Error('DB update failed'));
+    it('should throw an error on database failure', async () => {
+      const dbError = new Error('DB update failure');
+      pool.query.mockRejectedValue(dbError);
 
-      await expect(ticketModel.updateFull(1, { attendeeid: 1, eventid: 1, paymentcode: 'abc' }))
+      await expect(ticketModel.updateFull(1, { attendeeid: 1, eventid: 1, paymentcode: 'new_code' }))
         .rejects
-        .toThrow('DB update failed');
+        .toThrow(dbError);
     });
   });
 
- describe('updatePartial', () => {
-    it('should update partial fields and return updated row', async () => {
-      const updatedRow = { id: 1, paymentcode: 'newcode' };
-      pool.query.mockResolvedValue({ rows: [updatedRow] });
+  describe('updatePartial', () => {
+    it('should return the updated ticket object on a successful partial update', async () => {
+      const updatedTicket = { id: 1, payment_code: 'new_code' };
+      pool.query.mockResolvedValue({ rows: [updatedTicket] });
 
-      const result = await ticketModel.updatePartial(1, { paymentcode: 'newcode' });
-      expect(result).toEqual(updatedRow);
+      const result = await ticketModel.updatePartial(1, { payment_code: 'new_code' });
+      expect(result).toEqual(updatedTicket);
       expect(pool.query).toHaveBeenCalledWith(
-
-        expect.stringMatching(/UPDATE tickets\s+SET\s+paymentcode\s+=\s+\$1\s+WHERE\s+id\s+=\s+\$2\s+RETURNING\s+\*/),
-        ['newcode', 1]
+        expect.stringMatching(/UPDATE tickets\s+SET payment_code = \$1\s+WHERE id = \$2\s+RETURNING \*/),
+        ['new_code', 1]
       );
     });
 
-    it('should return "Ticket not found" if no row updated', async () => {
+    it('should throw "Ticket not found" if no row is updated', async () => {
       pool.query.mockResolvedValue({ rows: [] });
 
-      await expect(ticketModel.updatePartial(1, { paymentcode: 'newcode' }))
+      await expect(ticketModel.updatePartial(1, { payment_code: 'new_code' }))
         .rejects
         .toThrow('Ticket not found');
     });
 
-    it('should return internal error on DB failure', async () => {
-      pool.query.mockRejectedValue(new Error('Partial update DB error'));
-
-      await expect(ticketModel.updatePartial(1, { paymentcode: 'newcode' }))
-        .rejects
-        .toThrow('Partial update DB error');
+    it('should return "No fields provided or invalid update data." if fields param is invalid', async () => {
+      const result = await ticketModel.updatePartial(1, {});
+      expect(result).toBe("No fields provided or invalid update data.");
     });
 
-    it('should throw error if fields param missing or invalid', async () => {
-      await expect(ticketModel.updatePartial(1, undefined)).rejects.toThrow('No fields provided or invalid update data.');
-      await expect(ticketModel.updatePartial(1, null)).rejects.toThrow('No fields provided or invalid update data.');
-      await expect(ticketModel.updatePartial(1, {})).rejects.toThrow('No fields provided or invalid update data.');
+    it('should throw an error on database failure', async () => {
+      const dbError = new Error('DB partial update failure');
+      pool.query.mockRejectedValue(dbError);
+
+      await expect(ticketModel.updatePartial(1, { payment_code: 'new_code' }))
+        .rejects
+        .toThrow(dbError);
     });
   });
 
   describe('remove', () => {
-    it('should return success message if ticket deleted', async () => {
+    it('should return "Ticket deleted successfully" on a successful deletion', async () => {
       pool.query.mockResolvedValue({ rowCount: 1 });
 
       const result = await ticketModel.remove({ id: 1 });
       expect(result).toBe('Ticket deleted successfully');
+      expect(pool.query).toHaveBeenCalledWith("DELETE FROM tickets WHERE id = $1", [1]);
     });
 
-    it('should return "Ticket not found" if no ticket deleted', async () => {
+    it('should return "Ticket not found" if no row is deleted', async () => {
       pool.query.mockResolvedValue({ rowCount: 0 });
 
-      await expect(ticketModel.remove({ id: 999 }))
-        .rejects
-        .toThrow('Ticket not found');
+      const result = await ticketModel.remove({ id: 999 });
+      expect(result).toBe('Ticket not found');
     });
 
-    it('should return internal error on DB failure', async () => {
-      pool.query.mockRejectedValue(new Error('DB deletion failed'));
+    it('should throw an error on database failure', async () => {
+      const dbError = new Error('DB remove failure');
+      pool.query.mockRejectedValue(dbError);
 
       await expect(ticketModel.remove({ id: 1 }))
         .rejects
-        .toThrow('DB deletion failed');
+        .toThrow(dbError);
     });
   });
 });
