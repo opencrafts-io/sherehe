@@ -1,4 +1,4 @@
-import { insert, selectAll, selectById, update, remove } from "../Model/event-Model.js";
+import { insert, selectAll, selectById, update, remove , searchEvents } from "../Model/event-Model.js";
 import dotenv from "dotenv";
 import { logs } from "../utils/logs.js";
 
@@ -156,6 +156,32 @@ export const deleteEvent = async (req, res) => {
     msg = `Controller error deleting event: ${error.message}`;
     level = "ERR";
    return res.status(500).json({ message: "Error deleting event" });
+  } finally {
+    const endTime = process.hrtime.bigint();
+    const durationMicroseconds = Number(endTime - startTime) / 1000;
+    await logs(durationMicroseconds, level, req.ip, req.method, msg, req.url, res.statusCode, req.headers["user-agent"]);
+  }
+}
+
+export const searchEventsController = async (req, res) => {
+  const startTime = process.hrtime.bigint();
+  let level;
+  let msg;
+
+  try {
+      const { q } = req.query; // e.g. /search?q=music
+    if (!q) {
+      return res.status(400).json({ error: 'Search query is required' });
+    }
+    const results = await searchEvents(q);
+
+    msg = "Events searched successfully";
+    level = "INF";
+    res.json(results);
+  } catch (error) {
+    msg = `Controller error searching events: ${error.message}`;
+    level = "ERR";
+  return  res.status(500).json({ message: "Error searching events" });
   } finally {
     const endTime = process.hrtime.bigint();
     const durationMicroseconds = Number(endTime - startTime) / 1000;

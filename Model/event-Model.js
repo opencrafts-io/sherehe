@@ -1,4 +1,5 @@
 import pool from "../db.js";
+import redisClient from "../redis.js";
 
 export const insert = async (name, description, url , time , image_url , date, location , organizer   , organizer_id, genre ) => {
   try {
@@ -99,6 +100,43 @@ export const remove = async (params) => {
     } else {
       return "Event deleted successfully";
     }
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const searchEvents = async (searchQuery) => {
+  try {
+    const cacheKey = `events_search:${searchQuery.toLowerCase()}`;
+
+    // 1️⃣ Try Redis first
+    const cachedData = await redisClient.get(cacheKey);
+    if (cachedData) {
+      console.log(`Cache hit for "${searchQuery}"`);
+      return JSON.parse(cachedData);
+    }
+
+    // 2️⃣ Query PostgreSQL if no cache
+    const query = `
+      SELECT * 
+      FROM events 
+      WHERE name ILIKE $1 
+         OR organizer ILIKE $1
+    `;
+    const values = [`%${searchQuery}%`];
+    const result = await pool.query(query, values);
+
+    if (result.rows.length === 0) {
+      return [];
+    }
+
+    // 3️⃣ Store in Redis for 1 hour
+    await redisClient.set(cacheKey, JSON.stringify(result.rows), {
+      EX: 3600,
+    });
+
+    console.log(`Cache miss - Stored results for "${searchQuery}"`);
+    return result.rows;
   } catch (error) {
     throw error;
   }

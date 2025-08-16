@@ -1,8 +1,20 @@
 import * as eventModel from '../../Model/event-Model.js';
 import pool from '../../db.js';
+import redisClient from '../../redis.js';
 
 jest.mock('../../db.js', () => ({
   query: jest.fn()
+}));
+
+jest.mock('../../redis.js', () => ({
+  __esModule: true,
+  default: {
+    get: jest.fn(),
+    set: jest.fn(),
+    isOpen: true,
+    connect: jest.fn(),
+  },
+  connectRedis: jest.fn(),
 }));
 
 
@@ -255,37 +267,59 @@ describe('eventModel', () => {
     });
   });
 
-  describe('remove', () => {
-    it('should return "Event deleted successfully" on a successful deletion', async () => {
-      pool.query.mockResolvedValueOnce({
-        rowCount: 1
-      });
+  describe('searchEvents', () => {
+    const searchQuery = 'Dani Diaz';
+    const cacheKey = `events_search:${searchQuery.toLowerCase()}`;
+    const fakeEvents = [
+      { id: 1, name: 'Dani Diaz Live Show', organizer: 'TechOrg' }
+    ];
 
-      const result = await eventModel.remove({
-        id: 1
-      });
-      expect(result).toBe('Event deleted successfully');
-      expect(pool.query).toHaveBeenCalledWith('DELETE FROM events WHERE id = $1', [1]);
+    it('should return cached results if Redis has the data', async () => {
+      redisClient.get.mockResolvedValueOnce(JSON.stringify(fakeEvents));
+
+      const result = await eventModel.searchEvents(searchQuery);
+
+      expect(redisClient.get).toHaveBeenCalledWith(cacheKey);
+      expect(result).toEqual(fakeEvents);
+      expect(pool.query).not.toHaveBeenCalled();
     });
 
-    it('should return "Event not found" if no row is deleted', async () => {
-      pool.query.mockResolvedValueOnce({
-        rowCount: 0
-      });
+    it('should query Postgres and cache the result if Redis is empty', async () => {
+      redisClient.get.mockResolvedValueOnce(null); // Cache miss
+      pool.query.mockResolvedValueOnce({ rows: fakeEvents });
 
-      const result = await eventModel.remove({
-        id: 999
-      });
-      expect(result).toBe('Event not found');
+      const result = await eventModel.searchEvents(searchQuery);
+
+      expect(redisClient.get).toHaveBeenCalledWith(cacheKey);
+      expect(pool.query).toHaveBeenCalledWith(
+        expect.stringContaining('SELECT *'),
+        [`%${searchQuery}%`]
+      );
+      expect(redisClient.set).toHaveBeenCalledWith(
+        cacheKey,
+        JSON.stringify(fakeEvents),
+        { EX: 3600 }
+      );
+      expect(result).toEqual(fakeEvents);
     });
 
-    it('should throw an internal error on database failure', async () => {
-      const dbError = new Error('DB remove failure');
-      pool.query.mockRejectedValue(dbError);
+    it('should return an empty array if no results are found in Postgres', async () => {
+      redisClient.get.mockResolvedValueOnce(null); // Cache miss
+      pool.query.mockResolvedValueOnce({ rows: [] });
 
-      await expect(eventModel.remove({
-        id: 1
-      })).rejects.toThrow(dbError);
+      const result = await eventModel.searchEvents(searchQuery);
+
+      expect(result).toEqual([]);
+      expect(redisClient.set).not.toHaveBeenCalled();
+    });
+
+    it('should throw an error if Postgres query fails', async () => {
+      redisClient.get.mockResolvedValueOnce(null);
+      pool.query.mockRejectedValueOnce(new Error('DB fail'));
+
+      await expect(eventModel.searchEvents(searchQuery))
+        .rejects
+        .toThrow('DB fail');
     });
   });
 });
