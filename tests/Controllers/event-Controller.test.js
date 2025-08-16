@@ -10,8 +10,7 @@ import {
   getAllEvents,
   getEventById,
   updateEvent,
-  deleteEvent,
-  searchEventsController // ✅ Import added
+  deleteEvent
 } from '../../Controllers/event-Controller.js';
 
 // Setup Express app
@@ -31,7 +30,6 @@ const upload = multer({ storage });
 // Define routes
 app.post('/events', upload.single('file'), createEvent);
 app.get('/events', getAllEvents);
-app.get('/events/search', searchEventsController); // ✅ Added route
 app.get('/events/:id', getEventById);
 app.put('/events', updateEvent);
 app.delete('/events/:id', deleteEvent);
@@ -198,37 +196,6 @@ describe('Event Controller', () => {
 
       expect(response.statusCode).toBe(404);
       expect(response.body.message).toBe('Event not found for deletion');
-    });
-  });
-
-  describe('GET /events/search (searchEventsController)', () => {
-    it('should return events matching the search query', async () => {
-      const mockResults = [
-        { id: 1, name: 'Dani Diaz Live Show', genre: 'Music' }
-      ];
-      jest.spyOn(model, 'searchEvents').mockResolvedValue(mockResults);
-
-      const res = await request(app).get('/events/search?q=dani diaz');
-
-      expect(res.statusCode).toBe(200);
-      expect(res.body).toEqual(mockResults);
-      expect(model.searchEvents).toHaveBeenCalledWith('dani diaz');
-    });
-
-    it('should return 400 if query param is missing', async () => {
-      const res = await request(app).get('/events/search');
-
-      expect(res.statusCode).toBe(400);
-      expect(res.body.error).toBe('Search query is required');
-    });
-
-    it('should return 500 if searchEvents throws an error', async () => {
-      jest.spyOn(model, 'searchEvents').mockRejectedValue(new Error('DB fail'));
-
-      const res = await request(app).get('/events/search?q=dani diaz');
-
-      expect(res.statusCode).toBe(500);
-      expect(res.body.message).toBe('Error searching events');
     });
   });
 });

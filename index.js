@@ -4,14 +4,12 @@ const app = express();
 
 import dotenv from "dotenv";
 import path from "path";
-import { connectRedis } from './redis.js';
 dotenv.config();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
-await connectRedis();
 
 // Routes
 import eventRouter from "./Routes/event-Route.js";
