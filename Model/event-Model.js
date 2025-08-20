@@ -1,14 +1,14 @@
 import pool from "../db.js";
 
-export const insert = async (name, description, url , time , image_url , date, location , organizer   , organizer_id, genre ) => {
+export const insert = async (name, description, url , time , event_card_image , poster , banner , date, location , organizer   , organizer_id, genre ) => {
   try {
     const number_of_attendees = 1;
     const query = `
-      INSERT INTO events (name, date, location , description, url , time , image_url , organizer , number_of_attendees  , organizer_id, genre)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      INSERT INTO events (name, date, location , description, url , time , event_card_image , poster , banner  , organizer , number_of_attendees  , organizer_id, genre)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11 , $12, $13)
       RETURNING *
     `;
-    const values = [name, date, location , description, url , time , image_url , organizer , number_of_attendees  , organizer_id, genre]; ;
+    const values = [name, date, location , description, url , time , event_card_image , poster , banner , organizer , number_of_attendees  , organizer_id, genre]; ;
     const result = await pool.query(query, values);
     if (result.rowCount === 0) {
       throw new Error("Error creating event");
@@ -99,6 +99,22 @@ export const remove = async (params) => {
     } else {
       return "Event deleted successfully";
     }
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const search = async ({ searchQuery }) => {
+  try {
+    const query = `
+      SELECT * 
+      FROM events 
+      WHERE name ILIKE $1 OR organizer ILIKE $1
+    `;
+    const values = [`%${searchQuery}%`];
+    const result = await pool.query(query, values);
+
+    return result.rows; // always return rows (can be empty)
   } catch (error) {
     throw error;
   }

@@ -1,6 +1,7 @@
-import { insert, selectAll, selectById, update, remove } from "../Model/event-Model.js";
+import { insert, selectAll, selectById, update, remove , search } from "../Model/event-Model.js";
 import dotenv from "dotenv";
 import { logs } from "../utils/logs.js";
+import sharp from "sharp";
 
 dotenv.config();
 
@@ -13,21 +14,50 @@ export const createEvent = async (req, res) => {
   try {
     const { name, description, url, time, date, location, organizer, organizer_id, genre } = req.body;
 
-    if (!req.file) {
-      msg = "No image uploaded";
+    if (!req.files || !req.files.event_card_image || !req.files.poster || !req.files.banner) {
+      msg = "Event card image, poster, and banner are required";
       level = "ERR";
-      return res.status(400).json({ message: 'No image uploaded' });
+      return res.status(400).json({ message: msg });
     }
 
+    // Paths
+    const event_card_path = req.files.event_card_image[0].path;
+    const banner_path = req.files.banner[0].path;
+    const poster_path = req.files.poster[0].path;
 
-    const image_url = `${process.env.BASE_URL}/${req.file.filename}`;
+    // ✅ Resize / enforce aspect ratios
+    const eventCardResized = `${event_card_path}-resized.jpg`;
+    await sharp(event_card_path)
+      .resize(1000, 1000, { fit: "cover" }) // 1:1
+      .toFile(eventCardResized);
 
-    const result = await insert(name, description, url, time, image_url, date, location, organizer, organizer_id, genre);
+    const bannerResized = `${banner_path}-resized.jpg`;
+    await sharp(banner_path)
+      .resize(1600, 900, { fit: "cover" }) // 16:9
+      .toFile(bannerResized);
+
+    const posterResized = `${poster_path}-resized.jpg`;
+    await sharp(poster_path)
+      .resize(1000, 1500, { fit: "cover" }) // example 2:3 ratio for posters
+      .toFile(posterResized);
+
+    // URLs
+    const event_card_image = `${process.env.BASE_URL}/${eventCardResized.split("/").pop()}`;
+    const poster = `${process.env.BASE_URL}/${posterResized.split("/").pop()}`;
+    const banner = `${process.env.BASE_URL}/${bannerResized.split("/").pop()}`;
+
+    // DB insert
+    const result = await insert(
+      name, description, url, time,
+      event_card_image, poster, banner,
+      date, location, organizer, organizer_id, genre
+    );
+
     if (result === "Error creating event") {
       msg = "Error creating event from model";
       level = "ERR";
       return res.status(500).json({ message: "Error creating event" });
-    } else if (result === "Event created successfully") {
+    } else {
       msg = "Event created successfully";
       level = "INF";
       return res.status(201).json({ message: msg });
@@ -41,7 +71,8 @@ export const createEvent = async (req, res) => {
     const durationMicroseconds = Number(endTime - startTime) / 1000;
     await logs(durationMicroseconds, level, req.ip, req.method, msg, req.url, res.statusCode, req.headers["user-agent"]);
   }
-}
+};
+
 
 export const getAllEvents = async (req, res) => {
   const startTime = process.hrtime.bigint();
@@ -162,3 +193,43 @@ export const deleteEvent = async (req, res) => {
     await logs(durationMicroseconds, level, req.ip, req.method, msg, req.url, res.statusCode, req.headers["user-agent"]);
   }
 }
+
+export const searchEvents = async (req, res) => {
+  const startTime = process.hrtime.bigint();
+  let level;
+  let msg;
+
+  try {
+    const { searchQuery } = req.query;
+
+    const result = await search({ searchQuery }); // ✅ fixed
+
+    if (result.length === 0) {
+      msg = "No events found";
+      level = "ERR";
+      return res.status(200).json([]); // empty array
+    } else {
+      msg = "Events found successfully";
+      level = "INF";
+      return res.status(200).json(result);
+    }
+  } catch (error) {
+    msg = `Controller error searching events: ${error.message}`;
+    level = "ERR";
+    return res.status(500).json({ message: "Error searching events" });
+  } finally {
+    const endTime = process.hrtime.bigint();
+    const durationMicroseconds = Number(endTime - startTime) / 1000;
+    await logs(
+      durationMicroseconds,
+      level,
+      req.ip,
+      req.method,
+      msg,
+      req.url,
+      res.statusCode,
+      req.headers["user-agent"]
+    );
+  }
+};
+
