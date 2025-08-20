@@ -3,13 +3,13 @@ import pool from "../db.js";
 
 export const insert = async (params) => {
   try {
-    const { first_name, middle_name, last_name, event_id } = params;
+    const { first_name, middle_name, last_name, event_id, email } = params;
     const query = `
-        INSERT INTO attendees (first_name, middle_name, last_name, event_id)
-        VALUES ($1, $2, $3, $4)
+        INSERT INTO attendees (first_name, middle_name, last_name, event_id, email)
+        VALUES ($1, $2, $3, $4, $5)
         RETURNING *
     `;
-    const values = [first_name, middle_name || null, last_name, event_id];
+    const values = [first_name, middle_name || null, last_name, event_id, email];
     const result = await pool.query(query, values);
     if (result.rowCount === 0) {
       return "Error creating attendee";
@@ -61,12 +61,12 @@ export const selectById = async (params) => {
   }
 };
 
-export const updateFull = async (id, { first_name, middle_name, last_name, event_id }) => {
+export const updateFull = async (id, { first_name, middle_name, last_name, event_id, email }) => {
   try {
     const query = `
             UPDATE attendees
-            SET first_name = $1, middle_name = $2, last_name = $3, event_id = $4
-            WHERE id = $5
+            SET first_name = $1, middle_name = $2, last_name = $3, event_id = $4, email = $5
+            WHERE id = $6
             RETURNING *
         `;
     const values = [first_name, middle_name || null, last_name, event_id, id];

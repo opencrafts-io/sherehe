@@ -22,7 +22,8 @@ describe('attendeeModel', () => {
           id: 1,
           first_name: 'John',
           last_name: 'Doe',
-          event_id: 101
+          event_id: 101,
+          email: "johndoe@gmail.com"
         }]
       });
 
@@ -34,7 +35,8 @@ describe('attendeeModel', () => {
       const params = {
         first_name: 'John',
         last_name: 'Doe',
-        event_id: 101
+        event_id: 101,
+        email: "johndoe@gmail.com"
       };
       const result = await attendeeModel.insert(params);
       expect(result).toBe('Attendee created successfully');
@@ -53,7 +55,8 @@ describe('attendeeModel', () => {
       const params = {
         first_name: 'John',
         last_name: 'Doe',
-        event_id: 101
+        event_id: 101,
+        email: "johndoe@gmail.com"
       };
       const result = await attendeeModel.insert(params);
       expect(result).toBe('Error creating attendee');
@@ -77,11 +80,11 @@ describe('attendeeModel', () => {
       const fakeRows = [{
         id: 1,
         first_name: 'John',
-        event_id: 101
+        event_id: 101,
       }, {
         id: 2,
         first_name: 'Jane',
-        event_id: 101
+        event_id: 101,
       },];
       pool.query.mockResolvedValue({
         rows: fakeRows
