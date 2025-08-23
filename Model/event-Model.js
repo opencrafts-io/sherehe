@@ -1,33 +1,45 @@
 import pool from "../db.js";
 
-export const insert = async (params) => {
+export const insert = async (name, description, url , time , event_card_image , poster , banner , date, location , organizer   , organizer_id, genre ) => {
   try {
-    const { name , description , url , location , time , date , organizer , imageurl , numberofattendees , organizerid } = params;
-    const query = `INSERT INTO events (name, description, url, location , time , date , organizer , imageurl , numberofattendees , organizerid) VALUES ($1, $2, $3, $4 , $5 , $6 , $7 , $8 , $9 , $10) RETURNING *`;
-    const values = [name , description , url , location , time , date , organizer , imageurl , numberofattendees , organizerid];
+    const number_of_attendees = 1;
+    const query = `
+      INSERT INTO events (name, date, location , description, url , time , event_card_image , poster , banner  , organizer , number_of_attendees  , organizer_id, genre)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11 , $12, $13)
+      RETURNING *
+    `;
+    const values = [name, date, location , description, url , time , event_card_image , poster , banner , organizer , number_of_attendees  , organizer_id, genre]; ;
     const result = await pool.query(query, values);
-    if(result.rowCount === 0){
-      return "Error creating event"
-    }else{
-      return "Event created successfully"
+    if (result.rowCount === 0) {
+      throw new Error("Error creating event");
+    } else {
+      return "Event created successfully";
     }
   } catch (error) {
-    console.log(error)
-    return "Internal server error"
+    throw error;
   }
 };
 
-export const selectAll = async () => {
+export const selectAll = async (params) => {
   try {
-    const query = "SELECT * FROM events";
-    const result = await pool.query(query);
-    if(result.rows.length === 0){
-      return "No events found"
-    }else{
-      return result.rows
+    const { limitPlusOne, offset } = params;
+    const query = "SELECT * FROM events ORDER BY created_at DESC LIMIT $1 OFFSET $2";
+    const values = [limitPlusOne, offset];
+    const result = await pool.query(query, values);
+    if (result.rows.length === 0) {
+      return "No events found";
+    } else {
+      // Convert `id` and `organization_id` to strings here
+      const formattedRows = result.rows.map(row => ({
+        ...row,
+        id: row.id?.toString() ?? null,
+        organizer_id: row.organizer_id?.toString() ?? null,
+      }));
+
+      return formattedRows;
     }
   } catch (error) {
-    return "Internal server error"
+    throw error;
   }
 };
 
@@ -35,47 +47,75 @@ export const selectById = async (params) => {
   try {
     const { id } = params;
     const query = "SELECT * FROM events WHERE id = $1";
-    const values = [id];
-    const result = await pool.query(query, values);
+    const result = await pool.query(query, [id]);
+
     if (result.rows.length === 0) {
-     return "Event not found"
+      return "Event not found";
     } else {
-      return result.rows
+      const row = result.rows[0];
+
+      // Convert id and organization_id to strings
+      const formattedRow = {
+        ...row,
+        id: row.id?.toString() ?? null,
+        organizer_id: row.organizer_id?.toString() ?? null,
+      };
+
+      return formattedRow;
     }
   } catch (error) {
-    return "Internal server error"
+    throw error;
   }
 };
 
-export const update = async (params) => {
+export const update = async (id, { name, date, location }) => {
   try {
-    const { name , description , url , location , time , date , organizer , imageurl , numberofattendees , organizerid } = params;
-    const query = "UPDATE events SET name = $1, description = $2, url = $3, location = $4, time = $5, date = $6, organizer = $7, imageurl = $8, numberofattendees = $9, organizerid = $10 WHERE id = $11";
-    const values = [ name , description , url , location , time , date , organizer , imageurl , numberofattendees , organizerid];
+    const query = `
+      UPDATE events
+      SET name = $1, date = $2, location = $3
+      WHERE id = $4
+      RETURNING *
+    `;
+    const values = [name, date, location, id];
     const result = await pool.query(query, values);
     if (result.rowCount === 0) {
-      return "Event not found"
-    }else{
-      return "Event updated successfully"
+      return "Event not found";
+    } else {
+      return result.rows[0];
     }
   } catch (error) {
-    return "Internal server error"
+    throw error;
   }
 };
-
 
 export const remove = async (params) => {
   try {
     const { id } = params;
     const query = "DELETE FROM events WHERE id = $1";
-    const values = [id];
-    const result = await pool.query(query, values);
+    const result = await pool.query(query, [id]);
+
     if (result.rowCount === 0) {
-      return "Event not found"
+      return "Event not found";
     } else {
-      return "Event deleted successfully"
+      return "Event deleted successfully";
     }
   } catch (error) {
-    return "Internal server error"
+    throw error;
+  }
+};
+
+export const search = async ({ searchQuery }) => {
+  try {
+    const query = `
+      SELECT * 
+      FROM events 
+      WHERE name ILIKE $1 OR organizer ILIKE $1
+    `;
+    const values = [`%${searchQuery}%`];
+    const result = await pool.query(query, values);
+
+    return result.rows; // always return rows (can be empty)
+  } catch (error) {
+    throw error;
   }
 };

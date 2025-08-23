@@ -1,114 +1,193 @@
-import { insert, selectAll, selectById, updateFull, updatePartial , remove } from "../Model/attendee-Model.js";
+import { insert, selectAll, selectById, updateFull, updatePartial, remove } from "../Model/attendee-Model.js";
+import { logs } from "../utils/logs.js";
+
 
 export const createAttendee = async (req, res) => {
+  const startTime = process.hrtime.bigint();
+  let level;
+  let msg;
   try {
     const result = await insert(req.body);
+
     if (result === "Error creating attendee") {
-      res.status(500).json({ error: "Error creating attendee" });
+      msg = "Missing required fields";
+      level = "INF";
+      res.status(400).json({ error: "Missing required fields" });
     } else if (result === "Attendee created successfully") {
-      res.status(201).json({ message: "Attendee created successfully" });
-    } else {
-      res.status(500).json({ error: "Internal server error" });
+      msg = "Attendee created successfully";
+      level = "INF";
+      res.status(201).json({ message: msg });
     }
   } catch (error) {
-    console.error("Error creating attendee:", error);
-    res.status(500).json({ error: "Error creating attendee" });
+    msg = `Controller error creating attendee: ${error.message}`;
+    level = "ERR";
+  return  res.status(500).json({ error: "Error creating attendee" });
+  } finally {
+    const endTime = process.hrtime.bigint();
+    const durationMicroseconds = Number(endTime - startTime) / 1000;
+    await logs(durationMicroseconds, level, req.ip, req.method, msg, req.url, res.statusCode, req.headers["user-agent"]);
   }
 };
 
 export const getAllAttendeesByEventId = async (req, res) => {
+    const startTime = process.hrtime.bigint();
+  let level;
+  let msg;
+
   try {
-    const result = await selectAll(req.params);
-    if(result === "No attendees found"){
-      res.status(404).json({ message: "No attendees found" });
-    }else if(result === "Internal server error"){
-      res.status(500).json({ error: "Internal server error" });
-    }else{
-      res.status(200).json({
-       result,
-      });
+    const { limit, page } = req.pagination;
+    const result = await selectAll({ ...req.params, ...req.pagination });
+
+    if (result === "No attendees found") {
+      msg = "No attendees found for event";
+      level = "INF";
+      return res.status(404).json({ message: msg });
     }
+
+    const hasNextPage = result.length > limit;
+    const attendees = hasNextPage ? result.slice(0, limit) : result;
+
+    msg = "Attendees fetched successfully";
+    level = "INF";
+   return res.status(200).json({
+      currentPage: page,
+      nextPage: hasNextPage ? page + 1 : null,
+      previousPage: page > 1 ? page - 1 : null,
+      data: attendees
+    });
   } catch (error) {
-    console.error("Controller error fetching attendees:", error);
-    res.status(500).json({ message: "Error fetching attendees" });
+    msg = `Controller error fetching attendees by event ID: ${error.message}`;
+    level = "ERR";
+   return res.status(500).json({ message: "Error fetching attendees" });
+  } finally {
+    const endTime = process.hrtime.bigint();
+    const durationMicroseconds = Number(endTime - startTime) / 1000;
+    await logs(durationMicroseconds, level, req.ip, req.method, msg, req.url, res.statusCode, req.headers["user-agent"]);
   }
 };
 
 export const getAttendeeById = async (req, res) => {
+  const startTime = process.hrtime.bigint();
+  let level;
+  let msg;
+
   try {
     const { id } = req.params;
     const result = await selectById(req.params);
 
-
-    if(result === "Attendee not found"){
-      res.status(404).json({ message: "Attendee not found" });
-    }else if(result === "Internal server error"){
-      res.status(500).json({ error: "Internal server error" });
-    }else{
-      res.status(200).json({
-       result,
+    if (result === "Attendee not found") {
+      msg = "Attendee not found by ID";
+      level = "INF";
+      return res.status(404).json({ message: msg });
+    }else {
+      msg = "Attendee fetched successfully by ID";
+      level = "INF";
+   return res.status(200).json({
+        result,
       });
     }
   } catch (error) {
-    console.error("Controller Error fetching attendee:", error);
-    res.status(500).json({ message: "Error fetching attendee" });
+    msg = `Controller error fetching attendee by ID: ${error.message}`;
+    level = "ERR";
+   return res.status(500).json({ message: "Error fetching attendee" });
+  } finally {
+        const endTime = process.hrtime.bigint();
+    const durationMicroseconds = Number(endTime - startTime) / 1000;
+    await logs(durationMicroseconds, level, req.ip, req.method, msg, req.url, res.statusCode, req.headers["user-agent"]);
   }
 };
 
 export const updateAttendee = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const attendee = await updateFull(id, req.body);
+  const startTime = process.hrtime.bigint();
+  let level;
+  let msg;
 
-        if (!attendee) {
-            return res.status(404).json({ message: "Attendee not found" });
-        }
+  try {
+    const { id } = req.params;
+    const attendee = await updateFull(id, req.body);
 
-        res.status(200).json({
-            message: "Attendee updated successfully",
-            data: attendee,
-        });
-    } catch (error) {
-        res.status(500).json({ message: "Error updating attendee" });
+    if (!attendee) {
+      msg = "Attendee not found for full update";
+      level = "INF";
+      return res.status(404).json({ message: msg });
     }
+
+    msg = "Attendee updated successfully";
+    level = "INF";
+   return   res.status(200).json({
+      message: msg,
+      data: attendee,
+    });
+  } catch (error) {
+    msg = `Controller error updating attendee: ${error.message}`;
+    level = "ERR";
+   return  res.status(500).json({ message: "Error updating attendee" });
+  } finally {
+        const endTime = process.hrtime.bigint();
+    const durationMicroseconds = Number(endTime - startTime) / 1000;
+    await logs(durationMicroseconds, level, req.ip, req.method, msg, req.url, res.statusCode, req.headers["user-agent"]);
+  }
 };
 
-
 export const patchAttendee = async (req, res) => {
+    const startTime = process.hrtime.bigint();
+  let level;
+  let msg;
+
   try {
     const { id } = req.params;
     const updatedAttendee = await updatePartial(id, req.body);
 
     if (!updatedAttendee) {
-      return res.status(404).json({ message: "Attendee not found" });
+      msg = "Attendee not found for partial update";
+      level = "INF";
+      return res.status(404).json({ message: msg });
     }
 
-    res.status(200).json({
-        message: "Attendee partially updated successfully",
-        data: updatedAttendee,
+    msg = "Attendee partially updated successfully";
+    level = "INF";
+    return  res.status(200).json({
+      message: msg,
+      data: updatedAttendee,
     });
   } catch (error) {
-    console.error("Controller error updating attendee:", error);
-    res.status(500).json({ message: "Error updating attendee" });
+    msg = `Controller error patching attendee: ${error.message}`;
+    level = "ERR";
+   return  res.status(500).json({ message: "Error updating attendee" });
+  } finally {
+    const endTime = process.hrtime.bigint();
+    const durationMicroseconds = Number(endTime - startTime) / 1000;
+    await logs(durationMicroseconds, level, req.ip, req.method, msg, req.url, res.statusCode, req.headers["user-agent"]);
   }
 };
 
 export const deleteAttendee = async (req, res) => {
+  const startTime = process.hrtime.bigint();
+  let level;
+  let msg;
+
   try {
     const { id } = req.params;
     const result = await remove(req.params);
 
-    if(result === "Attendee not found"){
-      res.status(404).json({ message: "Attendee not found" });
-    }else if(result === "Internal server error"){
-      res.status(500).json({ error: "Internal server error" });
-    }else{
+    if (result === "Attendee not found") {
+      msg = "Attendee not found for deletion";
+      level = "INF";
+   return   res.status(404).json({ message: msg });
+    }else {
+      msg = "Attendee deleted successfully";
+      level = "INF";
       res.status(200).json({
-       result,
+        result,
       });
     }
   } catch (error) {
-    console.error("Error in controller while deleting attendee:", error);
-    res.status(500).json({ message: "Error deleting attendee" });
+    msg = `Controller error deleting attendee: ${error.message}`;
+    level = "ERR";
+   return res.status(500).json({ message: "Error deleting attendee" });
+  } finally {
+    const endTime = process.hrtime.bigint();
+    const durationMicroseconds = Number(endTime - startTime) / 1000;
+    await logs(durationMicroseconds, level, req.ip, req.method, msg, req.url, res.statusCode, req.headers["user-agent"]);
   }
 };

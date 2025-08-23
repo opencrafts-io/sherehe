@@ -1,117 +1,207 @@
 import { insert , selectAllByAttendeeId , selectByEventId , updateFull , updatePartial , remove } from "../Model/ticket-Model.js";
+import { logs } from "../utils/logs.js";
+
 
 export const createTicket = async (req, res) => {
+  const startTime = process.hrtime.bigint();
+  let level;
+  let msg;
+
   try {
     const result = await insert(req.body);
     if(result === "Ticket created successfully"){
-      res.status(201).json({ message: "Ticket created successfully" });
+      msg = "Ticket created successfully";
+      level = "INF";
+    return  res.status(201).json({ message: msg });
     }else if(result === "Error creating ticket"){
-      res.status(403).json({ error: "Error creating ticket" });
+      msg = "Error creating ticket";
+      level = "ERR";
+    return  res.status(404).json({ error: "Missing required fields" });
     }else if(result === "Wrong Event ID"){
-      res.status(403).json({ error: "Wrong Event ID" });
+      msg = "Wrong Event ID provided for ticket creation";
+      level = "ERR";
+    return  res.status(404).json({ error: "Wrong Event ID" });
     }else if(result === "Wrong Attendee ID"){
-      res.status(403).json({ error: "Wrong Attendee ID" });
-    }
-    else{
-      res.status(500).json({ error: "Internal server error" });
+      msg = "Wrong Attendee ID provided for ticket creation";
+      level = "ERR";
+     return res.status(404).json({ error: "Wrong Attendee ID" });
     }
   } catch (error) {
-    console.error("Error creating ticket:", error);
-    res.status(500).json({ error: "Error creating ticket" });
+    msg = `Controller error creating ticket: ${error.message}`;
+    level = "ERR";
+   return res.status(500).json({ error: "Error creating ticket" });
+  } finally {
+    const endTime = process.hrtime.bigint();
+    const durationMicroseconds = Number(endTime - startTime) / 1000;
+    await logs(durationMicroseconds, level, req.ip, req.method, msg, req.url, res.statusCode, req.headers["user-agent"]);
   }
 };
 
 export const getAllTicketsByAttendeeId = async (req, res) => {
+  const startTime = process.hrtime.bigint();
+  let level;
+  let msg;
+
   try {
-    const result = await selectAllByAttendeeId(req.params);
-    console.log(result)
+    const { limit, page } = req.pagination;
+    const result = await selectAllByAttendeeId({ ...req.params, ...req.pagination });
+
     if(result === "No tickets found"){
-      res.status(404).json({ message: "No tickets found" });
-    }else if(result === "Internal server error"){
-      res.status(500).json({ error: "Internal server error" });
-    }else{
-      res.status(200).json({
-       result,
-      });
+      msg = "No tickets found for attendee ID";
+      level = "INF";
+      return res.status(200).json([]);
     }
+
+    const hasNextPage = result.length > limit;
+    const tickets = hasNextPage ? result.slice(0, limit) : result;
+
+    msg = "Tickets fetched successfully by attendee ID";
+    level = "INF";
+   return res.status(200).json({
+      currentPage: page,
+      nextPage: hasNextPage ? page + 1 : null,
+      previousPage: page > 1 ? page - 1 : null,
+      data: tickets,
+    });
   } catch (error) {
-    console.error("Error fetching tickets:", error);
-    res.status(500).json({ error: "Error fetching tickets" });
+    msg = `Controller error fetching tickets by attendee ID: ${error.message}`;
+    level = "ERR";
+   return res.status(500).json({ message: "Error fetching tickets" });
+  } finally {
+    const endTime = process.hrtime.bigint();
+    const durationMicroseconds = Number(endTime - startTime) / 1000;
+    await logs(durationMicroseconds, level, req.ip, req.method, msg, req.url, res.statusCode, req.headers["user-agent"]);
   }
 };
 
 export const getTicketByEventId = async (req, res) => {
+  const startTime = process.hrtime.bigint();
+  let level;
+  let msg;
+
   try {
-    const { id } = req.params;
-    const result = await selectByEventId(req.params);
+    const { limit, page } = req.pagination;
+
+    const result = await selectByEventId({ ...req.params, ...req.pagination });
+
     if(result === "Ticket not found"){
-      res.status(404).json({ message: "Ticket not found" });
-    }else if(result === "Internal server error"){
-      res.status(500).json({ error: "Internal server error" });
-    }else{
-      res.status(200).json({
-       result,
+      msg = "Ticket not found by Event ID";
+      level = "INF";
+    return  res.status(200).json([]);
+    } else {
+      const hasNextPage = result.length > limit;
+      const tickets = hasNextPage ? result.slice(0, limit) : result;
+
+      msg = "Tickets fetched successfully by event ID";
+      level = "INF";
+     return res.status(200).json({
+        currentPage: page,
+        nextPage: hasNextPage ? page + 1 : null,
+        previousPage: page > 1 ? page - 1 : null,
+        data: tickets
       });
     }
   } catch (error) {
-    console.error("Error fetching ticket:", error);
-    res.status(500).json({ error: "Error fetching ticket" });
+    msg = `Controller error fetching ticket by event ID: ${error.message}`;
+    level = "ERR";
+   return res.status(500).json({ message: "Error fetching tickets" });
+  } finally {
+    const endTime = process.hrtime.bigint();
+    const durationMicroseconds = Number(endTime - startTime) / 1000;
+    await logs(durationMicroseconds, level, req.ip, req.method, msg, req.url, res.statusCode, req.headers["user-agent"]);
   }
 };
 
 export const updateTicketFull = async (req, res) => {
+  const startTime = process.hrtime.bigint();
+  let level;
+  let msg;
+
   try {
     const { id } = req.params;
     const result = await updateFull(id, req.body);
     if(result === "Ticket not found"){
-      res.status(404).json({ message: "Ticket not found" });
-    }else if(result === "Internal server error"){
-      res.status(500).json({ error: "Internal server error" });
+      msg = "Ticket not found for full update";
+      level = "INF";
+     return res.status(404).json({ message: msg });
     }else{
-      res.status(200).json({
+      msg = "Ticket updated successfully (full)";
+      level = "INF";
+    return  res.status(200).json({
        result,
       });
     }
   } catch (error) {
-    console.error("Error updating ticket (full):", error);
-    res.status(500).json({ error: "Error updating ticket" });
+    msg = `Controller error updating ticket (full): ${error.message}`;
+    level = "ERR";
+   return res.status(500).json({ error: "Error updating ticket" });
+  } finally {
+    const endTime = process.hrtime.bigint();
+    const durationMicroseconds = Number(endTime - startTime) / 1000;
+    await logs(durationMicroseconds, level, req.ip, req.method, msg, req.url, res.statusCode, req.headers["user-agent"]);
   }
 };
 
 export const updateTicketPartial = async (req, res) => {
+  const startTime = process.hrtime.bigint();
+  let level;
+  let msg;
+
   try {
     const { id } = req.params;
-    const result = await updatePartial(id, req.body);
-    if(result === "Ticket not found"){
-      res.status(404).json({ message: "Ticket not found" });
-    }else if(result === "Internal server error"){
-      res.status(500).json({ error: "Internal server error" });
-    }else{
-      res.status(200).json({
-       result,
-      });
+    const updatedTicket = await updatePartial(id, req.body);
+    
+
+    if (updatedTicket === "No fields provided or invalid update data.") {
+      msg = "Ticket not found for partial update";
+      level = "INF";
+      return res.status(404).json({ message: msg });
     }
+
+    msg = "Ticket partially updated successfully";
+    level = "INF";
+   return res.status(200).json({
+      message: msg,
+      data: updatedTicket,
+    });
   } catch (error) {
-    console.error("Error updating ticket (partial):", error);
-    res.status(500).json({ error: "Error updating ticket" });
+    msg = `Controller error updating ticket (partial): ${error.message}`;
+    level = "ERR";
+   return res.status(500).json({ message: "Error updating ticket" });
+  } finally {
+    const endTime = process.hrtime.bigint();
+    const durationMicroseconds = Number(endTime - startTime) / 1000;
+    await logs(durationMicroseconds, level, req.ip, req.method, msg, req.url, res.statusCode, req.headers["user-agent"]);
   }
 };
 
+
 export const deleteTicket = async (req, res) => {
+  const startTime = process.hrtime.bigint();
+  let level;
+  let msg;
+
   try {
     const { id } = req.params;
     const result = await remove(req.params);
     if(result === "Ticket not found"){
-      res.status(404).json({ message: "Ticket not found" });
-    }else if(result === "Internal server error"){
-      res.status(500).json({ error: "Internal server error" });
+      msg = "Ticket not found for deletion";
+      level = "INF";
+    return  res.status(404).json({ message: msg });
     }else{
-      res.status(200).json({
+      msg = "Ticket deleted successfully";
+      level = "INF";
+     return res.status(200).json({
        result,
       });
     }
   } catch (error) {
-    console.error("Error deleting ticket:", error);
-    res.status(500).json({ error: "Error deleting ticket" });
+    msg = `Controller error deleting ticket: ${error.message}`;
+    level = "ERR";
+   return res.status(500).json({ error: "Error deleting ticket" });
+  } finally {
+    const endTime = process.hrtime.bigint();
+    const durationMicroseconds = Number(endTime - startTime) / 1000;
+    await logs(durationMicroseconds, level, req.ip, req.method, msg, req.url, res.statusCode, req.headers["user-agent"]);
   }
 };

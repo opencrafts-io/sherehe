@@ -1,0 +1,557 @@
+{
+  "type": "collection.insomnia.rest/5.0",
+  "name": "My first collection",
+  "meta": {
+    "id": "wrk_aa4e1f9ad76844089aedeee78f55d8d9",
+    "created": 1751674150825,
+    "modified": 1751674150825,
+    "description": ""
+  },
+  "collection": [
+    {
+      "name": "Events",
+      "meta": {
+        "id": "fld_4ec4a9b678d14e1c968fb11266e59f3c",
+        "created": 1751675358991,
+        "modified": 1751833528843,
+        "sortKey": -1751675358991,
+        "description": ""
+      },
+      "children": [
+        {
+          "url": "http://localhost:3000/events/createEvent",
+          "name": "Create Event",
+          "meta": {
+            "id": "req_04f132d9f3414c7cbadaee5c7ed70fb7",
+            "created": 1751674151145,
+            "modified": 1755667117354,
+            "isPrivate": false,
+            "description": "",
+            "sortKey": -1751675384567
+          },
+          "method": "POST",
+          "body": {
+            "mimeType": "multipart/form-data",
+            "params": [
+              {
+                "id": "pair_d80291def04e41c1994b97d9162442b7",
+                "name": "name",
+                "value": "Tech Conference 2025",
+                "description": "",
+                "disabled": false
+              },
+              {
+                "id": "pair_06daa53edd2b4ef3941c71bb19c1dfb4",
+                "name": "description",
+                "value": "Annual technology conference focusing on AI and web development.",
+                "description": "",
+                "disabled": false
+              },
+              {
+                "id": "pair_20af7dca8faf450ba7ed751e266ad0a2",
+                "name": "url",
+                "value": "\"none\"",
+                "description": "",
+                "disabled": false
+              },
+              {
+                "id": "pair_ab4a8275d7cf49959d56672f5b0bebc3",
+                "name": "location",
+                "value": "Nairobi International Convention Centre",
+                "description": "",
+                "disabled": false
+              },
+              {
+                "id": "pair_00e10ed9eb6a4320853daed3be077606",
+                "name": "time",
+                "value": "10:00 AM",
+                "description": "",
+                "disabled": false
+              },
+              {
+                "id": "pair_ca0a0e1fd0d7455b86a9ae69d5f30acf",
+                "name": "date",
+                "value": "2025-09-10",
+                "description": "",
+                "disabled": false
+              },
+              {
+                "id": "pair_beddf5ff39a94fa6ae903cb66f7aac87",
+                "name": "event_card_image",
+                "value": "",
+                "description": "",
+                "disabled": false,
+                "type": "file",
+                "fileName": "/home/ordo-chao/Documents/Images/Gemini_Generated_Image_mvovpvmvovpvmvov.png"
+              },
+              {
+                "id": "pair_fc7e6a005c5f443e8dfc0b3e8c393b38",
+                "name": "organizer_id",
+                "value": "1",
+                "description": "",
+                "disabled": false
+              },
+              {
+                "id": "pair_84d94397758640079d7009150ee41daa",
+                "name": "genre",
+                "value": "{Adult Time,PornHub}",
+                "description": "",
+                "disabled": false
+              },
+              {
+                "id": "pair_afa89f68172d43ecaaace3fae46647e6",
+                "name": "organizer",
+                "value": "Dani Diaz",
+                "description": "",
+                "disabled": false
+              },
+              {
+                "id": "pair_9496d31d6595497382069bee6403c6a6",
+                "name": "poster",
+                "value": "",
+                "description": "",
+                "disabled": false,
+                "type": "file",
+                "fileName": "/home/ordo-chao/Pictures/Screenshots/Screenshot from 2025-08-06 15-31-36.png"
+              },
+              {
+                "id": "pair_50ff89ddc2af484f911677e351c71a2d",
+                "name": "banner",
+                "value": "",
+                "description": "",
+                "disabled": false,
+                "type": "file",
+                "fileName": "/home/ordo-chao/Downloads/Gemini_Generated_Image_55dcc555dcc555dc.svg"
+              }
+            ]
+          },
+          "headers": [
+            {
+              "name": "Content-Type",
+              "value": "multipart/form-data"
+            },
+            {
+              "name": "User-Agent",
+              "value": "insomnia/11.2.0"
+            }
+          ],
+          "settings": {
+            "renderRequestBody": true,
+            "encodeUrl": true,
+            "followRedirects": "global",
+            "cookies": {
+              "send": true,
+              "store": true
+            },
+            "rebuildPath": true
+          }
+        },
+        {
+          "url": "http://localhost:3000/events/deleteEvent/1",
+          "name": "Delete Event",
+          "meta": {
+            "id": "req_d238df64356d4b4a8ca185888cdae89e",
+            "created": 1751675406540,
+            "modified": 1751828732683,
+            "isPrivate": false,
+            "description": "",
+            "sortKey": -1751675406540
+          },
+          "method": "DELETE",
+          "headers": [
+            {
+              "name": "User-Agent",
+              "value": "insomnia/11.2.0"
+            }
+          ],
+          "settings": {
+            "renderRequestBody": true,
+            "encodeUrl": true,
+            "followRedirects": "global",
+            "cookies": {
+              "send": true,
+              "store": true
+            },
+            "rebuildPath": true
+          }
+        },
+        {
+          "url": "http://localhost:3000/events/getAllEvents",
+          "name": "Get all Events",
+          "meta": {
+            "id": "req_b39ed29ebbc646b9bd20f8a46d668e2f",
+            "created": 1751675623663,
+            "modified": 1755668083315,
+            "isPrivate": false,
+            "description": "",
+            "sortKey": -1751675623663
+          },
+          "method": "GET",
+          "headers": [
+            {
+              "name": "User-Agent",
+              "value": "insomnia/11.2.0"
+            }
+          ],
+          "settings": {
+            "renderRequestBody": true,
+            "encodeUrl": true,
+            "followRedirects": "global",
+            "cookies": {
+              "send": true,
+              "store": true
+            },
+            "rebuildPath": true
+          }
+        },
+        {
+          "url": "http://localhost:3000/events/getEventById/8",
+          "name": "Get Event by id",
+          "meta": {
+            "id": "req_bbf94abb9dd24b5d9c5b0ea4897ddf3e",
+            "created": 1751675823601,
+            "modified": 1754479503097,
+            "isPrivate": false,
+            "description": "",
+            "sortKey": -1751675823601
+          },
+          "method": "GET",
+          "headers": [
+            {
+              "name": "User-Agent",
+              "value": "insomnia/11.2.0"
+            }
+          ],
+          "settings": {
+            "renderRequestBody": true,
+            "encodeUrl": true,
+            "followRedirects": "global",
+            "cookies": {
+              "send": true,
+              "store": true
+            },
+            "rebuildPath": true
+          }
+        },
+        {
+          "url": "http://localhost:3000/events/searchEvents?searchQuery=Tech",
+          "name": "Search Events",
+          "meta": {
+            "id": "req_8366b2761ae54518af09051ad8dd69e2",
+            "created": 1755668093481,
+            "modified": 1755668110776,
+            "isPrivate": false,
+            "description": "",
+            "sortKey": -1755668093481
+          },
+          "method": "GET",
+          "headers": [
+            {
+              "name": "User-Agent",
+              "value": "insomnia/11.4.0"
+            }
+          ],
+          "settings": {
+            "renderRequestBody": true,
+            "encodeUrl": true,
+            "followRedirects": "global",
+            "cookies": {
+              "send": true,
+              "store": true
+            },
+            "rebuildPath": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tickets",
+      "meta": {
+        "id": "fld_285c8b8f5e1e4fb889aec1627e00e94c",
+        "created": 1751676656622,
+        "modified": 1751828741565,
+        "sortKey": -1751644905958,
+        "description": ""
+      },
+      "children": [
+        {
+          "url": "http://localhost:3000/tickets/",
+          "name": "Create Ticket",
+          "meta": {
+            "id": "req_8a7a954b89074858a16b2c95de178d70",
+            "created": 1751676656623,
+            "modified": 1754479797881,
+            "isPrivate": false,
+            "description": "",
+            "sortKey": -1751675384567
+          },
+          "method": "POST",
+          "body": {
+            "mimeType": "application/json",
+            "text": "{\n  \"attendee_id\": 4,\n  \"event_id\": 8,\n  \"payment_code\": \"ABC123XYZ\"\n}\n\n"
+          },
+          "headers": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "User-Agent",
+              "value": "insomnia/11.2.0"
+            }
+          ],
+          "settings": {
+            "renderRequestBody": true,
+            "encodeUrl": true,
+            "followRedirects": "global",
+            "cookies": {
+              "send": true,
+              "store": true
+            },
+            "rebuildPath": true
+          }
+        },
+        {
+          "url": "http://localhost:3000/tickets/delete/4",
+          "name": "Delete Tickets",
+          "meta": {
+            "id": "req_42ab3c28967e4196a4b46c2fc19ec3e3",
+            "created": 1751676656625,
+            "modified": 1751697247034,
+            "isPrivate": false,
+            "description": "",
+            "sortKey": -1751675406540
+          },
+          "method": "DELETE",
+          "headers": [
+            {
+              "name": "User-Agent",
+              "value": "insomnia/11.2.0"
+            }
+          ],
+          "settings": {
+            "renderRequestBody": true,
+            "encodeUrl": true,
+            "followRedirects": "global",
+            "cookies": {
+              "send": true,
+              "store": true
+            },
+            "rebuildPath": true
+          }
+        },
+        {
+          "url": "http://localhost:3000/tickets/attendee/4",
+          "name": "Get all Tickets by Attendee Id",
+          "meta": {
+            "id": "req_e36710cad6cf420fab1aaf4835563c47",
+            "created": 1751676656626,
+            "modified": 1754479808468,
+            "isPrivate": false,
+            "description": "",
+            "sortKey": -1751675623663
+          },
+          "method": "GET",
+          "headers": [
+            {
+              "name": "User-Agent",
+              "value": "insomnia/11.2.0"
+            }
+          ],
+          "settings": {
+            "renderRequestBody": true,
+            "encodeUrl": true,
+            "followRedirects": "global",
+            "cookies": {
+              "send": true,
+              "store": true
+            },
+            "rebuildPath": true
+          }
+        },
+        {
+          "url": "http://localhost:3000/tickets/8",
+          "name": "Get Tickets by  Event Id",
+          "meta": {
+            "id": "req_cfbe03d5b08c43a2bdc9d8383cb1356f",
+            "created": 1751676656627,
+            "modified": 1754480381492,
+            "isPrivate": false,
+            "description": "",
+            "sortKey": -1751675823601
+          },
+          "method": "GET",
+          "headers": [
+            {
+              "name": "User-Agent",
+              "value": "insomnia/11.2.0"
+            }
+          ],
+          "settings": {
+            "renderRequestBody": true,
+            "encodeUrl": true,
+            "followRedirects": "global",
+            "cookies": {
+              "send": true,
+              "store": true
+            },
+            "rebuildPath": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "Attendies",
+      "meta": {
+        "id": "fld_952e6912d082499681441afacf9a95c8",
+        "created": 1751677247772,
+        "modified": 1751677247772,
+        "sortKey": -1751629679441.5,
+        "description": ""
+      },
+      "children": [
+        {
+          "url": "http://localhost:3000/attendees/",
+          "name": "Create Attendi",
+          "meta": {
+            "id": "req_47d731aba159403d91d43741542d5b57",
+            "created": 1751677247774,
+            "modified": 1754325486062,
+            "isPrivate": false,
+            "description": "",
+            "sortKey": -1751675384567
+          },
+          "method": "POST",
+          "body": {
+            "mimeType": "application/json",
+            "text": "{\n  \"first_name\": \"Alice\",\n  \"middle_name\": \"W.\",\n  \"last_name\": \"Kimani\",\n  \"event_id\": 8\n}\n"
+          },
+          "headers": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "User-Agent",
+              "value": "insomnia/11.2.0"
+            }
+          ],
+          "settings": {
+            "renderRequestBody": true,
+            "encodeUrl": true,
+            "followRedirects": "global",
+            "cookies": {
+              "send": true,
+              "store": true
+            },
+            "rebuildPath": true
+          }
+        },
+        {
+          "url": "http://localhost:3000/attendees/delete/2/2",
+          "name": "Delete Event",
+          "meta": {
+            "id": "req_115296fceac14127abf81f0eaebc26d6",
+            "created": 1751677247777,
+            "modified": 1754334028868,
+            "isPrivate": false,
+            "description": "",
+            "sortKey": -1751675406540
+          },
+          "method": "DELETE",
+          "headers": [
+            {
+              "name": "User-Agent",
+              "value": "insomnia/11.2.0"
+            }
+          ],
+          "settings": {
+            "renderRequestBody": true,
+            "encodeUrl": true,
+            "followRedirects": "global",
+            "cookies": {
+              "send": true,
+              "store": true
+            },
+            "rebuildPath": true
+          }
+        },
+        {
+          "url": "http://localhost:3000/attendees/event/8",
+          "name": "Get attendees by Event id",
+          "meta": {
+            "id": "req_9fde8822ecc64aaca104ca29b6d4d5e5",
+            "created": 1751677247783,
+            "modified": 1754479727569,
+            "isPrivate": false,
+            "description": "",
+            "sortKey": -1751675823601
+          },
+          "method": "GET",
+          "headers": [
+            {
+              "name": "User-Agent",
+              "value": "insomnia/11.2.0"
+            }
+          ],
+          "settings": {
+            "renderRequestBody": true,
+            "encodeUrl": true,
+            "followRedirects": "global",
+            "cookies": {
+              "send": true,
+              "store": true
+            },
+            "rebuildPath": true
+          }
+        },
+        {
+          "url": "http://localhost:3000/attendees/3",
+          "name": "Get attendee by id",
+          "meta": {
+            "id": "req_0aa4a62606c94d698e206542cff070c6",
+            "created": 1751695650671,
+            "modified": 1754479709067,
+            "isPrivate": false,
+            "description": "",
+            "sortKey": -1751675723632
+          },
+          "method": "GET",
+          "headers": [
+            {
+              "name": "User-Agent",
+              "value": "insomnia/11.2.0"
+            }
+          ],
+          "settings": {
+            "renderRequestBody": true,
+            "encodeUrl": true,
+            "followRedirects": "global",
+            "cookies": {
+              "send": true,
+              "store": true
+            },
+            "rebuildPath": true
+          }
+        }
+      ]
+    }
+  ],
+  "cookieJar": {
+    "name": "Default Jar",
+    "meta": {
+      "id": "jar_36fcc213f66d7ab86d9c2cfeb432b6f5de041071",
+      "created": 1751674150857,
+      "modified": 1751674150857
+    }
+  },
+  "environments": {
+    "name": "Base Environment",
+    "meta": {
+      "id": "env_36fcc213f66d7ab86d9c2cfeb432b6f5de041071",
+      "created": 1751674150845,
+      "modified": 1751674150845,
+      "isPrivate": false
+    }
+  }
+}

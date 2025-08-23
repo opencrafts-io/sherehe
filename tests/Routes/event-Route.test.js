@@ -1,52 +1,72 @@
-import express from "express";
+// tests/eventRoutes.test.js
 import request from "supertest";
-import router from "../../Routes/event-Route.js"; // adjust path as needed
+import express from "express";
+import eventRouter from "../../Routes/event-Route.js";
 
-// Mock event controller functions
+// Mock the controller functions
 jest.mock("../../Controllers/event-Controller.js", () => ({
-  createEvent: jest.fn((req, res) => res.status(201).send("createEvent called")),
-  getAllEvents: jest.fn((req, res) => res.send("getAllEvents called")),
-  getEventById: jest.fn((req, res) => res.send("getEventById called")),
-  updateEvent: jest.fn((req, res) => res.send("updateEvent called")),
-  deleteEvent: jest.fn((req, res) => res.send("deleteEvent called")),
+  createEvent: jest.fn((req, res) => res.status(201).json({ message: "Event created" })),
+  getAllEvents: jest.fn((req, res) => res.json([{ id: 1, name: "Sample Event" }])),
+  getEventById: jest.fn((req, res) => res.json({ id: req.params.id, name: "Event Details" })),
+  updateEvent: jest.fn((req, res) => res.json({ message: "Event updated" })),
+  deleteEvent: jest.fn((req, res) => res.json({ message: "Event deleted" })),
+  searchEvents: jest.fn((req, res) => res.json([{ id: 1, name: "Search Result Event" }]))
 }));
 
+// Mock middleware (paginate, upload)
+jest.mock("../../middleware/paginate.js", () => ({
+  paginate: (req, res, next) => next()
+}));
+
+jest.mock("../../middleware/upload.js", () => ({
+  fields: () => (req, res, next) => next()
+}));
+
+// Setup Express app with routes
+const app = express();
+app.use(express.json());
+app.use("/events", eventRouter);
+
 describe("Event Routes", () => {
-  let app;
+  it("should create an event", async () => {
+    const res = await request(app)
+      .post("/events/createEvent")
+      .send({ name: "Test Event" });
 
-  beforeAll(() => {
-    app = express();
-    app.use(express.json());
-    app.use("/events", router);
-  });
-
-  it("POST /events/createEvent calls createEvent", async () => {
-    const res = await request(app).post("/events/createEvent").send({ name: "New Event" });
     expect(res.statusCode).toBe(201);
-    expect(res.text).toBe("createEvent called");
+    expect(res.body).toHaveProperty("message", "Event created");
   });
 
-  it("GET /events/getAllEvents calls getAllEvents", async () => {
+  it("should get all events", async () => {
     const res = await request(app).get("/events/getAllEvents");
     expect(res.statusCode).toBe(200);
-    expect(res.text).toBe("getAllEvents called");
+    expect(Array.isArray(res.body)).toBe(true);
   });
 
-  it("GET /events/getEventById/:id calls getEventById", async () => {
+  it("should get event by id", async () => {
     const res = await request(app).get("/events/getEventById/123");
     expect(res.statusCode).toBe(200);
-    expect(res.text).toBe("getEventById called");
+    expect(res.body).toHaveProperty("id", "123");
   });
 
-  it("PUT /events/updateEvent calls updateEvent", async () => {
-    const res = await request(app).put("/events/updateEvent").send({ id: 123, name: "Updated Event" });
+  it("should update an event", async () => {
+    const res = await request(app)
+      .put("/events/updateEvent")
+      .send({ id: 1, name: "Updated Event" });
+
     expect(res.statusCode).toBe(200);
-    expect(res.text).toBe("updateEvent called");
+    expect(res.body).toHaveProperty("message", "Event updated");
   });
 
-  it("DELETE /events/deleteEvent/:id calls deleteEvent", async () => {
-    const res = await request(app).delete("/events/deleteEvent/456");
+  it("should delete an event", async () => {
+    const res = await request(app).delete("/events/deleteEvent/1");
     expect(res.statusCode).toBe(200);
-    expect(res.text).toBe("deleteEvent called");
+    expect(res.body).toHaveProperty("message", "Event deleted");
+  });
+
+  it("should search events", async () => {
+    const res = await request(app).get("/events/searchEvents?query=test");
+    expect(res.statusCode).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
   });
 });
