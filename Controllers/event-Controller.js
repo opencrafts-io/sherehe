@@ -84,12 +84,6 @@ export const getAllEvents = async (req, res) => {
 
     const result = await selectAll(req.pagination);
 
-    if (result === "No events found") {
-      msg = "No events found";
-      level = "INF";
-     return res.status(200).json([]);
-    }
-
     const hasNextPage = result.length > limit;
     const events = hasNextPage ? result.slice(0, limit) : result;
 
