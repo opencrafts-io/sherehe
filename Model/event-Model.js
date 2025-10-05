@@ -26,9 +26,6 @@ export const selectAll = async (params) => {
     const query = "SELECT * FROM events ORDER BY created_at DESC LIMIT $1 OFFSET $2";
     const values = [limitPlusOne, offset];
     const result = await pool.query(query, values);
-    if (result.rows.length === 0) {
-      return "No events found";
-    } else {
       // Convert `id` and `organization_id` to strings here
       const formattedRows = result.rows.map(row => ({
         ...row,
@@ -37,7 +34,6 @@ export const selectAll = async (params) => {
       }));
 
       return formattedRows;
-    }
   } catch (error) {
     throw error;
   }

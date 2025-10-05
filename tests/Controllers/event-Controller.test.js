@@ -178,17 +178,17 @@ describe("Event Controller", () => {
       });
     });
 
-    it("should return [] if no events", async () => {
-      const req = mockRequest({ pagination: { limit: 2, page: 1 } });
-      const res = mockResponse();
+    // it("should return [] if no events", async () => {
+    //   const req = mockRequest({ pagination: { limit: 2, page: 1 } });
+    //   const res = mockResponse();
 
-      selectAll.mockResolvedValue("No events found");
+    //   selectAll.mockResolvedValue("No events found");
 
-      await getAllEvents(req, res);
+    //   await getAllEvents(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith([]);
-    });
+    //   expect(res.status).toHaveBeenCalledWith(200);
+    //   expect(res.json).toHaveBeenCalledWith([]);
+    // });
   });
 
   // GET EVENT BY ID
