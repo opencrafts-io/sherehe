@@ -1,0 +1,673 @@
+{
+  "type": "collection.insomnia.rest/5.0",
+  "name": "My first collection",
+  "meta": {
+    "id": "wrk_aa4e1f9ad76844089aedeee78f55d8d9",
+    "created": 1751674150825,
+    "modified": 1751674150825,
+    "description": ""
+  },
+  "collection": [
+    {
+      "name": "Events",
+      "meta": {
+        "id": "fld_4ec4a9b678d14e1c968fb11266e59f3c",
+        "created": 1751675358991,
+        "modified": 1761847009129,
+        "sortKey": -1751675358991,
+        "description": "| Method     | Endpoint                    | Description                 |\n| ---------- | --------------------------- | --------------------------- |\n| **POST**   | `/api/event`                | Create an event             |\n| **GET**    | `/api/event`                | Get all events (paginated)  |\n| **GET**    | `/api/event/:id`            | Get a single event by ID    |\n| **PUT**    | `/api/event/:id`            | Update event details        |\n| **DELETE** | `/api/event/:id`            | Delete an event             |\n| **GET**    | `/api/event/search?q=`      | Search events by keyword    |\n| **GET**    | `/api/event/organizer/:id`  | Get all events by organizer |\n"
+      },
+      "children": [
+        {
+          "url": "http://localhost:3000/event/",
+          "name": "Create Event",
+          "meta": {
+            "id": "req_04f132d9f3414c7cbadaee5c7ed70fb7",
+            "created": 1751674151145,
+            "modified": 1761846256331,
+            "isPrivate": false,
+            "description": "🟢 Create Event\n`Endpoint: POST /api/events\nDescription: Creates a new event with optional tickets and images (card, poster, banner).`\n\n📤 Example Request\n\n| Field               | Type         | Required | Description                                                               |\n| ------------------- | ------------ | -------- | ------------------------------------------------------------------------- |\n| `event_name`        | string       | ✅ Yes    | Name of the event                                                         |\n| `event_description` | string       | ✅ Yes    | Description of the event                                                  |\n| `event_location`    | string       | ✅ Yes    | Location of the event                                                     |\n| `event_date`        | string (ISO) | ✅ Yes    | Event date (ISO format, e.g., \"2025-12-01T18:00:00.000Z\")                 |\n| `event_url`         | string       | ✅ Yes     | External URL of the event                                                 |\n| `event_genre`       | string       | ✅ Yes      | Genre or type of the event                                                |\n| `organizer_id`      | integer      | ✅ Yes    | ID of the user creating the event                                         |\n| `tickets`           | array        | ✅ Yes      | Array of ticket objects: `{ ticket_name, ticket_price, ticket_quantity }` |\n\n📥 Example Response (201 Created)\n\n| Field               | Type     | Example                                                  | Description                          |\n| ------------------- | -------- | -------------------------------------------------------- | ------------------------------------ |\n| `message`           | string   | \"Event created successfully\"                             | Status message of the operation      |\n| `event.id`          | uuid  | bcba5efb-2284-4b7c-a1a7-040340131a53                                                        | Event ID                             |\n| `event_name`        | string   | \"Music Festival 2025\"                                    | Event name                           |\n| `event_description` | string   | \"Annual outdoor music festival.\"                         | Event description                    |\n| `event_location`    | string   | \"Nairobi, Kenya\"                                         | Event location                       |\n| `event_date`        | datetime | \"2025-12-01T18:00:00.000Z\"                               | Event date                           |\n| `event_url`         | string   | \"[https://musicfest2025.com](https://musicfest2025.com)\" | External URL                         |\n| `event_genre`       | string   | \"Music\"                                                  | Genre/type of event                  |\n| `organizer_id`      | uuid  | bcba5efb-2284-4b7c-a1a7-040340131a53                                                       | ID of the user who created the event |\n| `tickets`           | array    | See ticket objects below                                 | Array of created tickets             |\n| `createdAt`         | datetime | \"2025-10-30T10:00:00.000Z\"                               | Event creation timestamp             |\n| `updatedAt`         | datetime | \"2025-10-30T10:00:00.000Z\"                               | Event last update timestamp          |\n\n⚠️ Example Error Statuses\n\n| **Status Code**             | **Description**                           |\n| --------------------------- | ----------------------------------------- |\n| `400 Bad Request`           | Missing required fields or invalid input. |\n| `500 Internal Server Error` | Database or server error.                 |\n",
+            "sortKey": -1751675384567
+          },
+          "method": "POST",
+          "body": {
+            "mimeType": "multipart/form-data",
+            "params": [
+              {
+                "id": "pair_d80291def04e41c1994b97d9162442b7",
+                "name": "event_name",
+                "value": "Tech Conference 2025",
+                "description": "",
+                "disabled": false
+              },
+              {
+                "id": "pair_06daa53edd2b4ef3941c71bb19c1dfb4",
+                "name": "event_description",
+                "value": "Annual technology conference focusing on AI and web development.",
+                "description": "",
+                "disabled": false
+              },
+              {
+                "id": "pair_20af7dca8faf450ba7ed751e266ad0a2",
+                "name": "event_url",
+                "value": "\"none\"",
+                "description": "",
+                "disabled": false
+              },
+              {
+                "id": "pair_ab4a8275d7cf49959d56672f5b0bebc3",
+                "name": "event_location",
+                "value": "Nairobi International Convention Centre",
+                "description": "",
+                "disabled": false
+              },
+              {
+                "id": "pair_ca0a0e1fd0d7455b86a9ae69d5f30acf",
+                "name": "event_date",
+                "value": "2025-09-10",
+                "description": "",
+                "disabled": false
+              },
+              {
+                "id": "pair_beddf5ff39a94fa6ae903cb66f7aac87",
+                "name": "event_card_image",
+                "value": "",
+                "description": "",
+                "disabled": false,
+                "type": "file",
+                "fileName": "/home/ordo-chao/Pictures/Screenshots/Screenshot from 2025-10-02 00-19-27.png"
+              },
+              {
+                "id": "pair_84d94397758640079d7009150ee41daa",
+                "name": "event_genre",
+                "value": "{Adult Time,PornHub}",
+                "description": "",
+                "disabled": false
+              },
+              {
+                "id": "pair_afa89f68172d43ecaaace3fae46647e6",
+                "name": "organizer_id",
+                "value": "b19a3c82-1d5e-4f77-95cb-5b5196ad06c8",
+                "description": "",
+                "disabled": false
+              },
+              {
+                "id": "pair_9496d31d6595497382069bee6403c6a6",
+                "name": "event_poster_image",
+                "value": "",
+                "description": "",
+                "disabled": false,
+                "type": "file",
+                "fileName": "/home/ordo-chao/Pictures/Screenshots/Screenshot from 2025-10-28 17-58-13.png"
+              },
+              {
+                "id": "pair_50ff89ddc2af484f911677e351c71a2d",
+                "name": "event_banner_image",
+                "value": "",
+                "description": "",
+                "disabled": false,
+                "type": "file",
+                "fileName": "/home/ordo-chao/Pictures/Screenshots/Screenshot from 2025-10-28 04-49-54.png"
+              },
+              {
+                "id": "pair_c9526f4d655d4bb0841de7a32bb46e87",
+                "name": "tickets",
+                "value": "[ { \"ticket_name\": \"Regular\", \"ticket_price\": 1000, \"ticket_quantity\": 300 },    { \"ticket_name\": \"VIP\", \"ticket_price\": 3000, \"ticket_quantity\": 50 },    { \"ticket_name\": \"Student\", \"ticket_price\": 500, \"ticket_quantity\": 100 }  ]",
+                "description": "",
+                "disabled": false
+              }
+            ]
+          },
+          "headers": [
+            {
+              "name": "Content-Type",
+              "value": "multipart/form-data"
+            },
+            {
+              "name": "User-Agent",
+              "value": "insomnia/11.2.0"
+            }
+          ],
+          "settings": {
+            "renderRequestBody": true,
+            "encodeUrl": true,
+            "followRedirects": "global",
+            "cookies": {
+              "send": true,
+              "store": true
+            },
+            "rebuildPath": true
+          }
+        },
+        {
+          "url": "http://localhost:3000/event/e5c88a11-fbbc-47ac-9ed6-2d1fa7c89b29",
+          "name": "Delete Event",
+          "meta": {
+            "id": "req_d238df64356d4b4a8ca185888cdae89e",
+            "created": 1751675406540,
+            "modified": 1761846650958,
+            "isPrivate": false,
+            "description": "🗑️ Delete Event\n\n`Endpoint: DELETE /api/events/:id\nDescription: Deletes an event (soft delete or marks as deleted).`\n\n📥 Example Response (200 OK)\n\n| Field     | Type   | Example                      | Description                                     |\n| --------- | ------ | ---------------------------- | ----------------------------------------------- |\n| `message` | string | \"Event deleted successfully\" | Status message confirming the event was deleted |\n\nNote: The event is marked as deleted but not permanently removed from the database (soft delete).\n\n⚠️ Example Error Statuses\n\n| **Status Code**             | **Description**              |\n| --------------------------- | ---------------------------- |\n| `400 Bad Request`           | Invalid or missing event ID. |\n| `404 Not Found`             | Event not found.             |\n| `500 Internal Server Error` | Database or server error.    |\n",
+            "sortKey": -1751675406540
+          },
+          "method": "DELETE",
+          "body": {
+            "mimeType": "application/json",
+            "text": "{\n\t\"userId\":\"b19a3c82-1d5e-4f77-95cb-5b5196ad06c8\"\n}"
+          },
+          "headers": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "User-Agent",
+              "value": "insomnia/11.2.0"
+            }
+          ],
+          "settings": {
+            "renderRequestBody": true,
+            "encodeUrl": true,
+            "followRedirects": "global",
+            "cookies": {
+              "send": true,
+              "store": true
+            },
+            "rebuildPath": true
+          }
+        },
+        {
+          "url": "http://localhost:3000/event?page=1&limit=10",
+          "name": "Get all Events",
+          "meta": {
+            "id": "req_b39ed29ebbc646b9bd20f8a46d668e2f",
+            "created": 1751675623663,
+            "modified": 1761846413044,
+            "isPrivate": false,
+            "description": "Get All Events\n\n`Endpoint: GET /api/events\nDescription: Retrieves a paginated list of all events.`\n\nQuery Parameters\n\n| Parameter | Type    | Description                            |\n| --------- | ------- | -------------------------------------- |\n| `page`    | integer | Page number (default: 1)               |\n| `limit`   | integer | Number of items per page (default: 10) |\n\nExample Response (200 OK)\n| Field               | Type     | Example                                                  | Description                          |\n| ------------------- | -------- | -------------------------------------------------------- | ------------------------------------ |\n| `id`                | uuid     | \"a1b2c3d4-e5f6-7890-abcd-1234567890ef\"                   | Event ID (UUID)                      |\n| `event_name`        | string   | \"Music Festival 2025\"                                    | Event name                           |\n| `event_description` | string   | \"Annual outdoor music festival.\"                         | Event description                    |\n| `event_location`    | string   | \"Nairobi, Kenya\"                                         | Event location                       |\n| `event_date`        | datetime | \"2025-12-01T18:00:00.000Z\"                               | Event date                           |\n| `event_url`         | string   | \"[https://musicfest2025.com](https://musicfest2025.com)\" | External URL                         |\n| `event_genre`       | string   | \"Music\"                                                  | Genre/type of event                  |\n| `organizer_id`      | uuid  | \"a1b2c3d4-e5f6-7890-abcd-1234567890ef\"                                                        | ID of the user who created the event |\n| `tickets`           | array    | See ticket objects                                       | Array of associated tickets          |\n| `createdAt`         | datetime | \"2025-10-30T10:00:00.000Z\"                               | Event creation timestamp             |\n| `updatedAt`         | datetime | \"2025-10-30T12:00:00.000Z\"                               | Event last update timestamp          |\n\n⚠️ Example Error Statuses\n\n| **Status Code**             | **Description**           |\n| --------------------------- | ------------------------- |\n| `400 Bad Request`           | Invalid query parameters. |\n| `500 Internal Server Error` | Database or server error. |\n\n",
+            "sortKey": -1751675623663
+          },
+          "method": "GET",
+          "headers": [
+            {
+              "name": "User-Agent",
+              "value": "insomnia/11.2.0"
+            }
+          ],
+          "settings": {
+            "renderRequestBody": true,
+            "encodeUrl": true,
+            "followRedirects": "global",
+            "cookies": {
+              "send": true,
+              "store": true
+            },
+            "rebuildPath": true
+          }
+        },
+        {
+          "url": "http://localhost:3000/event/e5c88a11-fbbc-47ac-9ed6-2d1fa7c89b29",
+          "name": "Get Event by id",
+          "meta": {
+            "id": "req_bbf94abb9dd24b5d9c5b0ea4897ddf3e",
+            "created": 1751675823601,
+            "modified": 1761846529161,
+            "isPrivate": false,
+            "description": "🔵 Get Event by ID\n\n`Endpoint: GET /api/events/:id\nDescription: Retrieves a single event by its unique ID (UUID).`\n\n📥 Example Response (200 OK)\n\n| Field               | Type     | Example                                                  | Description                          |\n| ------------------- | -------- | -------------------------------------------------------- | ------------------------------------ |\n| `id`                | uuid     | \"a1b2c3d4-e5f6-7890-abcd-1234567890ef\"                   | Event ID (UUID)                      |\n| `event_name`        | string   | \"Music Festival 2025\"                                    | Event name                           |\n| `event_description` | string   | \"Annual outdoor music festival.\"                         | Event description                    |\n| `event_location`    | string   | \"Nairobi, Kenya\"                                         | Event location                       |\n| `event_date`        | datetime | \"2025-12-01T18:00:00.000Z\"                               | Event date                           |\n| `event_url`         | string   | \"[https://musicfest2025.com](https://musicfest2025.com)\" | External URL                         |\n| `event_genre`       | string   | \"Music\"                                                  | Genre/type of event                  |\n| `organizer_id`      | uuid  | \"a1b2c3d4-e5f6-7890-abcd-1234567890ef\"                   | ID of the user who created the event |\n| `tickets`           | array    | See ticket objects                                       | Array of associated tickets          |\n| `createdAt`         | datetime | \"2025-10-30T10:00:00.000Z\"                               | Event creation timestamp             |\n| `updatedAt`         | datetime | \"2025-10-30T12:00:00.000Z\"                               | Event last update timestamp          |\n\n\n⚠️ Example Error Statuses\n\n| **Status Code**             | **Description**              |\n| --------------------------- | ---------------------------- |\n| `400 Bad Request`           | Invalid or missing event ID. |\n| `404 Not Found`             | Event not found.             |\n| `500 Internal Server Error` | Database or server error.    |\n",
+            "sortKey": -1751675823601
+          },
+          "method": "GET",
+          "headers": [
+            {
+              "name": "User-Agent",
+              "value": "insomnia/11.2.0"
+            }
+          ],
+          "settings": {
+            "renderRequestBody": true,
+            "encodeUrl": true,
+            "followRedirects": "global",
+            "cookies": {
+              "send": true,
+              "store": true
+            },
+            "rebuildPath": true
+          }
+        },
+        {
+          "url": "http://localhost:3000/event/search?q=International",
+          "name": "Search Events",
+          "meta": {
+            "id": "req_8366b2761ae54518af09051ad8dd69e2",
+            "created": 1755668093481,
+            "modified": 1761846786509,
+            "isPrivate": false,
+            "description": "🔴 Search Events\n\n`Endpoint: GET /api/events/search?q=<query>\nDescription: Searches events by name, description, or genre.`\n\n🧩 Query Parameters\n\n| Parameter | Type   | Description                                               |\n| --------- | ------ | --------------------------------------------------------- |\n| `q`       | string | Search query string (matches name, description, or genre) |\n\n📥 Example Response (200 OK)\n\n| Field               | Type     | Example                                                  | Description                          |\n| ------------------- | -------- | -------------------------------------------------------- | ------------------------------------ |\n| `id`                | uuid     | \"a1b2c3d4-e5f6-7890-abcd-1234567890ef\"                   | Event ID (UUID)                      |\n| `event_name`        | string   | \"Music Festival 2025\"                                    | Event name                           |\n| `event_description` | string   | \"Annual outdoor music festival.\"                         | Event description                    |\n| `event_location`    | string   | \"Nairobi, Kenya\"                                         | Event location                       |\n| `event_date`        | datetime | \"2025-12-01T18:00:00.000Z\"                               | Event date                           |\n| `event_url`         | string   | \"[https://musicfest2025.com](https://musicfest2025.com)\" | External URL                         |\n| `event_genre`       | string   | \"Music\"                                                  | Genre/type of event                  |\n| `organizer_id`      | uuid  | \"a1b2c3d4-e5f6-7890-abcd-1234567890ef\"                   | ID of the user who created the event |\n| `tickets`           | array    | See ticket objects                                       | Array of associated tickets          |\n| `createdAt`         | datetime | \"2025-10-30T10:00:00.000Z\"                               | Event creation timestamp             |\n| `updatedAt`         | datetime | \"2025-10-30T12:00:00.000Z\"                               | Event last update timestamp          |\n\n\n⚠️ Example Error Statuses\n\n| **Status Code**             | **Description**                     |\n| --------------------------- | ----------------------------------- |\n| `400 Bad Request`           | Missing or invalid query parameter. |\n| `404 Not Found`             | No events match the search query.   |\n| `500 Internal Server Error` | Database or server error.           |\n",
+            "sortKey": -1755668093481
+          },
+          "method": "GET",
+          "headers": [
+            {
+              "name": "User-Agent",
+              "value": "insomnia/11.4.0"
+            }
+          ],
+          "settings": {
+            "renderRequestBody": true,
+            "encodeUrl": true,
+            "followRedirects": "global",
+            "cookies": {
+              "send": true,
+              "store": true
+            },
+            "rebuildPath": true
+          }
+        },
+        {
+          "url": "http://localhost:3000/event/organizer/b19a3c82-1d5e-4f77-95cb-5b5196ad06c8",
+          "name": "Get Event by Organizer Id",
+          "meta": {
+            "id": "req_66e12d0e32364199b3dfa8acc2744a88",
+            "created": 1761829290787,
+            "modified": 1761846907809,
+            "isPrivate": false,
+            "description": "Get Events by Organizer\n\n`Endpoint: GET /api/events/organizer/:id\nDescription: Retrieves all events created by a specific organizer.`\n\n📥 Example Response (200 OK)\n\n| Field               | Type     | Example                                                  | Description                          |\n| ------------------- | -------- | -------------------------------------------------------- | ------------------------------------ |\n| `id`                | uuid     | \"a1b2c3d4-e5f6-7890-abcd-1234567890ef\"                   | Event ID (UUID)                      |\n| `event_name`        | string   | \"Music Festival 2025\"                                    | Event name                           |\n| `event_description` | string   | \"Annual outdoor music festival.\"                         | Event description                    |\n| `event_location`    | string   | \"Nairobi, Kenya\"                                         | Event location                       |\n| `event_date`        | datetime | \"2025-12-01T18:00:00.000Z\"                               | Event date                           |\n| `event_url`         | string   | \"[https://musicfest2025.com](https://musicfest2025.com)\" | External URL                         |\n| `event_genre`       | string   | \"Music\"                                                  | Genre/type of event                  |\n| `organizer_id`      | uuid     | \"a1b2c3d4-e5f6-7890-abcd-1234567890ef\"                   | ID of the user who created the event |\n| `tickets`           | array    | See ticket objects                                       | Array of associated tickets          |\n| `createdAt`         | datetime | \"2025-10-30T10:00:00.000Z\"                               | Event creation timestamp             |\n| `updatedAt`         | datetime | \"2025-10-30T12:00:00.000Z\"                               | Event last update timestamp          |\n\n⚠️ Example Error Statuses\n\n| **Status Code**             | **Description**                    |\n| --------------------------- | ---------------------------------- |\n| `400 Bad Request`           | Invalid or missing organizer ID.   |\n| `404 Not Found`             | No events found for the organizer. |\n| `500 Internal Server Error` | Database or server error.          |\n",
+            "sortKey": -1751675773616.5
+          },
+          "method": "GET",
+          "headers": [
+            {
+              "name": "User-Agent",
+              "value": "insomnia/11.2.0"
+            }
+          ],
+          "settings": {
+            "renderRequestBody": true,
+            "encodeUrl": true,
+            "followRedirects": "global",
+            "cookies": {
+              "send": true,
+              "store": true
+            },
+            "rebuildPath": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tickets",
+      "meta": {
+        "id": "fld_285c8b8f5e1e4fb889aec1627e00e94c",
+        "created": 1751676656622,
+        "modified": 1761844800739,
+        "sortKey": -1751644905958,
+        "description": "| Method     | Endpoint                 | Description             |\n| ---------- | ------------------------ | ----------------------- |\n| **POST**   | `/api/tickets`           | Create a new ticket     |\n| **GET**    | `/api/tickets`           | Get all tickets         |\n| **GET**    | `/api/tickets/:id`       | Get ticket by ID        |\n| **GET**    | `/api/tickets/event/:id` | Get tickets by event ID |\n| **PUT**    | `/api/tickets/:id`       | Update ticket details   |\n| **DELETE** | `/api/tickets/:id`       | Soft delete a ticket    |\n"
+      },
+      "children": [
+        {
+          "url": "http://localhost:3000/ticket/",
+          "name": "Create Ticket",
+          "meta": {
+            "id": "req_8a7a954b89074858a16b2c95de178d70",
+            "created": 1751676656623,
+            "modified": 1761845223315,
+            "isPrivate": false,
+            "description": "| Field             | Type      | Required | Description                                         |\n| ----------------- | --------- | -------- | --------------------------------------------------- |\n| `event_id`        | `integer` | ✅        | The ID of the event this ticket belongs to.         |\n| `ticket_name`     | `string`  | ✅        | The name or type of the ticket (e.g. VIP, Regular). |\n| `ticket_price`    | `decimal` | ✅        | The cost of the ticket.                             |\n| `ticket_quantity` | `integer` | ✅        | The number of available tickets.                    |\n\n\n`Example Request`\n| Field             | Type    | Required | Example    | Description                                          |\n| ----------------- | ------- | -------- | ---------- | ---------------------------------------------------- |\n| `event_id`        | integer | ✅ Yes    | 12         | The ID of the event this ticket belongs to.          |\n| `ticket_name`     | string  | ✅ Yes    | \"VIP Pass\" | The name or type of the ticket (e.g., VIP, Regular). |\n| `ticket_price`    | decimal | ✅ Yes    | 2500       | The cost of the ticket.                              |\n| `ticket_quantity` | integer | ✅ Yes    | 100        | The number of available tickets.                     |\n\n\n`Example Response (201 Created)`\n| Field             | Type     | Example                       | Description                     |\n| ----------------- | -------- | ----------------------------- | ------------------------------- |\n| `message`         | string   | \"Ticket created successfully\" | Status message of the operation |\n| `ticket.id`       | integer  | 1                             | Ticket ID                       |\n| `ticket.event_id` | integer  | 12                            | Event ID the ticket belongs to  |\n| `ticket_name`     | string   | \"VIP Pass\"                    | Ticket name/type                |\n| `ticket_price`    | decimal  | 2500                          | Ticket price                    |\n| `ticket_quantity` | integer  | 100                           | Number of available tickets     |\n| `delete_tag`      | boolean  | false                         | Soft-delete status              |\n| `createdAt`       | datetime | \"2025-10-30T10:00:00.000Z\"    | Ticket creation timestamp       |\n\n\n`Example Error Satuses`\n\n| **Status Code**             | **Description**               |\n| --------------------------- | ----------------------------- |\n| `400 Bad Request`           | Missing required fields.      |\n| `500 Internal Server Error` | Database or validation error. |\n",
+            "sortKey": -1751675384567
+          },
+          "method": "POST",
+          "body": {
+            "mimeType": "application/json",
+            "text": "{\n  \"event_id\": \"bcba5efb-2284-4b7c-a1a7-040340131a53\",\n  \"ticket_name\": \"VIP Ticket\",\n  \"ticket_price\": 1500,\n  \"ticket_quantity\": 200\n}\n"
+          },
+          "headers": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "User-Agent",
+              "value": "insomnia/11.2.0"
+            }
+          ],
+          "settings": {
+            "renderRequestBody": true,
+            "encodeUrl": true,
+            "followRedirects": "global",
+            "cookies": {
+              "send": true,
+              "store": true
+            },
+            "rebuildPath": true
+          }
+        },
+        {
+          "url": "http://localhost:3000/ticket/6a777439-dd66-419d-aa0b-71b67ad2b579",
+          "name": "Delete Tickets",
+          "meta": {
+            "id": "req_42ab3c28967e4196a4b46c2fc19ec3e3",
+            "created": 1751676656625,
+            "modified": 1761845877319,
+            "isPrivate": false,
+            "description": "🗑️ Delete Ticket (Soft Delete)\n`Endpoint: DELETE /api/tickets/:id\nDescription: Marks a ticket as deleted by setting delete_tag to true.`\n\nExample Response (204 No Content)\n| Field     | Type   | Example | Description                                        |\n| --------- | ------ | ------- | -------------------------------------------------- |\n| `message` | string | —       | No content returned (ticket deleted successfully). |\n\nNote: A 204 No Content status means the operation was successful but the server does not return any body content.\n\n⚠️ Example Error Statuses\n\n| **Status Code**             | **Description**               |\n| --------------------------- | ----------------------------- |\n| `400 Bad Request`           | Invalid or missing ticket ID. |\n| `404 Not Found`             | Ticket not found.             |\n| `500 Internal Server Error` | Database or server error.     |\n",
+            "sortKey": -1751675406540
+          },
+          "method": "DELETE",
+          "headers": [
+            {
+              "name": "User-Agent",
+              "value": "insomnia/11.2.0"
+            }
+          ],
+          "settings": {
+            "renderRequestBody": true,
+            "encodeUrl": true,
+            "followRedirects": "global",
+            "cookies": {
+              "send": true,
+              "store": true
+            },
+            "rebuildPath": true
+          }
+        },
+        {
+          "url": "http://localhost:3000/ticket/39b71130-320e-4db5-a7db-d211dbbd0e2f",
+          "name": "Get by Ticket Id",
+          "meta": {
+            "id": "req_e36710cad6cf420fab1aaf4835563c47",
+            "created": 1751676656626,
+            "modified": 1761845592724,
+            "isPrivate": false,
+            "description": "🔵 Get Ticket by ID\n\n`Endpoint: GET /api/tickets/:id\nDescription: Retrieves a single ticket by its unique ID.`\n\n\n📥 Example Response (200 OK)\n| Field             | Type     | Example                    | Description                    |\n| ----------------- | -------- | -------------------------- | ------------------------------ |\n| `id`              | integer  | 1                          | Ticket ID                      |\n| `event_id`        | integer  | 12                         | Event ID the ticket belongs to |\n| `ticket_name`     | string   | \"VIP Pass\"                 | Ticket name/type               |\n| `ticket_price`    | decimal  | 2500                       | Ticket price                   |\n| `ticket_quantity` | integer  | 100                        | Number of available tickets    |\n| `delete_tag`      | boolean  | false                      | Soft-delete status             |\n| `createdAt`       | datetime | \"2025-10-30T10:00:00.000Z\" | Ticket creation timestamp      |\n| `updatedAt`       | datetime | \"2025-10-30T12:00:00.000Z\" | Ticket last update timestamp   |\n\n⚠️ Example Error Statuses\n| **Status Code**             | **Description**               |\n| --------------------------- | ----------------------------- |\n| `400 Bad Request`           | Invalid or missing ticket ID. |\n| `404 Not Found`             | Ticket not found.             |\n| `500 Internal Server Error` | Database or server error.     |\n",
+            "sortKey": -1751675623663
+          },
+          "method": "GET",
+          "headers": [
+            {
+              "name": "User-Agent",
+              "value": "insomnia/11.2.0"
+            }
+          ],
+          "settings": {
+            "renderRequestBody": true,
+            "encodeUrl": true,
+            "followRedirects": "global",
+            "cookies": {
+              "send": true,
+              "store": true
+            },
+            "rebuildPath": true
+          }
+        },
+        {
+          "url": "http://localhost:3000/ticket/event/bcba5efb-2284-4b7c-a1a7-040340131a53",
+          "name": "Get Tickets by  Event Id",
+          "meta": {
+            "id": "req_cfbe03d5b08c43a2bdc9d8383cb1356f",
+            "created": 1751676656627,
+            "modified": 1761845785408,
+            "isPrivate": false,
+            "description": "Get Tickets by Event ID\n\n`Endpoint: GET /api/tickets/event/:id     Description: Retrieves all tickets associated with a specific event.`\n\n\n📥 Example Response (200 OK)\n\n| Field             | Type     | Example                    | Description                    |\n| ----------------- | -------- | -------------------------- | ------------------------------ |\n| `id`              | integer  | 1                          | Ticket ID                      |\n| `event_id`        | integer  | 12                         | Event ID the ticket belongs to |\n| `ticket_name`     | string   | \"VIP Pass\"                 | Ticket name/type               |\n| `ticket_price`    | decimal  | 2500                       | Ticket price                   |\n| `ticket_quantity` | integer  | 100                        | Number of available tickets    |\n| `delete_tag`      | boolean  | false                      | Soft-delete status             |\n| `createdAt`       | datetime | \"2025-10-30T10:00:00.000Z\" | Ticket creation timestamp      |\n| `updatedAt`       | datetime | \"2025-10-30T12:00:00.000Z\" | Ticket last update timestamp   |\n\n⚠️ Example Error Statuses\n\n\n| **Status Code**             | **Description**                       |\n| --------------------------- | ------------------------------------- |\n| `400 Bad Request`           | Invalid or missing event ID.          |\n| `404 Not Found`             | No tickets found for the given event. |\n| `500 Internal Server Error` | Database or server error.             |\n",
+            "sortKey": -1751675823601
+          },
+          "method": "GET",
+          "headers": [
+            {
+              "name": "User-Agent",
+              "value": "insomnia/11.2.0"
+            }
+          ],
+          "settings": {
+            "renderRequestBody": true,
+            "encodeUrl": true,
+            "followRedirects": "global",
+            "cookies": {
+              "send": true,
+              "store": true
+            },
+            "rebuildPath": true
+          }
+        },
+        {
+          "url": "http://localhost:3000/ticket/6a777439-dd66-419d-aa0b-71b67ad2b579",
+          "name": "Update Ticket",
+          "meta": {
+            "id": "req_a33d713f599f43668b9e158d3d1a282c",
+            "created": 1761830906618,
+            "modified": 1761845747469,
+            "isPrivate": false,
+            "description": "✏️ Update Ticket\n\n`Endpoint: PUT /api/tickets/:id\nDescription: Updates ticket details by ID (e.g., name, price, or quantity).`\n\nRequest Body\n\n| Field             | Type    | Required | Description             |\n| ----------------- | ------- | -------- | ----------------------- |\n| `ticket_name`     | string  | ❌ No     | New ticket name         |\n| `ticket_price`    | decimal | ❌ No     | Updated ticket price    |\n| `ticket_quantity` | integer | ❌ No     | Updated ticket quantity |\n\n📥 Example Response (200 OK)\n| Field             | Type     | Example                       | Description                     |\n| ----------------- | -------- | ----------------------------- | ------------------------------- |\n| `message`         | string   | \"Ticket updated successfully\" | Status message of the operation |\n| `ticket.id`       | integer  | 1                             | Ticket ID                       |\n| `ticket.event_id` | integer  | 12                            | Event ID the ticket belongs to  |\n| `ticket_name`     | string   | \"VIP Pass Updated\"            | Updated ticket name/type        |\n| `ticket_price`    | decimal  | 3000                          | Updated ticket price            |\n| `ticket_quantity` | integer  | 120                           | Updated number of tickets       |\n| `delete_tag`      | boolean  | false                         | Soft-delete status              |\n| `updatedAt`       | datetime | \"2025-10-30T15:00:00.000Z\"    | Ticket last update timestamp    |\n\n⚠️ Example Error Statuses\n| **Status Code**             | **Description**                  |\n| --------------------------- | -------------------------------- |\n| `400 Bad Request`           | Invalid input or missing fields. |\n| `404 Not Found`             | Ticket not found.                |\n| `500 Internal Server Error` | Database or server error.        |\n",
+            "sortKey": -1761830906618
+          },
+          "method": "PUT",
+          "body": {
+            "mimeType": "application/json",
+            "text": "{\n  \"ticket_name\": \"VIP Ticket\",\n  \"ticket_price\": 1500,\n  \"ticket_quantity\": 600\n}\n"
+          },
+          "headers": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "User-Agent",
+              "value": "insomnia/11.6.2"
+            }
+          ],
+          "settings": {
+            "renderRequestBody": true,
+            "encodeUrl": true,
+            "followRedirects": "global",
+            "cookies": {
+              "send": true,
+              "store": true
+            },
+            "rebuildPath": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "Attendies",
+      "meta": {
+        "id": "fld_952e6912d082499681441afacf9a95c8",
+        "created": 1751677247772,
+        "modified": 1761847351434,
+        "sortKey": -1751629679441.5,
+        "description": "| Method     | Endpoint                   | Description                           |\n| ---------- | -------------------------- | ------------------------------------- |\n| **POST**   | `/api/attendee`            | Register attendee for an event        |\n| **DELETE** | `/api/attendee/:id`        | Soft delete an attendee               |\n| **GET**    | `/api/attendee/event/:id`  | Get all attendees of a specific event |\n| **GET**    | `/api/attendee/:id`        | Get attendee details by ID            |\n"
+      },
+      "children": [
+        {
+          "url": "http://localhost:3000/attendee/",
+          "name": "Create Attendi",
+          "meta": {
+            "id": "req_47d731aba159403d91d43741542d5b57",
+            "created": 1751677247774,
+            "modified": 1761847137341,
+            "isPrivate": false,
+            "description": "Register an Attendee\n\n`Endpoint: POST /api/attendees\nDescription: Registers a user as an attendee for an event.`\n\n🧩 Request Body\n\n| Field      | Type | Required | Description     |\n| ---------- | ---- | -------- | --------------- |\n| `event_id` | UUID | ✅ Yes    | ID of the event |\n| `user_id`  | UUID | ✅ Yes    | ID of the user  |\n\n\n📥 Example Response (201 Created)\n\n| Field         | Type     | Example                                | Description                     |\n| ------------- | -------- | -------------------------------------- | ------------------------------- |\n| `message`     | string   | \"Attendee registered successfully\"     | Status message of the operation |\n| `attendee.id` | UUID     | \"c1d2e3f4-a5b6-7890-abcd-34567890def\"  | Attendee record ID              |\n| `event_id`    | UUID     | \"a1b2c3d4-e5f6-7890-abcd-1234567890ef\" | ID of the event                 |\n| `user_id`     | UUID     | \"b1c2d3e4-f5a6-7890-abcd-234567890abc\" | ID of the registered user       |\n| `createdAt`   | datetime | \"2025-10-30T10:00:00.000Z\"             | Timestamp of registration       |\n| `updatedAt`   | datetime | \"2025-10-30T10:00:00.000Z\"             | Timestamp of last update        |\n\n⚠️ Example Error Statuses\n\n| **Status Code**             | **Description**                   |\n| --------------------------- | --------------------------------- |\n| `400 Bad Request`           | Missing or invalid event/user ID. |\n| `404 Not Found`             | Event or user not found.          |\n| `500 Internal Server Error` | Database or server error.         |\n",
+            "sortKey": -1751675384567
+          },
+          "method": "POST",
+          "body": {
+            "mimeType": "application/json",
+            "text": "{\n  \"event_id\": \"bcba5efb-2284-4b7c-a1a7-040340131a53\",\n  \"user_id\": \"b19a3c82-1d5e-4f77-95cb-5b5196ad06c8\"\n}\n"
+          },
+          "headers": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "User-Agent",
+              "value": "insomnia/11.2.0"
+            }
+          ],
+          "settings": {
+            "renderRequestBody": true,
+            "encodeUrl": true,
+            "followRedirects": "global",
+            "cookies": {
+              "send": true,
+              "store": true
+            },
+            "rebuildPath": true
+          }
+        },
+        {
+          "url": "http://localhost:3000/attendee/12329e25-37e3-481d-b05e-e61bc47cd2e0",
+          "name": "Remove Attendii",
+          "meta": {
+            "id": "req_115296fceac14127abf81f0eaebc26d6",
+            "created": 1751677247777,
+            "modified": 1761847217081,
+            "isPrivate": false,
+            "description": "🗑️ Delete Attendee\n\n`Endpoint: DELETE /api/attendees/:id\nDescription: Soft deletes an attendee by marking the record as deleted.`\n\n📥 Example Response (200 OK)\n\n| Field     | Type   | Example                         | Description                                        |\n| --------- | ------ | ------------------------------- | -------------------------------------------------- |\n| `message` | string | \"Attendee deleted successfully\" | Status message confirming the attendee was deleted |\n\n\nNote: The attendee is not permanently removed from the database (soft delete).\n\n⚠️ Example Error Statuses\n\n| **Status Code**             | **Description**                 |\n| --------------------------- | ------------------------------- |\n| `400 Bad Request`           | Invalid or missing attendee ID. |\n| `404 Not Found`             | Attendee not found.             |\n| `500 Internal Server Error` | Database or server error.       |\n\n",
+            "sortKey": -1751675406540
+          },
+          "method": "DELETE",
+          "headers": [
+            {
+              "name": "User-Agent",
+              "value": "insomnia/11.2.0"
+            }
+          ],
+          "settings": {
+            "renderRequestBody": true,
+            "encodeUrl": true,
+            "followRedirects": "global",
+            "cookies": {
+              "send": true,
+              "store": true
+            },
+            "rebuildPath": true
+          }
+        },
+        {
+          "url": "http://localhost:3000/attendee/event/bcba5efb-2284-4b7c-a1a7-040340131a53",
+          "name": "Get attendees by Event id",
+          "meta": {
+            "id": "req_9fde8822ecc64aaca104ca29b6d4d5e5",
+            "created": 1751677247783,
+            "modified": 1761847294124,
+            "isPrivate": false,
+            "description": "Get All Attendees for an Event\n\n`Endpoint: GET /api/attendees/event/:id\nDescription: Retrieves all attendees registered for a specific event.`\n\n📥 Example Response (200 OK)\n\n| Field       | Type     | Example                                | Description               |\n| ----------- | -------- | -------------------------------------- | ------------------------- |\n| `id`        | UUID     | \"c1d2e3f4-a5b6-7890-abcd-34567890def\"  | Attendee record ID        |\n| `event_id`  | UUID     | \"a1b2c3d4-e5f6-7890-abcd-1234567890ef\" | ID of the event           |\n| `user_id`   | UUID     | \"b1c2d3e4-f5a6-7890-abcd-234567890abc\" | ID of the registered user |\n| `createdAt` | datetime | \"2025-10-30T10:00:00.000Z\"             | Timestamp of registration |\n| `updatedAt` | datetime | \"2025-10-30T10:00:00.000Z\"             | Timestamp of last update  |\n\n\n⚠️ Example Error Statuses\n\n| **Status Code**             | **Description**                   |\n| --------------------------- | --------------------------------- |\n| `400 Bad Request`           | Invalid or missing event ID.      |\n| `404 Not Found`             | No attendees found for the event. |\n| `500 Internal Server Error` | Database or server error.         |\n\n",
+            "sortKey": -1751675823601
+          },
+          "method": "GET",
+          "headers": [
+            {
+              "name": "User-Agent",
+              "value": "insomnia/11.2.0"
+            }
+          ],
+          "settings": {
+            "renderRequestBody": true,
+            "encodeUrl": true,
+            "followRedirects": "global",
+            "cookies": {
+              "send": true,
+              "store": true
+            },
+            "rebuildPath": true
+          }
+        },
+        {
+          "url": "http://localhost:3000/attendee/9c88d891-3332-401f-a50e-571cd9c14326",
+          "name": "Get attendee by id",
+          "meta": {
+            "id": "req_0aa4a62606c94d698e206542cff070c6",
+            "created": 1751695650671,
+            "modified": 1761847413181,
+            "isPrivate": false,
+            "description": "Get Attendee by ID\n\n`Endpoint: GET /api/attendees/:id\nDescription: Retrieves a single attendee by their unique ID (UUID).`\n\n📥 Example Response (200 OK)\n\n| Field       | Type     | Example                                | Description               |\n| ----------- | -------- | -------------------------------------- | ------------------------- |\n| `id`        | UUID     | \"c1d2e3f4-a5b6-7890-abcd-34567890def\"  | Attendee record ID        |\n| `event_id`  | UUID     | \"a1b2c3d4-e5f6-7890-abcd-1234567890ef\" | ID of the event           |\n| `user_id`   | UUID     | \"b1c2d3e4-f5a6-7890-abcd-234567890abc\" | ID of the registered user |\n| `createdAt` | datetime | \"2025-10-30T10:00:00.000Z\"             | Timestamp of registration |\n| `updatedAt` | datetime | \"2025-10-30T10:00:00.000Z\"             | Timestamp of last update  |\n\n⚠️ Example Error Statuses\n\n| **Status Code**             | **Description**                 |\n| --------------------------- | ------------------------------- |\n| `400 Bad Request`           | Invalid or missing attendee ID. |\n| `404 Not Found`             | Attendee not found.             |\n| `500 Internal Server Error` | Database or server error.       |\n",
+            "sortKey": -1751675723632
+          },
+          "method": "GET",
+          "headers": [
+            {
+              "name": "User-Agent",
+              "value": "insomnia/11.2.0"
+            }
+          ],
+          "settings": {
+            "renderRequestBody": true,
+            "encodeUrl": true,
+            "followRedirects": "global",
+            "cookies": {
+              "send": true,
+              "store": true
+            },
+            "rebuildPath": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "meta": {
+        "id": "fld_afe2a2102f474988acf937813d9f41db",
+        "created": 1761825514602,
+        "modified": 1761825514602,
+        "sortKey": -1761825514602,
+        "description": ""
+      },
+      "children": [
+        {
+          "url": "http://localhost:3000/user/",
+          "name": "Create",
+          "meta": {
+            "id": "req_d10b4acb743f4631b3156368f176a8d0",
+            "created": 1761825526376,
+            "modified": 1761847660129,
+            "isPrivate": false,
+            "description": "User API Documentation\n\n1. Register a User\n\n`Endpoint: POST /api/user\nDescription: Creates a new user account`\n\n🧩 Request Body\n\n| Field      | Type   | Required | Description              |\n| ---------- | ------ | -------- | ------------------------ |\n| `name`     | string | ✅ Yes    | Full name of the user    |\n| `email`    | string | ✅ Yes    | User email address       |\n| `password` | string | ✅ Yes    | Password for the account |\n| `phone`    | string | ✅ Yes    | Phone number (optional)  |\n\n📥 Example Response (201 Created)\n\n| Field       | Type     | Example                                       | Description                |\n| ----------- | -------- | --------------------------------------------- | -------------------------- |\n| `id`        | UUID     | \"a1b2c3d4-e5f6-7890-abcd-1234567890ef\"        | User ID                    |\n| `name`      | string   | \"John Doe\"                                    | User full name             |\n| `email`     | string   | \"[john@example.com](mailto:john@example.com)\" | User email address         |\n| `phone`     | string   | \"+254712345678\"                               | User phone number          |\n| `createdAt` | datetime | \"2025-10-30T10:00:00.000Z\"                    | Account creation timestamp |\n\n\n⚠️ Example Error Statuses\n\n| Status Code                 | Description               |\n| --------------------------- | ------------------------- |\n| `400 Bad Request`           | Missing or invalid fields |\n| `409 Conflict`              | Email already exists      |\n| `500 Internal Server Error` | Database or server error  |\n",
+            "sortKey": -1761825526376
+          },
+          "method": "POST",
+          "body": {
+            "mimeType": "application/json",
+            "text": "{\n  \"id\": \"b19a3c82-1d5e-4f77-95cb-5b5196ad06c8\",\n  \"username\": \"prince_ben\",\n  \"email\": \"prince.ben@example.com\",\n  \"name\": \"Prince Benedict Wachira\",\n  \"phone\": \"+254741414892\"\n}\n"
+          },
+          "headers": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "User-Agent",
+              "value": "insomnia/11.6.2"
+            }
+          ],
+          "settings": {
+            "renderRequestBody": true,
+            "encodeUrl": true,
+            "followRedirects": "global",
+            "cookies": {
+              "send": true,
+              "store": true
+            },
+            "rebuildPath": true
+          }
+        }
+      ]
+    }
+  ],
+  "cookieJar": {
+    "name": "Default Jar",
+    "meta": {
+      "id": "jar_36fcc213f66d7ab86d9c2cfeb432b6f5de041071",
+      "created": 1751674150857,
+      "modified": 1751674150857
+    }
+  },
+  "environments": {
+    "name": "Base Environment",
+    "meta": {
+      "id": "env_36fcc213f66d7ab86d9c2cfeb432b6f5de041071",
+      "created": 1751674150845,
+      "modified": 1751674150845,
+      "isPrivate": false
+    }
+  }
+}
