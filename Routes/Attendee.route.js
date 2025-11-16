@@ -8,9 +8,8 @@ import {
 
 const router = express.Router();
 
-// import {verifyToken} from "../Middleware/jwt_token_verification.js";
-
-// router.use(verifyToken);
+import {verifyToken} from "../Middleware/jwt_token_verification.js";
+router.use(verifyToken);
 
 router.post("/", createAttendeeController);
 router.get("/event/:id", getAllAttendeesByEventIdController);

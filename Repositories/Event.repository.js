@@ -14,7 +14,7 @@ export const getAllEventsRepository = async (params) => {
   try {
     // Check delete_tag is false
     const { limitPlusOne, offset } = params;
-    const events = await Event.findAll({ where: { delete_tag: false } , limit: limitPlusOne, offset: offset });
+    const events = await Event.findAll({ limit: limitPlusOne, offset: offset });
     return events;
   } catch (error) {
     throw error;
@@ -74,7 +74,7 @@ export const deleteEventRepository = async (eventId, userId) => {
     }
 
     // Soft delete by updating the delete_tag flag
-    await event.update({ delete_tag: true });
+    await event.destroy()
 
     return { message: "Event deleted successfully" };
   } catch (error) {
@@ -88,14 +88,13 @@ export const searchEventRepository = async (searchQuery) => {
   try {
     const events = await Event.findAll({
       where: {
-        delete_tag: false,
         [Op.or]: [
           { event_name: { [Op.iLike]: `%${searchQuery}%` } },
           { event_description: { [Op.iLike]: `%${searchQuery}%` } },
           { event_location: { [Op.iLike]: `%${searchQuery}%` } },
         ],
       },
-      order: [["createdAt", "DESC"]],
+      order: [["created_at", "DESC"]],
     });
 
     return events;
@@ -107,7 +106,7 @@ export const searchEventRepository = async (searchQuery) => {
 
 export const getEventbyOrganizerIdRepository = async (organizerId) => {
   try {
-    const events = await Event.findAll({ where: { organizer_id: organizerId , delete_tag: false } , order: [["createdAt", "DESC"]] });
+    const events = await Event.findAll({ where: { organizer_id: organizerId} , order: [["created_at", "DESC"]] });
     return events;
   } catch (error) {
     throw error;

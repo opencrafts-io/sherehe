@@ -134,18 +134,19 @@ export const updateTicketController = async (req, res) => {
 export const deleteTicketController = async (req, res) => {
   try {
     const ticketId = req.params.id;
+    const organizer_id = req.user.sub;
 
     if (!ticketId) {
       return res.status(400).json({ error: "Ticket ID is required" });
     }
 
-    const deleted = await deleteTicketRepository(ticketId);
+    const deleted = await deleteTicketRepository(ticketId , organizer_id);
 
     if (!deleted) {
       return res.status(404).json({ error: "Ticket not found" });
     }
 
-    res.status(204).send(); // success, no content
+    res.status(204).send();
   } catch (error) {
     res.status(500).json({
       error: "Failed to delete ticket",
@@ -163,7 +164,7 @@ export const getTicketByEventIdController = async (req, res) => {
       return res.status(400).json({ error: "Event ID is required" });
     }
 
-    const tickets = await getTicketByEventIdRepository(eventId);
+    const tickets = await getTicketbyEventIdRepository(eventId);
 
     if (!tickets || tickets.length === 0) {
       return res.status(404).json({ message: "No tickets found for this event" });
