@@ -10,7 +10,7 @@ import {
 const router = express.Router();
 import {verifyToken} from "../Middleware/jwt_token_verification.js";
 
-// router.use(verifyToken);
+router.use(verifyToken);
 
 router.post("/", createTicketController);
 // router.get("/", getAllTicketsController);

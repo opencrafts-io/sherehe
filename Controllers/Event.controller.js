@@ -15,8 +15,10 @@ export const createEventController = async (req, res) => {
       event_date,
       event_url,
       event_genre,
-      organizer_id,
     } = req.body;
+
+
+    const organizer_id = req.user.sub;
 
     let tickets = req.body.tickets;
 
@@ -119,13 +121,20 @@ export const getAllEventsController = async (req, res) => {
 
     const result = await getAllEventsRepository({ limitPlusOne, offset });
 
+        const hasNextPage = result.length > limit;
+    const events = hasNextPage ? result.slice(0, limit) : result;
+
     // No events found at all
     if (!result || result.length === 0) {
-      return res.status(204).send(); // ✅ 204 No Content
+      return res.status(200).json({
+         status: "success",
+      currentPage: page,
+      nextPage: hasNextPage ? page + 1 : null,
+      previousPage: page > 1 ? page - 1 : null,
+      totalEvents: events.length,
+      data: [],
+      }); 
     }
-
-    const hasNextPage = result.length > limit;
-    const events = hasNextPage ? result.slice(0, limit) : result;
 
     return res.status(200).json({
       status: "success",
@@ -171,7 +180,7 @@ export const getEventByIdController = async (req, res) => {
 export const updateEventController = async (req, res) => {
   try {
     const eventId = req.params.id;
-    const userId = req.user?.id || req.body.userId; // Depending on your auth setup
+    const userId = req.user?.sub || req.body.userId; // Depending on your auth setup
     const eventData = req.body;
 
     const result = await updateEventRepository(eventId, eventData, userId);
@@ -203,8 +212,7 @@ export const updateEventController = async (req, res) => {
 export const deleteEventController = async (req, res) => {
   try {
     const eventId = req.params.id;
-    const userId = req.user?.id || req.body.userId; // depending on your auth setup
-
+    const userId = req.user?.sub
     const result = await deleteEventRepository(eventId, userId);
     return res.status(200).json(result); // success
   } catch (error) {
@@ -242,7 +250,7 @@ export const searchEventController = async (req, res) => {
 
     if (!results || results.length === 0) {
       // No results found, return 204 No Content
-      return res.status(204).json([]);
+      return res.status(200).json([]);
     }
 
     // Success

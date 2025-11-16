@@ -1,4 +1,4 @@
-import { Attendee } from "../Models/index.js";
+import { Attendee , User } from "../Models/index.js";
 
 export const createAttendeeRepository = async (attendee) => {
   try {
@@ -12,8 +12,16 @@ export const createAttendeeRepository = async (attendee) => {
 export const getAllAttendeesByEventIdRepository = async (eventId) => {
   try {
     const attendees = await Attendee.findAll({
-      where: { event_id: eventId , delete_tag: false},
-      order: [["createdAt", "DESC"]],
+      where: { event_id: eventId },
+      order: [["created_at", "DESC"]],
+
+      include: [
+        {
+          model: User,
+          as: "user",
+          attributes: ["id", "username", "email", "name", "phone"] // choose fields you want
+        }
+      ]
     });
 
     return attendees;
@@ -21,6 +29,7 @@ export const getAllAttendeesByEventIdRepository = async (eventId) => {
     throw error;
   }
 };
+
 
 
 export const getAllAttendeesByUserIdRepository = async (userId) => {
@@ -40,7 +49,7 @@ export const deleteAttendeeRepository = async (attendeeId) => {
       return null; // return null so controller can handle 404
     }
 
-    await attendee.update({ delete_tag: true });
+    await attendee.destroy()
     return attendee;
   } catch (error) {
     throw error;

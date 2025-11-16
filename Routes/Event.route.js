@@ -14,7 +14,7 @@ const router = express.Router();
 
 import {verifyToken} from "../Middleware/jwt_token_verification.js";
 import { paginate } from '../Middleware/paginate.js';
-// router.use(verifyToken);
+router.use(verifyToken);
 
 router.get("/search", searchEventController);
 router.post("/" ,
