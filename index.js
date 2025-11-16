@@ -20,11 +20,13 @@ import eventRouter from './Routes/Event.route.js'
 import ticketRouter from './Routes/Ticket.route.js'
 import attendeeRouter from './Routes/Attendee.route.js'
 import userRouter from './Routes/User.route.js'
+import purchaseTicket from './Routes/Purchase.route.js'
 
 app.use('/event', eventRouter)
 app.use('/ticket', ticketRouter)
 app.use('/attendee', attendeeRouter)
 app.use('/user', userRouter)
+app.use('/purchase', purchaseTicket)
 
 
 app.listen(PORT, async () => {
