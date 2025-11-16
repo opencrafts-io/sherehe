@@ -3,6 +3,10 @@ import { createTicketRepository } from '../Repositories/Ticket.repository.js';
 import { cleanupFiles } from '../Middleware/cleanupFiles.js';
 import { processAndSaveImages } from '../Middleware/upload.js';
 import sequelize from '../Utils/db.js';
+import { randomUUID } from 'crypto'; // For generating unique request_id
+import { sendNotification } from '../Utils/Notification.js';
+const generateSheId = () => `she_${randomUUID()}`;
+
 
 export const createEventController = async (req, res) => {
   let savedFiles = [];
@@ -95,6 +99,42 @@ export const createEventController = async (req, res) => {
       }
 
       await transaction.commit();
+      // Send Notification to Organizer
+
+      const formattedEventDate = new Date(event.event_date).toLocaleDateString('en-GB', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+      });
+
+      const contents = {
+        en: `Hello,\n\nYour event "${event.event_name}" has been successfully created and is scheduled on ${formattedEventDate}.\n\nYou can manage or share your event using the dashboard.`
+      };
+
+      const notificationPayload = {
+        notification: {
+          app_id: "88ca0bb7-c0d7-4e36-b9e6-ea0e29213593",
+          headings: { en: "Event Created Successfully!" },
+          contents,
+          target_user_id: organizer_id,
+          include_external_user_ids: [],
+          subtitle: { en: "Your event is now live" },
+          android_channel_id: "60023d0b-dcd4-41ae-8e58-7eabbf382c8c",
+          ios_sound: "pay",
+          big_picture: event_banner_image,
+          large_icon: event_card_image,
+          small_icon: event_poster_image,
+          url: event_url || "https://opencrafts.io/dashboard",
+          buttons: [
+            { id: event.id, text: "View Event", icon: "" }
+          ]
+        },
+        meta: {
+          event_type: "notification.requested",
+          source_service_id: "io.opencrafts.verisafe",
+          request_id: generateSheId()
+        }
+      };
+
+      sendNotification(notificationPayload);
 
       return res
         .status(201)
@@ -121,19 +161,19 @@ export const getAllEventsController = async (req, res) => {
 
     const result = await getAllEventsRepository({ limitPlusOne, offset });
 
-        const hasNextPage = result.length > limit;
+    const hasNextPage = result.length > limit;
     const events = hasNextPage ? result.slice(0, limit) : result;
 
     // No events found at all
     if (!result || result.length === 0) {
       return res.status(200).json({
-         status: "success",
-      currentPage: page,
-      nextPage: hasNextPage ? page + 1 : null,
-      previousPage: page > 1 ? page - 1 : null,
-      totalEvents: events.length,
-      data: [],
-      }); 
+        status: "success",
+        currentPage: page,
+        nextPage: hasNextPage ? page + 1 : null,
+        previousPage: page > 1 ? page - 1 : null,
+        totalEvents: events.length,
+        data: [],
+      });
     }
 
     return res.status(200).json({
