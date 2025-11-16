@@ -22,6 +22,14 @@ const Attendee = sequelize.define(
       allowNull: false,
       defaultValue: DataTypes.NOW
     },
+    ticket_id: {
+      type: DataTypes.UUID,
+      allowNull: false
+    },
+    ticket_quantity: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
     updated_at: { type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW},
