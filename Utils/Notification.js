@@ -1,0 +1,34 @@
+import amqp from 'amqplib';
+
+const RABBITMQ_URL = `amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASSWORD}@${process.env.RABBITMQ_HOST}:${process.env.RABBITMQ_PORT}/`;
+const EXCHANGE_NAME = process.env.EXCHANGE_NAME;
+const ROUTING_KEY = process.env.ROUTING_KEY;
+
+export async function sendNotification(payload) {
+  try {
+    const connection = await amqp.connect(RABBITMQ_URL);
+    const channel = await connection.createChannel();
+
+    // Ensure exchange exists
+    await channel.assertExchange(EXCHANGE_NAME, 'direct', { durable: true });
+
+    // Publish notification payload
+    channel.publish(
+      EXCHANGE_NAME,
+      ROUTING_KEY,
+      Buffer.from(JSON.stringify(payload)),
+      { contentType: 'application/json', persistent: true } // persistent ensures message durability
+    );
+
+    console.log('Notification request sent successfully');
+    
+    // Optional: close connection after a short delay
+    setTimeout(() => {
+      channel.close();
+      connection.close();
+    }, 500);
+
+  } catch (error) {
+    console.error('Error sending notification:', error);
+  }
+}
