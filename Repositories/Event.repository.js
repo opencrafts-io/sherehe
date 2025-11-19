@@ -31,13 +31,17 @@ export const getAllEventsRepository = async (params) => {
 export const getEventByIdRepository = async (eventId) => {
   try {
     const event = await Event.findByPk(eventId);
-        const formattedEvents = event.map(event => ({
-  ...event.toJSON(),
-  event_genre: Array.isArray(event.event_genre)
-    ? event.event_genre
-    : JSON.parse(event.event_genre || '[]')
-}));
-    return formattedEvents;
+
+    if (!event) return null;
+
+    const formattedEvent = {
+      ...event.toJSON(),
+      event_genre: Array.isArray(event.event_genre)
+        ? event.event_genre
+        : JSON.parse(event.event_genre || '[]'),
+    };
+
+    return formattedEvent;
   } catch (error) {
     throw error;
   }
@@ -51,27 +55,26 @@ export const updateEventRepository = async (eventId, eventData, userId) => {
       return { status: "not_found" };
     }
 
-    // if (event.delete_tag === true) {
-    //   return { status: "deleted" };
-    // }
-
     // Optional: Only allow the event creator/organizer to update
     if (event.organizer_id !== userId) {
       return { status: "unauthorized" };
     }
 
     await event.update(eventData);
-        const formattedEvents = event.map(event => ({
-  ...event.toJSON(),
-  event_genre: Array.isArray(event.event_genre)
-    ? event.event_genre
-    : JSON.parse(event.event_genre || '[]')
-}));
-    return { status: "success", event: formattedEvents };
+
+    const formattedEvent = {
+      ...event.toJSON(),
+      event_genre: Array.isArray(event.event_genre)
+        ? event.event_genre
+        : JSON.parse(event.event_genre || '[]'),
+    };
+
+    return { status: "success", event: formattedEvent };
   } catch (error) {
     throw error;
   }
 };
+
 
 export const deleteEventRepository = async (eventId, userId) => {
   try {
