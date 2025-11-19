@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import sequelize from './Utils/db.js';
+import path from 'path';
 const PORT = process.env.PORT || 3001;
 import './Models/index.js';
 
@@ -11,6 +12,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 app.get("/", (req, res) => {
   res.send("Hello World!")
