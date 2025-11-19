@@ -4,7 +4,14 @@ import { Op } from "sequelize";
 export const createEventRepository = async (eventData , options = {}) => {
   try {
     const event = await Event.create(eventData , options);
-    return event;
+        const formattedEvent = {
+      ...event.toJSON(),
+      event_genre: Array.isArray(event.event_genre)
+        ? event.event_genre
+        : JSON.parse(event.event_genre || '[]'),
+    };
+
+    return formattedEvent;
   } catch (error) {
     throw error;
   }
