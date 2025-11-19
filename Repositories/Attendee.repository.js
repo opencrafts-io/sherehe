@@ -87,3 +87,20 @@ export const getAttendeeByIdRepository = async (id) => {
     throw error;
   }
 }
+
+export const getAttendeesByUserIdRepository = async (eventId, userId) => {
+  try {
+    const attendees = await Attendee.findAll({ where: { event_id: eventId, user_id: userId } ,
+      order: [["created_at", "DESC"]],
+      include: [
+        {
+          model: User,
+          as: "user",
+          attributes: ["id", "username", "email", "name", "phone"] // choose fields you want
+        }
+      ] });
+    return attendees;
+  } catch (error) {
+    throw error;
+  }
+}

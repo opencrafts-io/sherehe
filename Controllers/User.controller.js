@@ -11,8 +11,6 @@ export const createUserController = async (req, res) => {
   const start = process.hrtime.bigint();
 
   try {
-    console.log(req.body);
-
     const user = await createUserRepository(req.body);
 
     const end = process.hrtime.bigint();

@@ -1,7 +1,7 @@
 import { getTicketByIdRepository, updateTicketRepository } from '../Repositories/Ticket.repository.js';
 import { createAttendeeRepository } from '../Repositories/Attendee.repository.js';
 import { sendNotification } from '../Utils/Notification.js';
-import { getEventByIdRepository } from '../Repositories/Event.repository.js';
+import { getEventByIdRepository , updateEventRepository } from '../Repositories/Event.repository.js';
 import { randomUUID } from 'crypto';
 import { logs } from '../Utils/logs.js';
 
@@ -58,6 +58,11 @@ export const purchaseTicketController = async (req, res) => {
     await updateTicketRepository(ticket_id, {
       ticket_quantity: ticket.ticket_quantity - ticket_quantity,
     });
+
+    // Update attendee count
+   const test = await updateEventRepository(event_id, {
+      attendee_count: event.attendee_count + ticket_quantity,
+    }, event.organizer_id);
 
     const eventDate = new Date(event.event_date).toLocaleDateString("en-GB", {
       weekday: "long",

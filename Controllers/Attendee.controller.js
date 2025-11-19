@@ -2,7 +2,8 @@ import {
   createAttendeeRepository,
   getAllAttendeesByEventIdRepository,
   deleteAttendeeRepository,
-  getAttendeeByIdRepository 
+  getAttendeeByIdRepository,
+  getAttendeesByUserIdRepository
 } from "../Repositories/Attendee.repository.js";
 
 import { logs } from "../Utils/logs.js"; 
@@ -140,6 +141,41 @@ export const getAttendeesByIdController = async (req, res) => {
     logs(duration, "INFO", req.ip, req.method, "Attendee retrieved", req.path, 200, req.headers["user-agent"]);
 
     res.status(200).json(attendee);
+  } catch (error) {
+    const duration = Number(process.hrtime.bigint() - start) / 1000;
+    logs(duration, "ERR", req.ip, req.method, error.message, req.path, 500, req.headers["user-agent"]);
+
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+export const getAttendeesByUserIdController = async (req, res) => {
+  const start = process.hrtime.bigint();
+
+  try {
+    const eventId = req.params.id;
+
+    const userId = req.user.sub;
+
+    if (!eventId) {
+      const duration = Number(process.hrtime.bigint() - start) / 1000;
+      logs(duration, "WARN", req.ip, req.method, "Missing event ID", req.path, 400, req.headers["user-agent"]);
+      return res.status(400).json({ error: "Event ID is required" });
+    }
+
+    const attendees = await getAttendeesByUserIdRepository(eventId, userId);
+
+    if (!attendees || attendees.length === 0) {
+      const duration = Number(process.hrtime.bigint() - start) / 1000;
+      logs(duration, "INFO", req.ip, req.method, "No attendees found", req.path, 404, req.headers["user-agent"]);
+      return res.status(404).json({ message: "No attendees found for this event" });
+    }
+
+    const duration = Number(process.hrtime.bigint() - start) / 1000;
+    logs(duration, "INFO", req.ip, req.method, "Attendees retrieved", req.path, 200, req.headers["user-agent"]);
+
+    res.status(200).json(attendees);
   } catch (error) {
     const duration = Number(process.hrtime.bigint() - start) / 1000;
     logs(duration, "ERR", req.ip, req.method, error.message, req.path, 500, req.headers["user-agent"]);
