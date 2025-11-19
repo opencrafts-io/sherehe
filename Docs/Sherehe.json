@@ -40,12 +40,12 @@ collection:
         | **GET**    | `/api/event/organizer/:id`  | Get all events by organizer
         |
     children:
-      - url: https://qasherehe.opencrafts.io/event/
+      - url: http://localhost:3000/event/
         name: Create Event
         meta:
           id: req_87853c0415ad45ca912c6eac6e23e688
           created: 1751674151145
-          modified: 1763492814409
+          modified: 1763569744815
           isPrivate: false
           description: |
             🟢 Create Event
@@ -231,12 +231,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: https://qasherehe.opencrafts.io/event?page=1&limit=10
+      - url: http://localhost:3000/event?page=1&limit=10
         name: Get all Events
         meta:
           id: req_396769ef52ba480a9745f7b33982f1c2
           created: 1751675623663
-          modified: 1763492590856
+          modified: 1763569341095
           isPrivate: false
           description: |+
             Get All Events
@@ -869,12 +869,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/ticket/event/76f3f854-3a67-4a7a-9ff5-6df8f7645f26
+      - url: http://localhost:3000/ticket/event/185346a4-d678-40ae-a896-d6e78c3fb3b8
         name: Get Tickets by  Event Id
         meta:
           id: req_a55b7b8c2fe34bac917ad7f91f29ef61
           created: 1751676656627
-          modified: 1763282846541
+          modified: 1763569895088
           isPrivate: false
           description: >
             Get Tickets by Event ID
@@ -1276,6 +1276,57 @@ collection:
             send: true
             store: true
           rebuildPath: true
+      - url: http://localhost:3000/attendee/user/76f3f854-3a67-4a7a-9ff5-6df8f7645f26
+        name: Verify attendee by Event id
+        meta:
+          id: req_af25ee091d2d4d47b3a9e50ee0e82c87
+          created: 1763569200655
+          modified: 1763570617259
+          isPrivate: false
+          description: |
+            # Attendee API Documentation
+
+            ## 1. Get Attendees by User for an Event
+
+            `Endpoint: GET /api/attendees/user/:id`  
+            `Description: Retrieves all attendees registered by the authenticated user for a specific event.`
+
+            🧩 URL Parameters
+
+            | Parameter  | Type   | Required | Description                  |
+            | ---------- | ------ | -------- | ---------------------------- |
+            | `id`       | UUID   | ✅ Yes    | The ID of the event to query |
+
+            📥 Example Response (200 OK)
+
+            | Field         | Type   | Example                                                                 | Description                              |
+            | ------------- | ------ | ----------------------------------------------------------------------- | ---------------------------------------- |
+            | `attendees`   | array  | `[ { ticket_id: "uuid", user_id: "uuid", ticket_quantity: 2, event_id: "uuid" } ]` | List of attendee records for the user    |
+
+            ⚠️ Example Error Statuses
+
+            | Status Code                 | Description                                           |
+            | --------------------------- | ----------------------------------------------------- |
+            | `400 Bad Request`           | Missing event ID                                      |
+            | `404 Not Found`             | No attendees found for this event                     |
+            | `500 Internal Server Error` | Server or database error                              |
+
+            📌 Notes
+            - The authenticated user's ID is determined from the JWT (`req.user.sub`).
+            - Returns all attendee records the user has for the specified event.
+          sortKey: -1763569200655
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.2
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
     headers:
       - id: pair_fef2bdd5ddf4453895aec4dcc27500a6
         name: Authorization
@@ -1296,7 +1347,7 @@ collection:
         meta:
           id: req_4d9b8461558b4d53aea07f5c2345ca82
           created: 1761825526376
-          modified: 1763492791077
+          modified: 1763568679301
           isPrivate: false
           description: >
             User API Documentation
@@ -1378,8 +1429,8 @@ collection:
           text: |
             {
               "id": "6fdd587f-d1dd-49af-9c17-a709612297eb",
-              "username": "prince_ben",
-              "email": "prince.ben@example.com",
+              "username": "princ_ben",
+              "email": "princ.ben@example.com",
               "name": "Prince Benedict Wachira",
               "phone": "+254741414892"
             }
@@ -1409,9 +1460,43 @@ collection:
         meta:
           id: req_4e0455607be34fbbae55f010256592e8
           created: 1763283611299
-          modified: 1763284650624
+          modified: 1763570536276
           isPrivate: false
-          description: ""
+          description: |
+            # Ticket API Documentation
+
+            ## 1. Purchase a Ticket
+
+            `Endpoint: POST /api/ticket/purchase`  
+            `Description: Allows a user to purchase tickets for an event, updates ticket availability, and sends a notification to the user.`
+
+            🧩 Request Body
+
+            | Field           | Type   | Required | Description                                 |
+            | --------------- | ------ | -------- | ------------------------------------------- |
+            | `ticket_id`     | UUID   | ✅ Yes    | The ID of the ticket being purchased        |
+            | `ticket_quantity` | number | ✅ Yes  | Number of tickets the user wants to buy     |
+
+            📥 Example Response (201 Created)
+
+            | Field     | Type     | Example                                                                 | Description                         |
+            | --------- | -------- | ----------------------------------------------------------------------- | ----------------------------------- |
+            | `message` | string   | "Ticket purchased successfully"                                         | Confirmation message                |
+            | `attendee`| object   | `{ ticket_id: "uuid", user_id: "uuid", ticket_quantity: 2, event_id: "uuid" }` | Details of the created attendee record |
+
+            ⚠️ Example Error Statuses
+
+            | Status Code                 | Description                                                                 |
+            | --------------------------- | --------------------------------------------------------------------------- |
+            | `400 Bad Request`           | Missing required fields or not enough tickets available                     |
+            | `404 Not Found`             | Ticket or event not found                                                   |
+            | `500 Internal Server Error` | Server or database error                                                    |
+
+            📌 Notes
+            - The API updates the ticket count in the database.
+            - The attendee count for the event is updated automatically.
+            - A notification is sent to the user upon successful purchase.
+            - `ticket_id` and `ticket_quantity` must be valid and available.
           sortKey: -1763283611299
         method: POST
         body:
@@ -1419,7 +1504,7 @@ collection:
           text: |-
             {
             	"ticket_quantity": 1,
-            	"ticket_id":"165d5b7f-2209-475a-98bf-cda983e8305a"
+            	"ticket_id":"e87c07d0-7c51-4f49-961a-51bf7a5f0fd4"
             }
         headers:
           - name: Content-Type

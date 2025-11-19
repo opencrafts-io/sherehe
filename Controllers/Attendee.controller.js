@@ -9,9 +9,7 @@ import {
 import { logs } from "../Utils/logs.js"; 
 
 
-// =============================
-// CREATE ATTENDEE
-// =============================
+
 export const createAttendeeController = async (req, res) => {
   const start = process.hrtime.bigint();
 
@@ -42,9 +40,7 @@ export const createAttendeeController = async (req, res) => {
 };
 
 
-// =============================
-// DELETE ATTENDEE
-// =============================
+
 export const deleteAttendeeController = async (req, res) => {
   const start = process.hrtime.bigint();
 
@@ -78,9 +74,7 @@ export const deleteAttendeeController = async (req, res) => {
 };
 
 
-// =============================
-// GET ALL ATTENDEES BY EVENT
-// =============================
+
 export const getAllAttendeesByEventIdController = async (req, res) => {
   const start = process.hrtime.bigint();
 
@@ -114,9 +108,7 @@ export const getAllAttendeesByEventIdController = async (req, res) => {
 };
 
 
-// =============================
-// GET SINGLE ATTENDEE
-// =============================
+
 export const getAttendeesByIdController = async (req, res) => {
   const start = process.hrtime.bigint();
 
