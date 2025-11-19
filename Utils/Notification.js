@@ -5,9 +5,12 @@ const EXCHANGE_NAME = process.env.EXCHANGE_NAME;
 const ROUTING_KEY = process.env.ROUTING_KEY;
 
 export async function sendNotification(payload) {
+  let connection;
+  let channel;
+
   try {
-    const connection = await amqp.connect(RABBITMQ_URL);
-    const channel = await connection.createChannel();
+    connection = await amqp.connect(RABBITMQ_URL);
+    channel = await connection.createChannel();
 
     // Ensure exchange exists
     await channel.assertExchange(EXCHANGE_NAME, 'direct', { durable: true });
@@ -17,18 +20,15 @@ export async function sendNotification(payload) {
       EXCHANGE_NAME,
       ROUTING_KEY,
       Buffer.from(JSON.stringify(payload)),
-      { contentType: 'application/json', persistent: true } // persistent ensures message durability
+      { contentType: 'application/json', persistent: true }
     );
 
     console.log('Notification request sent successfully');
-    
-    // Optional: close connection after a short delay
-    setTimeout(() => {
-      channel.close();
-      connection.close();
-    }, 500);
 
   } catch (error) {
     console.error('Error sending notification:', error);
+  } finally {
+    if (channel) await channel.close();
+    if (connection) await connection.close();
   }
 }

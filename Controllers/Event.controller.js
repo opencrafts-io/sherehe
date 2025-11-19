@@ -18,9 +18,6 @@ import { logs } from "../Utils/logs.js";
 
 const generateSheId = () => `she_${randomUUID()}`;
 
-// -----------------------------------------------------------------------------
-// CREATE EVENT
-// -----------------------------------------------------------------------------
 export const createEventController = async (req, res) => {
   const start = process.hrtime.bigint();
   let savedFiles = [];
@@ -264,9 +261,6 @@ export const createEventController = async (req, res) => {
   }
 };
 
-// -----------------------------------------------------------------------------
-// GET ALL EVENTS
-// -----------------------------------------------------------------------------
 export const getAllEventsController = async (req, res) => {
   const start = process.hrtime.bigint();
 
@@ -321,9 +315,6 @@ export const getAllEventsController = async (req, res) => {
   }
 };
 
-// -----------------------------------------------------------------------------
-// GET EVENT BY ID
-// -----------------------------------------------------------------------------
 export const getEventByIdController = async (req, res) => {
   const start = process.hrtime.bigint();
 
@@ -397,9 +388,6 @@ export const getEventByIdController = async (req, res) => {
   }
 };
 
-// -----------------------------------------------------------------------------
-// UPDATE EVENT
-// -----------------------------------------------------------------------------
 export const updateEventController = async (req, res) => {
   const start = process.hrtime.bigint();
 
@@ -498,9 +486,7 @@ export const updateEventController = async (req, res) => {
   }
 };
 
-// -----------------------------------------------------------------------------
-// DELETE EVENT
-// -----------------------------------------------------------------------------
+
 export const deleteEventController = async (req, res) => {
   const start = process.hrtime.bigint();
 
@@ -553,9 +539,6 @@ export const deleteEventController = async (req, res) => {
   }
 };
 
-// -----------------------------------------------------------------------------
-// SEARCH EVENTS
-// -----------------------------------------------------------------------------
 export const searchEventController = async (req, res) => {
   const start = process.hrtime.bigint();
 
@@ -625,9 +608,8 @@ export const searchEventController = async (req, res) => {
   }
 };
 
-// -----------------------------------------------------------------------------
-// GET EVENT BY ORGANIZER
-// -----------------------------------------------------------------------------
+
+
 export const getEventbyOrganizerIdController = async (req, res) => {
   const start = process.hrtime.bigint();
 

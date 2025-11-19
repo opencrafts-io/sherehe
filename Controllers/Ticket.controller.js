@@ -10,9 +10,6 @@ import {
 import { logs } from '../Utils/logs.js';
 
 
-// ===========================================================
-// CREATE TICKET
-// ===========================================================
 export const createTicketController = async (req, res) => {
   const start = process.hrtime.bigint();
 
@@ -54,9 +51,7 @@ export const createTicketController = async (req, res) => {
 };
 
 
-// ===========================================================
-// GET ALL TICKETS
-// ===========================================================
+
 export const getAllTicketsController = async (req, res) => {
   const start = process.hrtime.bigint();
 
@@ -92,9 +87,7 @@ export const getAllTicketsController = async (req, res) => {
 };
 
 
-// ===========================================================
-// GET TICKET BY ID
-// ===========================================================
+
 export const getTicketByIdController = async (req, res) => {
   const start = process.hrtime.bigint();
 
@@ -140,9 +133,7 @@ export const getTicketByIdController = async (req, res) => {
 };
 
 
-// ===========================================================
-// UPDATE TICKET
-// ===========================================================
+
 export const updateTicketController = async (req, res) => {
   const start = process.hrtime.bigint();
 
@@ -205,9 +196,7 @@ export const updateTicketController = async (req, res) => {
 };
 
 
-// ===========================================================
-// DELETE TICKET
-// ===========================================================
+
 export const deleteTicketController = async (req, res) => {
   const start = process.hrtime.bigint();
 
@@ -251,9 +240,6 @@ export const deleteTicketController = async (req, res) => {
 };
 
 
-// ===========================================================
-// GET TICKET BY EVENT ID
-// ===========================================================
 export const getTicketByEventIdController = async (req, res) => {
   const start = process.hrtime.bigint();
 

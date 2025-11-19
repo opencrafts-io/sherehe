@@ -15,7 +15,14 @@ export const getAllEventsRepository = async (params) => {
     // Check delete_tag is false
     const { limitPlusOne, offset } = params;
     const events = await Event.findAll({ limit: limitPlusOne, offset: offset });
-    return events;
+    const formattedEvents = events.map(event => ({
+  ...event.toJSON(),
+  event_genre: Array.isArray(event.event_genre)
+    ? event.event_genre
+    : JSON.parse(event.event_genre || '[]')
+}));
+
+    return formattedEvents;
   } catch (error) {
     throw error;
   }
@@ -24,7 +31,13 @@ export const getAllEventsRepository = async (params) => {
 export const getEventByIdRepository = async (eventId) => {
   try {
     const event = await Event.findByPk(eventId);
-    return event;
+        const formattedEvents = event.map(event => ({
+  ...event.toJSON(),
+  event_genre: Array.isArray(event.event_genre)
+    ? event.event_genre
+    : JSON.parse(event.event_genre || '[]')
+}));
+    return formattedEvents;
   } catch (error) {
     throw error;
   }
@@ -48,7 +61,13 @@ export const updateEventRepository = async (eventId, eventData, userId) => {
     }
 
     await event.update(eventData);
-    return { status: "success", event };
+        const formattedEvents = event.map(event => ({
+  ...event.toJSON(),
+  event_genre: Array.isArray(event.event_genre)
+    ? event.event_genre
+    : JSON.parse(event.event_genre || '[]')
+}));
+    return { status: "success", event: formattedEvents };
   } catch (error) {
     throw error;
   }
@@ -96,8 +115,13 @@ export const searchEventRepository = async (searchQuery) => {
       },
       order: [["created_at", "DESC"]],
     });
-
-    return events;
+    const formattedEvents = events.map(event => ({
+  ...event.toJSON(),
+  event_genre: Array.isArray(event.event_genre)
+    ? event.event_genre
+    : JSON.parse(event.event_genre || '[]')
+}));
+    return formattedEvents;
   } catch (error) {
     throw error;
   }
@@ -107,7 +131,13 @@ export const searchEventRepository = async (searchQuery) => {
 export const getEventbyOrganizerIdRepository = async (organizerId) => {
   try {
     const events = await Event.findAll({ where: { organizer_id: organizerId} , order: [["created_at", "DESC"]] });
-    return events;
+        const formattedEvents = events.map(event => ({
+  ...event.toJSON(),
+  event_genre: Array.isArray(event.event_genre)
+    ? event.event_genre
+    : JSON.parse(event.event_genre || '[]')
+}));
+    return formattedEvents;
   } catch (error) {
     throw error;
   }
