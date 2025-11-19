@@ -80,6 +80,7 @@ export const getAllAttendeesByEventIdController = async (req, res) => {
 
   try {
     const eventId = req.params.id;
+     const { limit, page, limitPlusOne, offset } = req.pagination;
 
     if (!eventId) {
       const duration = Number(process.hrtime.bigint() - start) / 1000;
@@ -87,18 +88,23 @@ export const getAllAttendeesByEventIdController = async (req, res) => {
       return res.status(400).json({ error: "Event ID is required" });
     }
 
-    const attendees = await getAllAttendeesByEventIdRepository(eventId);
+    const result = await getAllAttendeesByEventIdRepository(eventId , limitPlusOne, offset);
 
-    if (!attendees || attendees.length === 0) {
-      const duration = Number(process.hrtime.bigint() - start) / 1000;
-      logs(duration, "INFO", req.ip, req.method, "No attendees found", req.path, 404, req.headers["user-agent"]);
-      return res.status(404).json({ message: "No attendees found for this event" });
-    }
+         const hasNextPage = result.length > limit;
+    const attendees = hasNextPage ? result.slice(0, limit) : result;
+
 
     const duration = Number(process.hrtime.bigint() - start) / 1000;
     logs(duration, "INFO", req.ip, req.method, "Attendees retrieved", req.path, 200, req.headers["user-agent"]);
 
-    res.status(200).json(attendees);
+      return res.status(200).json({
+      status: "success",
+      currentPage: page,
+      nextPage: hasNextPage ? page + 1 : null,
+      previousPage: page > 1 ? page - 1 : null,
+      totalAttendees: attendees.length,
+      data: attendees,
+    });
   } catch (error) {
     const duration = Number(process.hrtime.bigint() - start) / 1000;
     logs(duration, "ERR", req.ip, req.method, error.message, req.path, 500, req.headers["user-agent"]);
@@ -147,7 +153,7 @@ export const getAttendeesByUserIdController = async (req, res) => {
 
   try {
     const eventId = req.params.id;
-
+    const { limit, page, limitPlusOne, offset } = req.pagination;
     const userId = req.user.sub;
 
     if (!eventId) {
@@ -156,9 +162,9 @@ export const getAttendeesByUserIdController = async (req, res) => {
       return res.status(400).json({ error: "Event ID is required" });
     }
 
-    const attendees = await getAttendeesByUserIdRepository(eventId, userId);
+    const result = await getAttendeesByUserIdRepository(eventId, userId , limitPlusOne, offset);
 
-    if (!attendees || attendees.length === 0) {
+    if (!result || result.length === 0) {
       const duration = Number(process.hrtime.bigint() - start) / 1000;
       logs(duration, "INFO", req.ip, req.method, "No attendees found", req.path, 404, req.headers["user-agent"]);
       return res.status(404).json({ message: "No attendees found for this event" });
@@ -167,7 +173,17 @@ export const getAttendeesByUserIdController = async (req, res) => {
     const duration = Number(process.hrtime.bigint() - start) / 1000;
     logs(duration, "INFO", req.ip, req.method, "Attendees retrieved", req.path, 200, req.headers["user-agent"]);
 
-    res.status(200).json(attendees);
+        const hasNextPage = result.length > limit;
+    const attendees = hasNextPage ? result.slice(0, limit) : result;
+
+         return res.status(200).json({
+      status: "success",
+      currentPage: page,
+      nextPage: hasNextPage ? page + 1 : null,
+      previousPage: page > 1 ? page - 1 : null,
+      totalAttendees: attendees.length,
+      data: attendees,
+    });
   } catch (error) {
     const duration = Number(process.hrtime.bigint() - start) / 1000;
     logs(duration, "ERR", req.ip, req.method, error.message, req.path, 500, req.headers["user-agent"]);

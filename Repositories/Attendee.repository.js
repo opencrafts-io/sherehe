@@ -9,12 +9,12 @@ export const createAttendeeRepository = async (attendee) => {
   }
 };
 
-export const getAllAttendeesByEventIdRepository = async (eventId) => {
+export const getAllAttendeesByEventIdRepository = async (eventId , limitPlusOne, offset) => {
   try {
     const attendees = await Attendee.findAll({
       where: { event_id: eventId },
       order: [["created_at", "DESC"]],
-
+       limit: limitPlusOne, offset: offset,
       include: [
         {
           model: User,
@@ -88,10 +88,11 @@ export const getAttendeeByIdRepository = async (id) => {
   }
 }
 
-export const getAttendeesByUserIdRepository = async (eventId, userId) => {
+export const getAttendeesByUserIdRepository = async (eventId, userId , limitPlusOne, offset) => {
   try {
     const attendees = await Attendee.findAll({ where: { event_id: eventId, user_id: userId } ,
       order: [["created_at", "DESC"]],
+      limit: limitPlusOne, offset: offset,
       include: [
         {
           model: User,

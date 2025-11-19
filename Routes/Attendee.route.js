@@ -10,11 +10,12 @@ import {
 const router = express.Router();
 
 import {verifyToken} from "../Middleware/jwt_token_verification.js";
+import { paginate } from '../Middleware/paginate.js';
 router.use(verifyToken);
 
 router.post("/", createAttendeeController);
-router.get("/user/:id", getAttendeesByUserIdController);
-router.get("/event/:id", getAllAttendeesByEventIdController);
+router.get("/user/:id", paginate, getAttendeesByUserIdController);
+router.get("/event/:id", paginate, getAllAttendeesByEventIdController);
 router.get("/:id", getAttendeesByIdController);
 router.delete("/:id", deleteAttendeeController);
 
