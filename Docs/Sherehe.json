@@ -40,12 +40,12 @@ collection:
         | **GET**    | `/api/event/organizer/:id`  | Get all events by organizer
         |
     children:
-      - url: http://localhost:3000/event/
+      - url: https://qasherehe.opencrafts.io/event/
         name: Create Event
         meta:
           id: req_87853c0415ad45ca912c6eac6e23e688
           created: 1751674151145
-          modified: 1761846256331
+          modified: 1763492814409
           isPrivate: false
           description: |
             🟢 Create Event
@@ -127,7 +127,7 @@ collection:
                 00-19-27.png
               type: file
             - name: event_genre
-              value: "{Adult Time,PornHub}"
+              value: "[Adult Time,PornHub]"
               description: ""
               disabled: false
               id: pair_84d94397758640079d7009150ee41daa
@@ -231,12 +231,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/event?page=1&limit=10
+      - url: https://qasherehe.opencrafts.io/event?page=1&limit=10
         name: Get all Events
         meta:
           id: req_396769ef52ba480a9745f7b33982f1c2
           created: 1751675623663
-          modified: 1761846413044
+          modified: 1763492590856
           isPrivate: false
           description: |+
             Get All Events
@@ -1291,12 +1291,12 @@ collection:
       sortKey: -1761825514602
       description: ""
     children:
-      - url: http://localhost:3000/user/
+      - url: https://qasherehe.opencrafts.io/user/
         name: Create
         meta:
           id: req_4d9b8461558b4d53aea07f5c2345ca82
           created: 1761825526376
-          modified: 1763278439999
+          modified: 1763492791077
           isPrivate: false
           description: >
             User API Documentation

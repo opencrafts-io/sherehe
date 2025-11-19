@@ -1,14 +1,28 @@
-import { createEventRepository, getAllEventsRepository, getEventByIdRepository, updateEventRepository, deleteEventRepository, searchEventRepository, getEventbyOrganizerIdRepository } from '../Repositories/Event.repository.js';
-import { createTicketRepository } from '../Repositories/Ticket.repository.js';
-import { cleanupFiles } from '../Middleware/cleanupFiles.js';
-import { processAndSaveImages } from '../Middleware/upload.js';
-import sequelize from '../Utils/db.js';
-import { randomUUID } from 'crypto'; // For generating unique request_id
-import { sendNotification } from '../Utils/Notification.js';
+import {
+  createEventRepository,
+  getAllEventsRepository,
+  getEventByIdRepository,
+  updateEventRepository,
+  deleteEventRepository,
+  searchEventRepository,
+  getEventbyOrganizerIdRepository
+} from "../Repositories/Event.repository.js";
+
+import { createTicketRepository } from "../Repositories/Ticket.repository.js";
+import { cleanupFiles } from "../Middleware/cleanupFiles.js";
+import { processAndSaveImages } from "../Middleware/upload.js";
+import sequelize from "../Utils/db.js";
+import { randomUUID } from "crypto";
+import { sendNotification } from "../Utils/Notification.js";
+import { logs } from "../Utils/logs.js";
+
 const generateSheId = () => `she_${randomUUID()}`;
 
-
+// -----------------------------------------------------------------------------
+// CREATE EVENT
+// -----------------------------------------------------------------------------
 export const createEventController = async (req, res) => {
+  const start = process.hrtime.bigint();
   let savedFiles = [];
 
   try {
@@ -21,57 +35,105 @@ export const createEventController = async (req, res) => {
       event_genre,
     } = req.body;
 
-
     const organizer_id = req.user.sub;
-
     let tickets = req.body.tickets;
 
-    // ✅ Validate required files
     if (
       !req.files ||
       !req.files.event_card_image ||
       !req.files.event_poster_image ||
       !req.files.event_banner_image
     ) {
+      const duration = Number(process.hrtime.bigint() - start);
+
+      logs(
+        duration,
+        "WARN",
+        req.ip,
+        req.method,
+        "Missing required images",
+        req.originalUrl,
+        400,
+        req.headers["user-agent"]
+      );
+
       return res.status(400).json({
         message: "Event card image, poster, and banner are required",
       });
     }
 
-    // ✅ Resize and save all images (done in memory, no originals saved)
     const resized = await processAndSaveImages(req);
     savedFiles = Object.values(resized);
 
-    // ✅ Validate event data
     if (!event_name || !event_date || !event_location || !organizer_id) {
       cleanupFiles(savedFiles);
-      return res
-        .status(422)
-        .json({ message: "Missing required event details" });
+
+      const duration = Number(process.hrtime.bigint() - start);
+
+      logs(
+        duration,
+        "WARN",
+        req.ip,
+        req.method,
+        "Missing event details",
+        req.originalUrl,
+        422,
+        req.headers["user-agent"]
+      );
+
+      return res.status(422).json({
+        message: "Missing required event details",
+      });
     }
 
     const event_card_image = `${process.env.BASE_URL}/${resized.event_card_image}`;
     const event_poster_image = `${process.env.BASE_URL}/${resized.event_poster_image}`;
     const event_banner_image = `${process.env.BASE_URL}/${resized.event_banner_image}`;
 
-    // ✅ Parse and validate tickets
     if (typeof tickets === "string") {
       try {
         tickets = JSON.parse(tickets);
       } catch (error) {
         cleanupFiles(savedFiles);
+
+        const duration = Number(process.hrtime.bigint() - start);
+
+        logs(
+          duration,
+          "ERROR",
+          req.ip,
+          req.method,
+          "Invalid ticket JSON",
+          req.originalUrl,
+          400,
+          req.headers["user-agent"]
+        );
+
         return res.status(400).json({ error: "Invalid JSON format for tickets" });
       }
     }
 
     if (!Array.isArray(tickets) || tickets.length === 0) {
       cleanupFiles(savedFiles);
-      return res
-        .status(422)
-        .json({ error: "At least one ticket type is required" });
+
+      const duration = Number(process.hrtime.bigint() - start);
+
+      logs(
+        duration,
+        "WARN",
+        req.ip,
+        req.method,
+        "No ticket types provided",
+        req.originalUrl,
+        422,
+        req.headers["user-agent"]
+      );
+
+      return res.status(422).json({
+        error: "At least one ticket type is required",
+      });
     }
 
-    // ✅ Database transaction
     const transaction = await sequelize.transaction();
 
     try {
@@ -99,14 +161,20 @@ export const createEventController = async (req, res) => {
       }
 
       await transaction.commit();
-      // Send Notification to Organizer
 
-      const formattedEventDate = new Date(event.event_date).toLocaleDateString('en-GB', {
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-      });
+      // Notify user
+      const formattedEventDate = new Date(event.event_date).toLocaleDateString(
+        "en-GB",
+        {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        }
+      );
 
       const contents = {
-        en: `Hello,\n\nYour event "${event.event_name}" has been successfully created and is scheduled on ${formattedEventDate}.\n\nYou can manage or share your event using the dashboard.`
+        en: `Hello,\n\nYour event "${event.event_name}" has been successfully created and is scheduled on ${formattedEventDate}.\n\nYou can manage or share your event using the dashboard.`,
       };
 
       const notificationPayload = {
@@ -123,39 +191,85 @@ export const createEventController = async (req, res) => {
           large_icon: event_card_image,
           small_icon: event_poster_image,
           url: event_url || "https://opencrafts.io/dashboard",
-          buttons: [
-            { id: event.id, text: "View Event", icon: "" }
-          ]
+          buttons: [{ id: event.id, text: "View Event", icon: "" }],
         },
         meta: {
           event_type: "notification.requested",
           source_service_id: "io.opencrafts.verisafe",
-          request_id: generateSheId()
-        }
+          request_id: generateSheId(),
+        },
       };
 
       sendNotification(notificationPayload);
 
-      return res
-        .status(201)
-        .json({ message: "Event created successfully", event });
+      const duration = Number(process.hrtime.bigint() - start);
+
+      logs(
+        duration,
+        "INFO",
+        req.ip,
+        req.method,
+        "Event created successfully",
+        req.originalUrl,
+        201,
+        req.headers["user-agent"]
+      );
+
+      return res.status(201).json({
+        message: "Event created successfully",
+        event,
+      });
     } catch (error) {
       await transaction.rollback();
       cleanupFiles(savedFiles);
-      return res
-        .status(500)
-        .json({ error: "Database transaction failed", details: error.message });
+
+      const duration = Number(process.hrtime.bigint() - start);
+
+      logs(
+        duration,
+        "ERROR",
+        req.ip,
+        req.method,
+        error.message,
+        req.originalUrl,
+        500,
+        req.headers["user-agent"]
+      );
+
+      return res.status(500).json({
+        error: "Database transaction failed",
+        details: error.message,
+      });
     }
   } catch (error) {
     cleanupFiles(savedFiles);
-    return res
-      .status(500)
-      .json({ error: "Unexpected server error", details: error.message });
+
+    const duration = Number(process.hrtime.bigint() - start);
+
+    logs(
+      duration,
+      "ERROR",
+      req.ip,
+      req.method,
+      error.message,
+      req.originalUrl,
+      500,
+      req.headers["user-agent"]
+    );
+
+    return res.status(500).json({
+      error: "Unexpected server error",
+      details: error.message,
+    });
   }
 };
 
-
+// -----------------------------------------------------------------------------
+// GET ALL EVENTS
+// -----------------------------------------------------------------------------
 export const getAllEventsController = async (req, res) => {
+  const start = process.hrtime.bigint();
+
   try {
     const { limit, page, limitPlusOne, offset } = req.pagination;
 
@@ -164,17 +278,18 @@ export const getAllEventsController = async (req, res) => {
     const hasNextPage = result.length > limit;
     const events = hasNextPage ? result.slice(0, limit) : result;
 
-    // No events found at all
-    if (!result || result.length === 0) {
-      return res.status(200).json({
-        status: "success",
-        currentPage: page,
-        nextPage: hasNextPage ? page + 1 : null,
-        previousPage: page > 1 ? page - 1 : null,
-        totalEvents: events.length,
-        data: [],
-      });
-    }
+    const duration = Number(process.hrtime.bigint() - start);
+
+    logs(
+      duration,
+      "INFO",
+      req.ip,
+      req.method,
+      "Fetched all events",
+      req.originalUrl,
+      200,
+      req.headers["user-agent"]
+    );
 
     return res.status(200).json({
       status: "success",
@@ -185,137 +300,371 @@ export const getAllEventsController = async (req, res) => {
       data: events,
     });
   } catch (error) {
-    console.error("Error fetching events:", error);
-    return res
-      .status(500) // ✅ Internal Server Error
-      .json({
-        status: "error",
-        message: "Failed to retrieve events",
-        details: error.message,
-      });
+    const duration = Number(process.hrtime.bigint() - start);
+
+    logs(
+      duration,
+      "ERROR",
+      req.ip,
+      req.method,
+      error.message,
+      req.originalUrl,
+      500,
+      req.headers["user-agent"]
+    );
+
+    return res.status(500).json({
+      status: "error",
+      message: "Failed to retrieve events",
+      details: error.message,
+    });
   }
 };
 
+// -----------------------------------------------------------------------------
+// GET EVENT BY ID
+// -----------------------------------------------------------------------------
 export const getEventByIdController = async (req, res) => {
+  const start = process.hrtime.bigint();
+
   try {
     const eventId = req.params.id;
     const event = await getEventByIdRepository(eventId);
 
     if (!event) {
+      const duration = Number(process.hrtime.bigint() - start);
+
+      logs(
+        duration,
+        "WARN",
+        req.ip,
+        req.method,
+        "Event not found",
+        req.originalUrl,
+        404,
+        req.headers["user-agent"]
+      );
+
       return res.status(404).json({ error: "Event not found" });
     }
 
     if (event.delete_tag === true) {
+      const duration = Number(process.hrtime.bigint() - start);
+
+      logs(
+        duration,
+        "WARN",
+        req.ip,
+        req.method,
+        "Event deleted",
+        req.originalUrl,
+        410,
+        req.headers["user-agent"]
+      );
+
       return res.status(410).json({ error: "Event has been deleted" });
     }
 
+    const duration = Number(process.hrtime.bigint() - start);
+
+    logs(
+      duration,
+      "INFO",
+      req.ip,
+      req.method,
+      "Fetched event by ID",
+      req.originalUrl,
+      200,
+      req.headers["user-agent"]
+    );
+
     return res.status(200).json(event);
   } catch (error) {
-    console.error("Error fetching event:", error);
-    res.status(500).json({ error: "Internal server error" });
+    const duration = Number(process.hrtime.bigint() - start);
+
+    logs(
+      duration,
+      "ERROR",
+      req.ip,
+      req.method,
+      error.message,
+      req.originalUrl,
+      500,
+      req.headers["user-agent"]
+    );
+
+    return res.status(500).json({ error: "Internal server error" });
   }
 };
 
-
+// -----------------------------------------------------------------------------
+// UPDATE EVENT
+// -----------------------------------------------------------------------------
 export const updateEventController = async (req, res) => {
+  const start = process.hrtime.bigint();
+
   try {
     const eventId = req.params.id;
-    const userId = req.user?.sub || req.body.userId; // Depending on your auth setup
+    const userId = req.user?.sub || req.body.userId;
     const eventData = req.body;
 
     const result = await updateEventRepository(eventId, eventData, userId);
 
     if (result.status === "not_found") {
+      const duration = Number(process.hrtime.bigint() - start);
+
+      logs(
+        duration,
+        "WARN",
+        req.ip,
+        req.method,
+        "Event not found",
+        req.originalUrl,
+        404,
+        req.headers["user-agent"]
+      );
+
       return res.status(404).json({ error: "Event not found" });
     }
 
     if (result.status === "deleted") {
+      const duration = Number(process.hrtime.bigint() - start);
+
+      logs(
+        duration,
+        "WARN",
+        req.ip,
+        req.method,
+        "Event deleted",
+        req.originalUrl,
+        410,
+        req.headers["user-agent"]
+      );
+
       return res.status(410).json({ error: "Event has been deleted" });
     }
 
     if (result.status === "unauthorized") {
-      return res.status(403).json({ error: "Unauthorized: You cannot update this event" });
+      const duration = Number(process.hrtime.bigint() - start);
+
+      logs(
+        duration,
+        "WARN",
+        req.ip,
+        req.method,
+        "Unauthorized event update attempt",
+        req.originalUrl,
+        403,
+        req.headers["user-agent"]
+      );
+
+      return res.status(403).json({
+        error: "Unauthorized: You cannot update this event",
+      });
     }
+
+    const duration = Number(process.hrtime.bigint() - start);
+
+    logs(
+      duration,
+      "INFO",
+      req.ip,
+      req.method,
+      "Event updated",
+      req.originalUrl,
+      200,
+      req.headers["user-agent"]
+    );
 
     return res.status(200).json({
       message: "Event updated successfully",
       data: result.event,
     });
-
   } catch (error) {
-    console.error("Error updating event:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
+    const duration = Number(process.hrtime.bigint() - start);
 
+    logs(
+      duration,
+      "ERROR",
+      req.ip,
+      req.method,
+      error.message,
+      req.originalUrl,
+      500,
+      req.headers["user-agent"]
+    );
 
-export const deleteEventController = async (req, res) => {
-  try {
-    const eventId = req.params.id;
-    const userId = req.user?.sub
-    const result = await deleteEventRepository(eventId, userId);
-    return res.status(200).json(result); // success
-  } catch (error) {
-    // handle specific error messages with proper HTTP codes
-    if (error.message === "Event not found") {
-      return res.status(404).json({ error: error.message }); // Not Found
-    }
-
-    if (error.message === "Event already deleted") {
-      return res.status(409).json({ error: error.message }); // Conflict
-    }
-
-    if (error.message.startsWith("Unauthorized")) {
-      return res.status(403).json({ error: error.message }); // Forbidden
-    }
-
-    // Default for unexpected errors
     return res.status(500).json({ error: "Internal server error" });
   }
 };
 
+// -----------------------------------------------------------------------------
+// DELETE EVENT
+// -----------------------------------------------------------------------------
+export const deleteEventController = async (req, res) => {
+  const start = process.hrtime.bigint();
 
+  try {
+    const eventId = req.params.id;
+    const userId = req.user?.sub;
+    const result = await deleteEventRepository(eventId, userId);
 
+    const duration = Number(process.hrtime.bigint() - start);
+
+    logs(
+      duration,
+      "INFO",
+      req.ip,
+      req.method,
+      "Event deleted",
+      req.originalUrl,
+      200,
+      req.headers["user-agent"]
+    );
+
+    return res.status(200).json(result);
+  } catch (error) {
+    const duration = Number(process.hrtime.bigint() - start);
+
+    logs(
+      duration,
+      "ERROR",
+      req.ip,
+      req.method,
+      error.message,
+      req.originalUrl,
+      500,
+      req.headers["user-agent"]
+    );
+
+    if (error.message === "Event not found") {
+      return res.status(404).json({ error: error.message });
+    }
+
+    if (error.message === "Event already deleted") {
+      return res.status(409).json({ error: error.message });
+    }
+
+    if (error.message.startsWith("Unauthorized")) {
+      return res.status(403).json({ error: error.message });
+    }
+
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// -----------------------------------------------------------------------------
+// SEARCH EVENTS
+// -----------------------------------------------------------------------------
 export const searchEventController = async (req, res) => {
+  const start = process.hrtime.bigint();
+
   try {
     const { q } = req.query;
     const searchQuery = q?.trim() || "";
 
-    // If no query is provided, it's a bad request
     if (!searchQuery) {
-      return res.status(400).json({ error: "Missing search query parameter (?q=...)" });
+      const duration = Number(process.hrtime.bigint() - start);
+
+      logs(
+        duration,
+        "WARN",
+        req.ip,
+        req.method,
+        "Missing search query",
+        req.originalUrl,
+        400,
+        req.headers["user-agent"]
+      );
+
+      return res
+        .status(400)
+        .json({ error: "Missing search query parameter (?q=...)" });
     }
 
     const results = await searchEventRepository(searchQuery);
 
+    const duration = Number(process.hrtime.bigint() - start);
+
+    logs(
+      duration,
+      "INFO",
+      req.ip,
+      req.method,
+      "Search performed",
+      req.originalUrl,
+      200,
+      req.headers["user-agent"]
+    );
+
     if (!results || results.length === 0) {
-      // No results found, return 204 No Content
       return res.status(200).json([]);
     }
 
-    // Success
     return res.status(200).json({
       count: results.length,
       data: results,
     });
-
   } catch (error) {
-    console.error("Error searching events:", error);
+    const duration = Number(process.hrtime.bigint() - start);
+
+    logs(
+      duration,
+      "ERROR",
+      req.ip,
+      req.method,
+      error.message,
+      req.originalUrl,
+      500,
+      req.headers["user-agent"]
+    );
+
     return res.status(500).json({
       error: "Internal server error while searching events",
     });
   }
 };
 
+// -----------------------------------------------------------------------------
+// GET EVENT BY ORGANIZER
+// -----------------------------------------------------------------------------
 export const getEventbyOrganizerIdController = async (req, res) => {
+  const start = process.hrtime.bigint();
+
   try {
     const organizerId = req.params.id;
 
     if (!organizerId) {
+      const duration = Number(process.hrtime.bigint() - start);
+
+      logs(
+        duration,
+        "WARN",
+        req.ip,
+        req.method,
+        "Organizer ID missing",
+        req.originalUrl,
+        400,
+        req.headers["user-agent"]
+      );
+
       return res.status(400).json({ error: "Organizer ID is required" });
     }
 
     const events = await getEventbyOrganizerIdRepository(organizerId);
+
+    const duration = Number(process.hrtime.bigint() - start);
+
+    logs(
+      duration,
+      "INFO",
+      req.ip,
+      req.method,
+      "Fetched events by organizer",
+      req.originalUrl,
+      200,
+      req.headers["user-agent"]
+    );
 
     if (!events || events.length === 0) {
       return res.status(404).json([]);
@@ -325,9 +674,20 @@ export const getEventbyOrganizerIdController = async (req, res) => {
       count: events.length,
       data: events,
     });
-
   } catch (error) {
-    console.error("Error fetching events by organizer ID:", error);
+    const duration = Number(process.hrtime.bigint() - start);
+
+    logs(
+      duration,
+      "ERROR",
+      req.ip,
+      req.method,
+      error.message,
+      req.originalUrl,
+      500,
+      req.headers["user-agent"]
+    );
+
     return res.status(500).json({
       error: "Internal server error while fetching events by organizer ID",
     });
