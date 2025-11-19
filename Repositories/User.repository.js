@@ -6,7 +6,6 @@ export const createUserRepository = async (data) => {
     const user = await User.create(data);
     return user;
   } catch (error) {
-    console.error('Error creating user:', error);
     throw error;
   }
 }

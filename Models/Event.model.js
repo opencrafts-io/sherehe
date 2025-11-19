@@ -13,6 +13,11 @@ const Event = sequelize.define(
     event_description: { type: DataTypes.STRING, allowNull: false },
     event_location: { type: DataTypes.STRING, allowNull: false },
     event_date: { type: DataTypes.DATE, allowNull: false },
+    attendee_count: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0
+    },
     organizer_id: { type: DataTypes.UUID, allowNull: false },
     event_card_image: { type: DataTypes.STRING, allowNull: true },
     event_poster_image: { type: DataTypes.STRING, allowNull: true },
@@ -20,9 +25,11 @@ const Event = sequelize.define(
     event_url: { type: DataTypes.STRING, allowNull: true },
     event_genre: { type: DataTypes.STRING, allowNull: true },
     created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
-    updated_at: { type: DataTypes.DATE,
+    updated_at: {
+      type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: DataTypes.NOW },
+      defaultValue: DataTypes.NOW
+    },
     deleted_at: { type: DataTypes.DATE, allowNull: true }
   },
   {

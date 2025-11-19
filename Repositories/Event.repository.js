@@ -38,9 +38,9 @@ export const updateEventRepository = async (eventId, eventData, userId) => {
       return { status: "not_found" };
     }
 
-    if (event.delete_tag === true) {
-      return { status: "deleted" };
-    }
+    // if (event.delete_tag === true) {
+    //   return { status: "deleted" };
+    // }
 
     // Optional: Only allow the event creator/organizer to update
     if (event.organizer_id !== userId) {
