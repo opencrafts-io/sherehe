@@ -1,8 +1,9 @@
 import amqp from 'amqplib';
-
-const RABBITMQ_URL = `amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASSWORD}@${process.env.RABBITMQ_HOST}:${process.env.RABBITMQ_PORT}/`;
-const EXCHANGE_NAME = process.env.EXCHANGE_NAME;
-const ROUTING_KEY = process.env.ROUTING_KEY;
+import dotenv from "dotenv";
+dotenv.config(); 
+const RABBITMQ_URL = `amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASSWORD}@${process.env.RABBITMQ_HOST}:${process.env.RABBITMQ_PORT}${process.env.RABBITMQ_VHOST || '/'}`;
+const EXCHANGE_NAME = process.env.G_EXCHANGE_NAME;
+const ROUTING_KEY = process.env.G_ROUTING_KEY;
 
 export async function sendNotification(payload) {
   let connection;
@@ -22,8 +23,6 @@ export async function sendNotification(payload) {
       Buffer.from(JSON.stringify(payload)),
       { contentType: 'application/json', persistent: true }
     );
-
-    console.log('Notification request sent successfully');
 
   } catch (error) {
     console.error('Error sending notification:', error);

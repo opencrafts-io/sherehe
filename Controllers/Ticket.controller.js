@@ -261,7 +261,7 @@ export const getTicketByEventIdController = async (req, res) => {
       logs(duration, "WARN", req.ip, req.method,
         "No tickets found for event", req.path, 404, req.headers["user-agent"]);
 
-      return res.status(404).json({ message: "No tickets found for this event" });
+      return res.status(200).json([]);
     }
 
     const duration = Number(process.hrtime.bigint() - start) / 1000;
