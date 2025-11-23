@@ -19,6 +19,7 @@ export const getUserByIdRepository = async (id) => {
   }
 }
 
+
 export const updateUserRepository = async (id, data) => {
   try {
     const user = await User.findByPk(id);
