@@ -52,7 +52,7 @@ export const getUserByIdController = async (req, res) => {
   const start = process.hrtime.bigint();
 
   try {
-    const user = await getUserByIdRepository(req.params.id);
+    const user = await getUserByIdRepository(req.user?.sub);
 
     const end = process.hrtime.bigint();
     const durationMicroseconds = Number(end - start) / 1000;

@@ -1,0 +1,73 @@
+// Services/rabbitmq.js
+import amqp from 'amqplib';
+import { createUserRepository, updateUserRepository } from '../Repositories/User.repository.js';
+import { logs } from '../Utils/logs.js';
+
+const RABBIT_URL = process.env.RABBIT_URL || 'amqp://localhost:5673';
+const QUEUE_NAME = process.env.QUEUE_NAME || 'local-debug';
+const EXCHANGE_NAME = process.env.EXCHANGE_NAME || 'verisafe.exchange';
+const ROUTING_KEY = process.env.ROUTING_KEY || 'verisafe.user.*';
+
+export const startVerisafeListener = async () => {
+  try {
+    const connection = await amqp.connect(RABBIT_URL);
+    const channel = await connection.createChannel();
+
+    await channel.assertExchange(EXCHANGE_NAME, 'topic', { durable: true });
+    await channel.assertQueue(QUEUE_NAME, { durable: true });
+    await channel.bindQueue(QUEUE_NAME, EXCHANGE_NAME, ROUTING_KEY);
+
+    channel.consume(QUEUE_NAME, async msg => {
+      if (!msg) return;
+
+      const data = JSON.parse(msg.content.toString());
+      await processVerisafeEvent(data);
+
+      channel.ack(msg);
+    });
+  } catch (error) {
+    console.error("❌ RabbitMQ connection failed:", error);
+  }
+};
+
+
+export const processVerisafeEvent = async (event) => {
+  const start = process.hrtime.bigint();
+
+  try {
+    const { event_type } = event.meta;
+    const { id, email, username, name, phone } = event.user;
+
+    if (event_type === "user.created") {
+      await createUserRepository({ id, email, username, name, phone });
+
+      logEvent(start, "User created successfully");
+    }
+
+    if (event_type === "user.updated") {
+      await updateUserRepository(id, { email, username, name, phone });
+
+      logEvent(start, "User updated successfully");
+    }
+
+  } catch (error) {
+    console.error("❌ Error processing event:", error);
+  }
+};
+
+
+const logEvent = (start, message) => {
+  const end = process.hrtime.bigint();
+  const durationMicroseconds = Number(end - start) / 1000;
+
+  logs(
+    durationMicroseconds,
+    "INFO",
+    "0.0.0.0",            
+    "RABBIT_EVENT", 
+    message,
+    "/rabbitmq/event",
+    200,
+    "RabbitMQ Listener"
+  );
+};

@@ -8,10 +8,10 @@ import {
 const router = express.Router();
 import {verifyToken} from "../Middleware/jwt_token_verification.js";
 
-// router.use(verifyToken);
+router.use(verifyToken);
 
 router.post("/", createUserController);
-router.get("/:id", getUserByIdController);
+router.get("/", getUserByIdController);
 router.put("/:id", updateUserController);
 
 export default router;

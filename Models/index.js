@@ -16,4 +16,5 @@ Attendee.belongsTo(Event, { foreignKey: 'event_id' });
 User.hasMany(Attendee, { foreignKey: 'user_id' });
 Attendee.belongsTo(User, { foreignKey: 'user_id' });
 
+
 export { User, Event, Ticket, Attendee };

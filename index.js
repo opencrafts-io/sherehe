@@ -5,6 +5,7 @@ import sequelize from './Utils/db.js';
 import path from 'path';
 const PORT = process.env.PORT || 3001;
 import './Models/index.js';
+import { startVerisafeListener } from './Services/verisafe.js';
 
 
 dotenv.config();
@@ -37,6 +38,8 @@ app.listen(PORT, async () => {
     console.log("✅ Database connected...");
 
     await sequelize.sync({ alter: true });
+
+    startVerisafeListener();
     console.log(`🚀 Server running on port ${PORT}`);
   } catch (error) {
     console.error("❌ Database error:", error);
