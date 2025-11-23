@@ -110,6 +110,26 @@ export const createEventController = async (req, res) => {
       }
     }
 
+    if (!Array.isArray(tickets) || tickets.length === 0) {
+      cleanupFiles(savedFiles);
+
+      const duration = Number(process.hrtime.bigint() - start);
+
+      logs(
+        duration,
+        "WARN",
+        req.ip,
+        req.method,
+        "No ticket types provided",
+        req.originalUrl,
+        422,
+        req.headers["user-agent"]
+      );
+
+      return res.status(422).json({
+        error: "At least one ticket type is required",
+      });
+    }
 
     const transaction = await sequelize.transaction();
 

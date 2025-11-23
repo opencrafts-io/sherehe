@@ -1,4 +1,4 @@
-import { Attendee , User } from "../Models/index.js";
+import { Attendee , User , Ticket } from "../Models/index.js";
 
 export const createAttendeeRepository = async (attendee) => {
   try {
@@ -95,9 +95,9 @@ export const getAttendeesByUserIdRepository = async (eventId, userId , limitPlus
       limit: limitPlusOne, offset: offset,
       include: [
         {
-          model: User,
-          as: "user",
-          attributes: ["id", "username", "email", "name", "phone"] // choose fields you want
+          model: Ticket,
+          as: "ticket",
+          attributes: ["id", "ticket_name", "ticket_price", "ticket_quantity"]
         }
       ] });
     return attendees;
