@@ -2,18 +2,21 @@
 import amqp from 'amqplib';
 import { createUserRepository, updateUserRepository } from '../Repositories/User.repository.js';
 import { logs } from '../Utils/logs.js';
+import dotenv from "dotenv";
+dotenv.config(); 
 
-const RABBIT_URL = process.env.RABBIT_URL || 'amqp://localhost:5673';
-const QUEUE_NAME = process.env.QUEUE_NAME || 'local-debug';
-const EXCHANGE_NAME = process.env.EXCHANGE_NAME || 'verisafe.exchange';
-const ROUTING_KEY = process.env.ROUTING_KEY || 'verisafe.user.*';
+const RABBIT_URL = `amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASSWORD}@${process.env.RABBITMQ_HOST}:${process.env.RABBITMQ_PORT}${process.env.RABBITMQ_VHOST || '/'}`;
+
+const QUEUE_NAME = process.env.V_QUEUE_NAME;
+const EXCHANGE_NAME = process.env.V_EXCHANGE_NAME;
+const ROUTING_KEY = process.env.V_ROUTING_KEY;
 
 export const startVerisafeListener = async () => {
   try {
     const connection = await amqp.connect(RABBIT_URL);
     const channel = await connection.createChannel();
 
-    await channel.assertExchange(EXCHANGE_NAME, 'topic', { durable: true });
+    await channel.assertExchange(EXCHANGE_NAME, 'fanout', { durable: true });
     await channel.assertQueue(QUEUE_NAME, { durable: true });
     await channel.bindQueue(QUEUE_NAME, EXCHANGE_NAME, ROUTING_KEY);
 
