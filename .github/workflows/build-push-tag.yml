@@ -3,7 +3,9 @@ name: Build, Push, and Update sherehe Backend
 on:
   push:
     branches:
-      - '**'
+      - main
+      - staging
+      - new-sherehe
 
 jobs:
   build-push-update:
