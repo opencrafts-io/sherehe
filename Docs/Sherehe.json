@@ -45,7 +45,7 @@ collection:
         meta:
           id: req_87853c0415ad45ca912c6eac6e23e688
           created: 1751674151145
-          modified: 1763569744815
+          modified: 1764010762346
           isPrivate: false
           description: |
             🟢 Create Event
@@ -127,7 +127,7 @@ collection:
                 00-19-27.png
               type: file
             - name: event_genre
-              value: "[Adult Time,PornHub]"
+              value: '["Adult Time"]'
               description: ""
               disabled: false
               id: pair_84d94397758640079d7009150ee41daa
@@ -153,10 +153,7 @@ collection:
                 04-49-54.png
               type: file
             - name: tickets
-              value: '[ { "ticket_name": "Regular", "ticket_price": 1000, "ticket_quantity":
-                300 },    { "ticket_name": "VIP", "ticket_price": 3000,
-                "ticket_quantity": 50 },    { "ticket_name": "Student",
-                "ticket_price": 500, "ticket_quantity": 100 }  ]'
+              value: "[]"
               description: ""
               disabled: false
               id: pair_c9526f4d655d4bb0841de7a32bb46e87
@@ -231,12 +228,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/event?page=1&limit=10
+      - url: https://qasherehe.opencrafts.io/event?page=1&limit=10
         name: Get all Events
         meta:
           id: req_396769ef52ba480a9745f7b33982f1c2
           created: 1751675623663
-          modified: 1763569341095
+          modified: 1764009975940
           isPrivate: false
           description: |+
             Get All Events
@@ -869,12 +866,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/ticket/event/185346a4-d678-40ae-a896-d6e78c3fb3b8
+      - url: http://localhost:3000/ticket/event/50a2e441-7c5e-4c5e-8a51-3e5b83d881ee
         name: Get Tickets by  Event Id
         meta:
           id: req_a55b7b8c2fe34bac917ad7f91f29ef61
           created: 1751676656627
-          modified: 1763569895088
+          modified: 1763909936430
           isPrivate: false
           description: >
             Get Tickets by Event ID
@@ -1141,12 +1138,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/attendee/event/a2341471-0b20-468a-adae-34dc2d3c8583
+      - url: http://localhost:3000/attendee/event/c95abad0-98ba-45c0-8aee-5417058b7183?page=1&limit=10
         name: Get attendees by Event id
         meta:
           id: req_691182551b6c4af396eaf96d072a894d
           created: 1751677247783
-          modified: 1763279908429
+          modified: 1763581917973
           isPrivate: false
           description: >+
             Get All Attendees for an Event
@@ -1210,12 +1207,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/attendee/9c88d891-3332-401f-a50e-571cd9c14326
+      - url: http://localhost:3000/attendee/9c88d891-3332-401f-a50e-571cd9c14326?page=1&limit=10
         name: Get attendee by id
         meta:
           id: req_68c735a0226241498092272afcef47f3
           created: 1751695650671
-          modified: 1761847413181
+          modified: 1763581010153
           isPrivate: false
           description: >
             Get Attendee by ID
@@ -1276,12 +1273,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/attendee/user/76f3f854-3a67-4a7a-9ff5-6df8f7645f26
-        name: Verify attendee by Event id
+      - url: http://localhost:3000/attendee/user/458ccae4-b34f-4bc8-8724-6d8d791abbf6?page=1&limit=10
+        name: Veify attendee by Event id
         meta:
           id: req_af25ee091d2d4d47b3a9e50ee0e82c87
           created: 1763569200655
-          modified: 1763570617259
+          modified: 1767604860664
           isPrivate: false
           description: |
             # Attendee API Documentation
@@ -1327,6 +1324,57 @@ collection:
             send: true
             store: true
           rebuildPath: true
+      - url: http://localhost:3000/attendee/user/attended?page=1&limit=10
+        name: Get all user attended events
+        meta:
+          id: req_c4ff14b77a954b1297ff053aaf6fd366
+          created: 1767606094401
+          modified: 1767606114805
+          isPrivate: false
+          description: |
+            # Attendee API Documentation
+
+            ## 1. Get Attendees by User for an Event
+
+            `Endpoint: GET /api/attendees/user/:id`  
+            `Description: Retrieves all attendees registered by the authenticated user for a specific event.`
+
+            🧩 URL Parameters
+
+            | Parameter  | Type   | Required | Description                  |
+            | ---------- | ------ | -------- | ---------------------------- |
+            | `id`       | UUID   | ✅ Yes    | The ID of the event to query |
+
+            📥 Example Response (200 OK)
+
+            | Field         | Type   | Example                                                                 | Description                              |
+            | ------------- | ------ | ----------------------------------------------------------------------- | ---------------------------------------- |
+            | `attendees`   | array  | `[ { ticket_id: "uuid", user_id: "uuid", ticket_quantity: 2, event_id: "uuid" } ]` | List of attendee records for the user    |
+
+            ⚠️ Example Error Statuses
+
+            | Status Code                 | Description                                           |
+            | --------------------------- | ----------------------------------------------------- |
+            | `400 Bad Request`           | Missing event ID                                      |
+            | `404 Not Found`             | No attendees found for this event                     |
+            | `500 Internal Server Error` | Server or database error                              |
+
+            📌 Notes
+            - The authenticated user's ID is determined from the JWT (`req.user.sub`).
+            - Returns all attendee records the user has for the specified event.
+          sortKey: -1763426405977
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.2
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
     headers:
       - id: pair_fef2bdd5ddf4453895aec4dcc27500a6
         name: Authorization
@@ -1338,7 +1386,7 @@ collection:
     meta:
       id: fld_953e8508addb474197bd0c02b5401cf6
       created: 1761825514602
-      modified: 1761825514602
+      modified: 1763831231025
       sortKey: -1761825514602
       description: ""
     children:
@@ -1347,7 +1395,7 @@ collection:
         meta:
           id: req_4d9b8461558b4d53aea07f5c2345ca82
           created: 1761825526376
-          modified: 1763568679301
+          modified: 1763907700878
           isPrivate: false
           description: >
             User API Documentation
@@ -1428,10 +1476,10 @@ collection:
           mimeType: application/json
           text: |
             {
-              "id": "6fdd587f-d1dd-49af-9c17-a709612297eb",
-              "username": "princ_ben",
-              "email": "princ.ben@example.com",
-              "name": "Prince Benedict Wachira",
+              "id": "68c60564-a407-4271-87f2-eb6efbfeb1ea",
+              "username": "eugene",
+              "email": "eugene.ben@example.com",
+              "name": "Eugene Wachira",
               "phone": "+254741414892"
             }
         headers:
@@ -1447,6 +1495,138 @@ collection:
             send: true
             store: true
           rebuildPath: true
+      - url: http://localhost:3000/user/
+        name: Get user by user id
+        meta:
+          id: req_ac7f002efd0046799c3bf92a3d46f481
+          created: 1763831079021
+          modified: 1763831107170
+          isPrivate: false
+          description: ""
+          sortKey: -1763831079021
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.2
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3000/user/
+        name: Update Payment Details
+        meta:
+          id: req_4a45c8de01bb4007bc07f7c4b49f7f96
+          created: 1767607245308
+          modified: 1767607932793
+          isPrivate: false
+          description: >
+            User API Documentation
+
+
+            1. Register a User
+
+
+            `Endpoint: POST /api/user
+
+            Description: Creates a new user account`
+
+
+            🧩 Request Body
+
+
+            | Field      | Type   | Required | Description              |
+
+            | ---------- | ------ | -------- | ------------------------ |
+
+            | `name`     | string | ✅ Yes    | Full name of the user    |
+
+            | `email`    | string | ✅ Yes    | User email address       |
+
+            | `password` | string | ✅ Yes    | Password for the account |
+
+            | `phone`    | string | ✅ Yes    | Phone number (optional)  |
+
+
+            📥 Example Response (201 Created)
+
+
+            | Field       | Type     |
+            Example                                       |
+            Description                |
+
+            | ----------- | -------- |
+            --------------------------------------------- |
+            -------------------------- |
+
+            | `id`        | UUID     |
+            "a1b2c3d4-e5f6-7890-abcd-1234567890ef"        | User
+            ID                    |
+
+            | `name`      | string   | "John
+            Doe"                                    | User full
+            name             |
+
+            | `email`     | string   |
+            "[john@example.com](mailto:john@example.com)" | User email
+            address         |
+
+            | `phone`     | string   |
+            "+254712345678"                               | User phone
+            number          |
+
+            | `createdAt` | datetime |
+            "2025-10-30T10:00:00.000Z"                    | Account creation
+            timestamp |
+
+
+
+            ⚠️ Example Error Statuses
+
+
+            | Status Code                 | Description               |
+
+            | --------------------------- | ------------------------- |
+
+            | `400 Bad Request`           | Missing or invalid fields |
+
+            | `409 Conflict`              | Email already exists      |
+
+            | `500 Internal Server Error` | Database or server error  |
+          sortKey: -1758746809928.5
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |
+            {
+              "paymentDetails": {
+              "paymentMethod": "MPESA_TILL",
+              "tillNumber": "987654"
+            }
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.2
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+    headers:
+      - id: pair_dc47cafd13224d819cf809e8cac41f0a
+        name: Authorization
+        value: Bearer
+          eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3ZlcmlzYWZlLm9wZW5jcmFmdHMuaW8vIiwic3ViIjoiNmZkZDU4N2YtZDFkZC00OWFmLTljMTctYTcwOTYxMjI5N2ViIiwiYXVkIjpbImh0dHBzOi8vYWNhZGVtaWEub3BlbmNyYWZ0cy5pby8iXSwiZXhwIjoxNzYyMjAxNDg3LCJpYXQiOjE3NjE1OTY2ODd9.WkYeAv_nClidDnjmWL9fw3jDN_tn3pTA_gy7uBrzfmk
+        description: ""
+        disabled: false
   - name: Purchase Ticket
     meta:
       id: fld_d95041431d3740a1929163b20617374c
@@ -1460,7 +1640,7 @@ collection:
         meta:
           id: req_4e0455607be34fbbae55f010256592e8
           created: 1763283611299
-          modified: 1763570536276
+          modified: 1763581815076
           isPrivate: false
           description: |
             # Ticket API Documentation
@@ -1504,7 +1684,7 @@ collection:
           text: |-
             {
             	"ticket_quantity": 1,
-            	"ticket_id":"e87c07d0-7c51-4f49-961a-51bf7a5f0fd4"
+            	"ticket_id":"e372f4c3-06a8-4571-a7c6-4449bf3b29e7"
             }
         headers:
           - name: Content-Type
