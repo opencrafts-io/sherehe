@@ -1,31 +1,40 @@
 import express from "express";
+import dotenv from "dotenv";
 import cors from "cors";
+import sequelize from './Utils/db.js';
+const PORT = process.env.PORT || 3001;
+import './Models/index.js';
+
+
+dotenv.config();
 const app = express();
 
-import dotenv from "dotenv";
-import path from "path";
-dotenv.config();
-
-// Middleware
 app.use(cors());
 app.use(express.json());
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
-
-// Routes
-import eventRouter from "./Routes/event-Route.js";
-import attendeeRouter from "./Routes/attendee-Route.js";
-import ticketRouter from "./Routes/ticket-Route.js";
-
-app.use("/events", eventRouter);
-app.use("/attendees", attendeeRouter);
-app.use("/tickets", ticketRouter);
 
 app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
+  res.send("Hello World!")
+})
 
-if (process.env.NODE_ENV !== 'test') {
-  app.listen(process.env.PORT || 3000, () => {
-    console.log("Welcome to Sherehe Backend");
-  });
-}
+import eventRouter from './Routes/Event.route.js'
+import ticketRouter from './Routes/Ticket.route.js'
+import attendeeRouter from './Routes/Attendee.route.js'
+import userRouter from './Routes/User.route.js'
+
+app.use('/event', eventRouter)
+app.use('/ticket', ticketRouter)
+app.use('/attendee', attendeeRouter)
+app.use('/user', userRouter)
+
+
+app.listen(PORT, async () => {
+  try {
+    await sequelize.authenticate();
+    console.log("✅ Database connected...");
+
+    await sequelize.sync({ force: true });
+    console.log(`🚀 Server running on port ${PORT}`);
+  } catch (error) {
+    console.error("❌ Database error:", error);
+  }
+});

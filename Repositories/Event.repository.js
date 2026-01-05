@@ -1,0 +1,118 @@
+import { Event } from '../Models/index.js';
+import { Op } from "sequelize";
+
+export const createEventRepository = async (eventData , options = {}) => {
+  try {
+    const event = await Event.create(eventData , options);
+    return event;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getAllEventsRepository = async (params) => {
+  try {
+    // Check delete_tag is false
+    const { limitPlusOne, offset } = params;
+    const events = await Event.findAll({ where: { delete_tag: false } , limit: limitPlusOne, offset: offset });
+    return events;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getEventByIdRepository = async (eventId) => {
+  try {
+    const event = await Event.findByPk(eventId);
+    return event;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updateEventRepository = async (eventId, eventData, userId) => {
+  try {
+    const event = await Event.findByPk(eventId);
+
+    if (!event) {
+      return { status: "not_found" };
+    }
+
+    if (event.delete_tag === true) {
+      return { status: "deleted" };
+    }
+
+    // Optional: Only allow the event creator/organizer to update
+    if (event.organizer_id !== userId) {
+      return { status: "unauthorized" };
+    }
+
+    await event.update(eventData);
+    return { status: "success", event };
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const deleteEventRepository = async (eventId, userId) => {
+  try {
+    // Find the event by ID
+    const event = await Event.findByPk(eventId);
+
+    if (!event) {
+      throw new Error("Event not found");
+    }
+
+    if (event.delete_tag === true) {
+  throw new Error("Event already deleted");
+    }
+
+
+    // Optional: Check if the user is authorized to delete the event
+    if (event.organizer_id !== userId) {
+      throw new Error("Unauthorized: You cannot delete this event");
+    }
+
+    // Soft delete by updating the delete_tag flag
+    await event.update({ delete_tag: true });
+
+    return { message: "Event deleted successfully" };
+  } catch (error) {
+    throw error;
+  }
+};
+
+
+
+export const searchEventRepository = async (searchQuery) => {
+  try {
+    const events = await Event.findAll({
+      where: {
+        delete_tag: false,
+        [Op.or]: [
+          { event_name: { [Op.iLike]: `%${searchQuery}%` } },
+          { event_description: { [Op.iLike]: `%${searchQuery}%` } },
+          { event_location: { [Op.iLike]: `%${searchQuery}%` } },
+        ],
+      },
+      order: [["createdAt", "DESC"]],
+    });
+
+    return events;
+  } catch (error) {
+    throw error;
+  }
+};
+
+
+export const getEventbyOrganizerIdRepository = async (organizerId) => {
+  try {
+    const events = await Event.findAll({ where: { organizer_id: organizerId , delete_tag: false } , order: [["createdAt", "DESC"]] });
+    return events;
+  } catch (error) {
+    throw error;
+  }
+};
+
+
+
