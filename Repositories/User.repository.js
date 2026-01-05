@@ -26,7 +26,9 @@ export const updateUserRepository = async (id, data) => {
     if (!user) {
       throw new Error('User not found');
     }
+
     await user.update(data);
+    
     return user;
   } catch (error) {
     throw error;

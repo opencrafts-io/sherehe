@@ -21,6 +21,12 @@ const User = sequelize.define(
     },
     name: DataTypes.STRING,
     phone: DataTypes.STRING,
+    paymentDetails: {
+      type: DataTypes.JSONB, // JSON if MySQL
+      allowNull: true,
+      defaultValue: {},
+    },
+
     created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
     updated_at: { type: DataTypes.DATE, allowNull: true },
     deleted_at: { type: DataTypes.DATE, allowNull: true }
