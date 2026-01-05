@@ -4,7 +4,8 @@ import {
   getAttendeesByIdController,
   deleteAttendeeController,
   getAllAttendeesByEventIdController,
-  getAttendeesByUserIdController
+  getAttendeesByUserIdController,
+  getUserAttendedEventsController
 } from "../Controllers/Attendee.controller.js";
 
 const router = express.Router();
@@ -14,9 +15,11 @@ import { paginate } from '../Middleware/paginate.js';
 router.use(verifyToken);
 
 router.post("/", createAttendeeController);
+router.get("/user/attended", paginate, getUserAttendedEventsController);
 router.get("/user/:id", paginate, getAttendeesByUserIdController);
 router.get("/event/:id", paginate, getAllAttendeesByEventIdController);
 router.get("/:id", getAttendeesByIdController);
 router.delete("/:id", deleteAttendeeController);
+
 
 export default router;

@@ -1,4 +1,4 @@
-import { Attendee , User , Ticket } from "../Models/index.js";
+import { Attendee , User , Ticket , Event } from "../Models/index.js";
 
 export const createAttendeeRepository = async (attendee) => {
   try {
@@ -100,6 +100,43 @@ export const getAttendeesByUserIdRepository = async (eventId, userId , limitPlus
           attributes: ["id", "ticket_name", "ticket_price", "ticket_quantity"]
         }
       ] });
+    return attendees;
+  } catch (error) {
+    throw error;
+  }
+}
+
+
+export const getUserAttendedEventsRepository = async (userId , limitPlusOne, offset) => {
+  try {
+    const attendees = await Attendee.findAll({
+      where: {
+        user_id: userId,
+      },
+
+      order: [["created_at", "DESC"]],
+      limit: limitPlusOne,
+      offset,
+
+      include: [
+        {
+          model: Event,
+          as: "event",
+          attributes: [
+            "id",
+            "event_name",
+            "event_date",
+            "event_location",
+            "event_description",
+            "event_card_image",
+            "event_poster_image",
+            "event_banner_image",
+            "event_genre",
+          ],
+        },
+      ],
+    });
+
     return attendees;
   } catch (error) {
     throw error;
