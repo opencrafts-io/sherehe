@@ -35,30 +35,6 @@ export const createEventController = async (req, res) => {
     const organizer_id = req.user.sub;
     let tickets = req.body.tickets;
 
-    if (
-      !req.files ||
-      !req.files.event_card_image ||
-      !req.files.event_poster_image ||
-      !req.files.event_banner_image
-    ) {
-      const duration = Number(process.hrtime.bigint() - start);
-
-      logs(
-        duration,
-        "WARN",
-        req.ip,
-        req.method,
-        "Missing required images",
-        req.originalUrl,
-        400,
-        req.headers["user-agent"]
-      );
-
-      return res.status(400).json({
-        message: "Event card image, poster, and banner are required",
-      });
-    }
-
     const resized = await processAndSaveImages(req);
     savedFiles = Object.values(resized);
 
