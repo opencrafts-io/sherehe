@@ -37,7 +37,7 @@ app.listen(PORT, async () => {
     await sequelize.authenticate();
     console.log("✅ Database connected...");
 
-    await sequelize.sync({ alter: true });
+    await sequelize.sync({ force: true });
 
     startVerisafeListener();
     console.log(`🚀 Server running on port ${PORT}`);
