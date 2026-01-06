@@ -4,7 +4,8 @@ import {
   deleteAttendeeRepository,
   getAttendeeByIdRepository,
   getAttendeesByUserIdRepository,
-  getUserAttendedEventsRepository
+  getUserAttendedEventsRepository,
+  searchAttendeesByEventNameTicketNameRepository
 } from "../Repositories/Attendee.repository.js";
 
 import { logs } from "../Utils/logs.js"; 
@@ -247,3 +248,36 @@ export const getUserAttendedEventsController = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+export const searchAttendeesByEventNameTicketNameController = async (req, res) => {
+  const start = process.hrtime.bigint();
+
+  try {
+      const { q } = req.query;
+    const searchQuery = q?.trim() || "";
+     const userId = req.user.sub;
+    // const { limit, page, limitPlusOne, offset } = req.pagination;
+
+    const result = await searchAttendeesByEventNameTicketNameRepository(userId , searchQuery);
+
+    if (!result || result.length === 0) {
+      const duration = Number(process.hrtime.bigint() - start) / 1000;
+      logs(duration, "INFO", req.ip, req.method, "No attendees found", req.path, 404, req.headers["user-agent"]);
+      return res.status(200).json(
+       []
+      );
+    }
+
+    const duration = Number(process.hrtime.bigint() - start) / 1000;
+    logs(duration, "INFO", req.ip, req.method, "Attendees retrieved", req.path, 200, req.headers["user-agent"]);
+
+    return res.status(200).json(
+      result,
+    );
+  } catch (error) {
+    const duration = Number(process.hrtime.bigint() - start) / 1000;
+    logs(duration, "ERR", req.ip, req.method, error.message, req.path, 500, req.headers["user-agent"]);
+
+    res.status(500).json({ error: error.message });
+  }
+}

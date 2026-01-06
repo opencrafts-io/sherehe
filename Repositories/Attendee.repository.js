@@ -1,4 +1,5 @@
 import { Attendee , User , Ticket , Event } from "../Models/index.js";
+import { Op } from "sequelize";
 
 export const createAttendeeRepository = async (attendee) => {
   try {
@@ -142,3 +143,30 @@ export const getUserAttendedEventsRepository = async (userId , limitPlusOne, off
     throw error;
   }
 }
+export const searchAttendeesByEventNameTicketNameRepository = async (
+  userId,
+  searchQuery,
+) => {
+  return Attendee.findAll({
+    where: {
+      user_id: userId,
+      [Op.or]: [
+        { "$event.event_name$": { [Op.iLike]: `%${searchQuery}%` } },
+        { "$ticket.ticket_name$": { [Op.iLike]: `%${searchQuery}%` } },
+      ],
+    },
+    include: [
+      {
+        model: Event,
+        as: "event",
+        attributes: ["id", "event_name"],
+      },
+      {
+        model: Ticket,
+        as: "ticket",
+        attributes: ["id", "ticket_name"],
+      },
+    ],
+    order: [["created_at", "DESC"]],
+  });
+};

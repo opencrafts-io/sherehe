@@ -12,13 +12,13 @@ Event.hasMany(Ticket, { foreignKey: 'event_id' });
 Ticket.belongsTo(Event, { foreignKey: 'event_id' });
 
 Event.hasMany(Attendee, { foreignKey: 'event_id' });
-Attendee.belongsTo(Event, { foreignKey: 'event_id' });
+Attendee.belongsTo(Event, { foreignKey: 'event_id' , as: 'event' });
 
 User.hasMany(Attendee, { foreignKey: 'user_id' });
 Attendee.belongsTo(User, { foreignKey: 'user_id' });
 
 Ticket.hasMany(Attendee, { foreignKey: 'ticket_id' });
-Attendee.belongsTo(Ticket, { foreignKey: 'ticket_id' });
+Attendee.belongsTo(Ticket, { foreignKey: 'ticket_id' , as: 'ticket' });
 
 Event.hasOne(PaymentInfo, { foreignKey: "event_id"});
 PaymentInfo.belongsTo(Event, { foreignKey: "event_id"});
