@@ -40,12 +40,12 @@ collection:
         | **GET**    | `/api/event/organizer/:id`  | Get all events by organizer
         |
     children:
-      - url: http://localhost:3000/event/
+      - url: https://api.opencrafts.io/qa-sherehe/event/
         name: Create Event
         meta:
           id: req_87853c0415ad45ca912c6eac6e23e688
           created: 1751674151145
-          modified: 1764010762346
+          modified: 1767704361532
           isPrivate: false
           description: |
             🟢 Create Event
@@ -121,7 +121,7 @@ collection:
             - name: event_card_image
               value: ""
               description: ""
-              disabled: false
+              disabled: true
               id: pair_beddf5ff39a94fa6ae903cb66f7aac87
               fileName: /home/ordo-chao/Pictures/Screenshots/Screenshot from 2025-10-02
                 00-19-27.png
@@ -132,14 +132,14 @@ collection:
               disabled: false
               id: pair_84d94397758640079d7009150ee41daa
             - name: organizer_id
-              value: b19a3c82-1d5e-4f77-95cb-5b5196ad06c8
+              value: 68c60564-a407-4271-87f2-eb6efbfeb1ea
               description: ""
-              disabled: false
+              disabled: true
               id: pair_afa89f68172d43ecaaace3fae46647e6
             - name: event_poster_image
               value: ""
               description: ""
-              disabled: false
+              disabled: true
               id: pair_9496d31d6595497382069bee6403c6a6
               fileName: /home/ordo-chao/Pictures/Screenshots/Screenshot from 2025-10-28
                 17-58-13.png
@@ -147,16 +147,32 @@ collection:
             - name: event_banner_image
               value: ""
               description: ""
-              disabled: false
+              disabled: true
               id: pair_50ff89ddc2af484f911677e351c71a2d
               fileName: /home/ordo-chao/Pictures/Screenshots/Screenshot from 2025-10-28
                 04-49-54.png
               type: file
             - name: tickets
-              value: "[]"
+              value: '[{"ticket_name": "VIP Ticket",  "ticket_price":
+                1500,  "ticket_quantity": 200}]'
               description: ""
               disabled: false
               id: pair_c9526f4d655d4bb0841de7a32bb46e87
+            - id: pair_c6c8cbfef6b94df589bb1e8b3aa2b9ee
+              name: payment_type
+              value: MPESA_PAYBILL
+              description: ""
+              disabled: false
+            - id: pair_eae2b5d36bfb4dc68906737a6239c901
+              name: paybill_number
+              value: "123456"
+              description: ""
+              disabled: false
+            - id: pair_9fa265774eb444daab55f5a0b8b56a52
+              name: account_reference
+              value: SHEREHE2026
+              description: ""
+              disabled: false
         headers:
           - name: Content-Type
             value: multipart/form-data
@@ -228,12 +244,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: https://qasherehe.opencrafts.io/event?page=1&limit=10
+      - url: https://api.opencrafts.io/qa-sherehe/event?page=1&limit=10
         name: Get all Events
         meta:
           id: req_396769ef52ba480a9745f7b33982f1c2
           created: 1751675623663
-          modified: 1764009975940
+          modified: 1767702758621
           isPrivate: false
           description: |+
             Get All Events
@@ -283,12 +299,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/event/c1ad18b0-9100-4afd-b7c5-a6f48a91fd6e
+      - url: https://api.opencrafts.io/qa-sherehe/event/c1ad18b0-9100-4afd-b7c5-a6f48a91fd6e
         name: Get Event by id
         meta:
           id: req_55aa26362ae64b58aaca84cf870a8403
           created: 1751675823601
-          modified: 1763281892820
+          modified: 1767702787678
           isPrivate: false
           description: >
             🔵 Get Event by ID
@@ -497,12 +513,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/event/organizer/6fdd587f-d1dd-49af-9c17-a709612297eb
+      - url: https://api.opencrafts.io/qa-sherehe/event/organizer/6fdd587f-d1dd-49af-9c17-a709612297eb
         name: Get Event by Organizer Id
         meta:
           id: req_87420373029c4a39a838d9e8f0515324
           created: 1761829290787
-          modified: 1763282641296
+          modified: 1767702774160
           isPrivate: false
           description: >
             Get Events by Organizer
@@ -866,12 +882,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/ticket/event/50a2e441-7c5e-4c5e-8a51-3e5b83d881ee
+      - url: http://localhost:3000/ticket/event/49acedb3-d85b-4d5e-8bf6-134b499508ef
         name: Get Tickets by  Event Id
         meta:
           id: req_a55b7b8c2fe34bac917ad7f91f29ef61
           created: 1751676656627
-          modified: 1763909936430
+          modified: 1767699072495
           isPrivate: false
           description: >
             Get Tickets by Event ID
@@ -1375,6 +1391,57 @@ collection:
             send: true
             store: true
           rebuildPath: true
+      - url: http://localhost:3000/attendee/search?q=Tech
+        name: Search Attended Event using user id
+        meta:
+          id: req_b70d565f7090448e93efd78ffe86a89a
+          created: 1767698631521
+          modified: 1767699714180
+          isPrivate: false
+          description: |
+            # Attendee API Documentation
+
+            ## 1. Get Attendees by User for an Event
+
+            `Endpoint: GET /api/attendees/user/:id`  
+            `Description: Retrieves all attendees registered by the authenticated user for a specific event.`
+
+            🧩 URL Parameters
+
+            | Parameter  | Type   | Required | Description                  |
+            | ---------- | ------ | -------- | ---------------------------- |
+            | `id`       | UUID   | ✅ Yes    | The ID of the event to query |
+
+            📥 Example Response (200 OK)
+
+            | Field         | Type   | Example                                                                 | Description                              |
+            | ------------- | ------ | ----------------------------------------------------------------------- | ---------------------------------------- |
+            | `attendees`   | array  | `[ { ticket_id: "uuid", user_id: "uuid", ticket_quantity: 2, event_id: "uuid" } ]` | List of attendee records for the user    |
+
+            ⚠️ Example Error Statuses
+
+            | Status Code                 | Description                                           |
+            | --------------------------- | ----------------------------------------------------- |
+            | `400 Bad Request`           | Missing event ID                                      |
+            | `404 Not Found`             | No attendees found for this event                     |
+            | `500 Internal Server Error` | Server or database error                              |
+
+            📌 Notes
+            - The authenticated user's ID is determined from the JWT (`req.user.sub`).
+            - Returns all attendee records the user has for the specified event.
+          sortKey: -1763355008638
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.2
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
     headers:
       - id: pair_fef2bdd5ddf4453895aec4dcc27500a6
         name: Authorization
@@ -1390,12 +1457,12 @@ collection:
       sortKey: -1761825514602
       description: ""
     children:
-      - url: https://qasherehe.opencrafts.io/user/
+      - url: https://api.opencrafts.io/qa-sherehe/user/
         name: Create
         meta:
           id: req_4d9b8461558b4d53aea07f5c2345ca82
           created: 1761825526376
-          modified: 1763907700878
+          modified: 1767704311297
           isPrivate: false
           description: >
             User API Documentation
@@ -1476,11 +1543,11 @@ collection:
           mimeType: application/json
           text: |
             {
-              "id": "68c60564-a407-4271-87f2-eb6efbfeb1ea",
+              "id": "6fdd587f-d1dd-49af-9c17-a709612297eb",
               "username": "eugene",
-              "email": "eugene.ben@example.com",
-              "name": "Eugene Wachira",
-              "phone": "+254741414892"
+              "email": "eugen.ben@example.com",
+              "name": "Eugen Wachir",
+              "phone": "+254741414893"
             }
         headers:
           - name: Content-Type
@@ -1495,121 +1562,17 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/user/
+      - url: https://api.opencrafts.io/qa-sherehe/user/68c60564-a407-4271-87f2-eb6efbfeb1ea
         name: Get user by user id
         meta:
           id: req_ac7f002efd0046799c3bf92a3d46f481
           created: 1763831079021
-          modified: 1763831107170
+          modified: 1767703180085
           isPrivate: false
           description: ""
           sortKey: -1763831079021
         method: GET
         headers:
-          - name: User-Agent
-            value: insomnia/11.6.2
-        settings:
-          renderRequestBody: true
-          encodeUrl: true
-          followRedirects: global
-          cookies:
-            send: true
-            store: true
-          rebuildPath: true
-      - url: http://localhost:3000/user/
-        name: Update Payment Details
-        meta:
-          id: req_4a45c8de01bb4007bc07f7c4b49f7f96
-          created: 1767607245308
-          modified: 1767607932793
-          isPrivate: false
-          description: >
-            User API Documentation
-
-
-            1. Register a User
-
-
-            `Endpoint: POST /api/user
-
-            Description: Creates a new user account`
-
-
-            🧩 Request Body
-
-
-            | Field      | Type   | Required | Description              |
-
-            | ---------- | ------ | -------- | ------------------------ |
-
-            | `name`     | string | ✅ Yes    | Full name of the user    |
-
-            | `email`    | string | ✅ Yes    | User email address       |
-
-            | `password` | string | ✅ Yes    | Password for the account |
-
-            | `phone`    | string | ✅ Yes    | Phone number (optional)  |
-
-
-            📥 Example Response (201 Created)
-
-
-            | Field       | Type     |
-            Example                                       |
-            Description                |
-
-            | ----------- | -------- |
-            --------------------------------------------- |
-            -------------------------- |
-
-            | `id`        | UUID     |
-            "a1b2c3d4-e5f6-7890-abcd-1234567890ef"        | User
-            ID                    |
-
-            | `name`      | string   | "John
-            Doe"                                    | User full
-            name             |
-
-            | `email`     | string   |
-            "[john@example.com](mailto:john@example.com)" | User email
-            address         |
-
-            | `phone`     | string   |
-            "+254712345678"                               | User phone
-            number          |
-
-            | `createdAt` | datetime |
-            "2025-10-30T10:00:00.000Z"                    | Account creation
-            timestamp |
-
-
-
-            ⚠️ Example Error Statuses
-
-
-            | Status Code                 | Description               |
-
-            | --------------------------- | ------------------------- |
-
-            | `400 Bad Request`           | Missing or invalid fields |
-
-            | `409 Conflict`              | Email already exists      |
-
-            | `500 Internal Server Error` | Database or server error  |
-          sortKey: -1758746809928.5
-        method: PUT
-        body:
-          mimeType: application/json
-          text: |
-            {
-              "paymentDetails": {
-              "paymentMethod": "MPESA_TILL",
-              "tillNumber": "987654"
-            }
-            }
-        headers:
-          - name: Content-Type
-            value: application/json
           - name: User-Agent
             value: insomnia/11.6.2
         settings:
@@ -1640,7 +1603,7 @@ collection:
         meta:
           id: req_4e0455607be34fbbae55f010256592e8
           created: 1763283611299
-          modified: 1763581815076
+          modified: 1767699113020
           isPrivate: false
           description: |
             # Ticket API Documentation
@@ -1684,7 +1647,7 @@ collection:
           text: |-
             {
             	"ticket_quantity": 1,
-            	"ticket_id":"e372f4c3-06a8-4571-a7c6-4449bf3b29e7"
+            	"ticket_id":"205d735b-85f4-4c96-8137-cf84f91d4db0"
             }
         headers:
           - name: Content-Type

@@ -5,8 +5,8 @@ import Attendee from './Attendee.model.js';
 import PaymentInfo from './paymentInfo.model.js';
 
 // Define relationships
-User.hasMany(Event, { foreignKey: 'organizer_id' });
-Event.belongsTo(User, { foreignKey: 'organizer_id' });
+// User.hasMany(Event, { foreignKey: 'organizer_id' });
+// Event.belongsTo(User, { foreignKey: 'organizer_id' });
 
 Event.hasMany(Ticket, { foreignKey: 'event_id' });
 Ticket.belongsTo(Event, { foreignKey: 'event_id' });
