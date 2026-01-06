@@ -77,9 +77,15 @@ export const createEventController = async (req, res) => {
       });
     }
 
-    const event_card_image = `${process.env.BASE_URL}/${resized.event_card_image}`;
-    const event_poster_image = `${process.env.BASE_URL}/${resized.event_poster_image}`;
-    const event_banner_image = `${process.env.BASE_URL}/${resized.event_banner_image}`;
+    var event_card_image = `${process.env.BASE_URL}/${resized.event_card_image}`;
+    var event_poster_image = `${process.env.BASE_URL}/${resized.event_poster_image}`;
+    var event_banner_image = `${process.env.BASE_URL}/${resized.event_banner_image}`;
+
+    if(!resized.event_card_image || !resized.event_poster_image || !resized.event_banner_image) {
+      event_card_image = null;
+      event_poster_image = null;
+      event_banner_image = null;
+    }
 
     if (typeof tickets === "string") {
       try {
