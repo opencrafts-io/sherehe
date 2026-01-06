@@ -9,6 +9,7 @@ import {
 } from "../Repositories/Event.repository.js";
 
 import { createTicketRepository } from "../Repositories/Ticket.repository.js";
+import { createPaymentInfoRepository } from "../Repositories/paymentInfo.repository.js";
 import { cleanupFiles } from "../Middleware/cleanupFiles.js";
 import { processAndSaveImages } from "../Middleware/upload.js";
 import sequelize from "../Utils/db.js";
@@ -30,7 +31,24 @@ export const createEventController = async (req, res) => {
       event_date,
       event_url,
       event_genre,
+      payment_type,
+      paybill_number,
+      account_reference,
+      till_number,
+      send_money_phone
     } = req.body;
+
+    if (payment_type === "MPESA_PAYBILL" && !paybill_number) {
+      return res.status(400).json({ error: "Paybill number is required" });
+    }
+
+    if (payment_type === "MPESA_TILL" && !till_number) {
+      return res.status(400).json({ error: "Till number is required" });
+    }
+
+    if (payment_type === "MPESA_SEND_MONEY" && !send_money_phone) {
+      return res.status(400).json({ error: "Send money phone number is required" });
+    }
 
     const organizer_id = req.user.sub;
     let tickets = req.body.tickets;
@@ -187,6 +205,21 @@ export const createEventController = async (req, res) => {
         201,
         req.headers["user-agent"]
       );
+
+      const savepayment = createPaymentInfoRepository({
+        event_id: event.id,
+        payment_type,
+        paybill_number,
+        paybill_account_number: account_reference,
+        till_number,
+        phone_number: send_money_phone
+      })
+
+      if (!savepayment) {
+        return res.status(500).json({
+          error: "Failed to save payment info",
+        });
+      }
 
       return res.status(201).json({
         message: "Event created successfully",
@@ -625,7 +658,7 @@ export const getEventbyOrganizerIdController = async (req, res) => {
     );
 
     if (!events || events.length === 0) {
-      return res.status(404).json([]);
+      return res.status(200).json([]);
     }
 
     return res.status(200).json({

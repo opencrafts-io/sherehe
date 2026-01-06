@@ -94,8 +94,7 @@ export const updateUserController = async (req, res) => {
 
   try {
     const organizer_id = req.user.sub;
-    const paymentDetails = req.body;
-    const user = await updateUserRepository(organizer_id, paymentDetails);
+    const user = await updateUserRepository(organizer_id, req.body);
 
     const end = process.hrtime.bigint();
     const durationMicroseconds = Number(end - start) / 1000;
