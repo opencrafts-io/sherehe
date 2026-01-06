@@ -89,17 +89,24 @@ export const getAttendeeByIdRepository = async (id) => {
   }
 }
 
-export const getAttendeesByUserIdRepository = async (eventId, userId , limitPlusOne, offset) => {
+export const getAttendeesByUserIdRepository = async (eventId, userId) => {
   try {
     const attendees = await Attendee.findAll({ where: { event_id: eventId, user_id: userId } ,
       order: [["created_at", "DESC"]],
-      limit: limitPlusOne, offset: offset,
       include: [
         {
           model: Ticket,
           as: "ticket",
           attributes: ["id", "ticket_name", "ticket_price", "ticket_quantity"]
-        }
+        },
+        {
+          model: Event,
+          as: "event",
+          attributes: [
+            "id",
+            "event_date",
+          ],
+        },
       ] });
     return attendees;
   } catch (error) {
@@ -128,11 +135,15 @@ export const getUserAttendedEventsRepository = async (userId , limitPlusOne, off
             "event_name",
             "event_date",
             "event_location",
-            "event_description",
-            "event_card_image",
-            "event_poster_image",
-            "event_banner_image",
-            "event_genre",
+          ],
+        },
+        {
+          model: Ticket,
+          as: "ticket",
+          attributes: [
+            "id",
+            "ticket_name",
+            "ticket_price",
           ],
         },
       ],
