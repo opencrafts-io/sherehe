@@ -10,7 +10,7 @@ collection:
     meta:
       id: fld_7846574000064e15ae9fb8dbb707f9c1
       created: 1751675358991
-      modified: 1763278222066
+      modified: 1767726361886
       sortKey: -1751675358991
       description: >
         | Method     | Endpoint                    |
@@ -40,12 +40,12 @@ collection:
         | **GET**    | `/api/event/organizer/:id`  | Get all events by organizer
         |
     children:
-      - url: http://localhost:3000/event/
+      - url: https://api.opencrafts.io/qa-sherehe/event/
         name: Create Event
         meta:
           id: req_87853c0415ad45ca912c6eac6e23e688
           created: 1751674151145
-          modified: 1767713465951
+          modified: 1767724153853
           isPrivate: false
           description: |
             🟢 Create Event
@@ -1442,6 +1442,57 @@ collection:
             send: true
             store: true
           rebuildPath: true
+      - url: http://localhost:3000/attendee/event/user/980b9ae9-abee-4358-b736-582866574668?page=1&limit=10
+        name: Get all user attended events ( specific event)
+        meta:
+          id: req_a8af71feaaff448f82e24d57253d77e7
+          created: 1767794069022
+          modified: 1767794323053
+          isPrivate: false
+          description: |
+            # Attendee API Documentation
+
+            ## 1. Get Attendees by User for an Event
+
+            `Endpoint: GET /api/attendees/user/:id`  
+            `Description: Retrieves all attendees registered by the authenticated user for a specific event.`
+
+            🧩 URL Parameters
+
+            | Parameter  | Type   | Required | Description                  |
+            | ---------- | ------ | -------- | ---------------------------- |
+            | `id`       | UUID   | ✅ Yes    | The ID of the event to query |
+
+            📥 Example Response (200 OK)
+
+            | Field         | Type   | Example                                                                 | Description                              |
+            | ------------- | ------ | ----------------------------------------------------------------------- | ---------------------------------------- |
+            | `attendees`   | array  | `[ { ticket_id: "uuid", user_id: "uuid", ticket_quantity: 2, event_id: "uuid" } ]` | List of attendee records for the user    |
+
+            ⚠️ Example Error Statuses
+
+            | Status Code                 | Description                                           |
+            | --------------------------- | ----------------------------------------------------- |
+            | `400 Bad Request`           | Missing event ID                                      |
+            | `404 Not Found`             | No attendees found for this event                     |
+            | `500 Internal Server Error` | Server or database error                              |
+
+            📌 Notes
+            - The authenticated user's ID is determined from the JWT (`req.user.sub`).
+            - Returns all attendee records the user has for the specified event.
+          sortKey: -1763390707307.5
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.2
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
     headers:
       - id: pair_fef2bdd5ddf4453895aec4dcc27500a6
         name: Authorization
@@ -1603,7 +1654,7 @@ collection:
         meta:
           id: req_4e0455607be34fbbae55f010256592e8
           created: 1763283611299
-          modified: 1767714267814
+          modified: 1767794206286
           isPrivate: false
           description: |
             # Ticket API Documentation
