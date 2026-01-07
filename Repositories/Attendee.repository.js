@@ -115,17 +115,19 @@ export const getAttendeesByUserIdRepository = async (eventId, userId) => {
 }
 
 
-export const getUserAttendedEventsRepository = async (userId , limitPlusOne, offset) => {
+export const getUserAttendedEventsRepository = async (
+  userId,
+  limitPlusOne,
+  offset
+) => {
   try {
     const attendees = await Attendee.findAll({
       where: {
         user_id: userId,
       },
-
       order: [["created_at", "DESC"]],
       limit: limitPlusOne,
       offset,
-
       include: [
         {
           model: Event,
@@ -143,16 +145,29 @@ export const getUserAttendedEventsRepository = async (userId , limitPlusOne, off
       ],
     });
 
-    return attendees;
+    // ✅ Normalize event_genre to always be an array
+    return attendees.map(attendee => {
+      const json = attendee.toJSON();
+
+      if (json.event) {
+        json.event.event_genre = Array.isArray(json.event.event_genre)
+          ? json.event.event_genre
+          : JSON.parse(json.event.event_genre || "[]");
+      }
+
+      return json;
+    });
+
   } catch (error) {
     throw error;
   }
-}
+};
+
 export const searchAttendeesByEventNameTicketNameRepository = async (
   userId,
   searchQuery,
 ) => {
-  return Attendee.findAll({
+  const attendees = await Attendee.findAll({
     where: {
       user_id: userId,
       [Op.or]: [
@@ -172,7 +187,21 @@ export const searchAttendeesByEventNameTicketNameRepository = async (
     ],
     order: [["created_at", "DESC"]],
   });
+
+  // ✅ Ensure event_genre is ALWAYS an array
+  return attendees.map(attendee => {
+    const json = attendee.toJSON();
+
+    if (json.event) {
+      json.event.event_genre = Array.isArray(json.event.event_genre)
+        ? json.event.event_genre
+        : JSON.parse(json.event.event_genre || "[]");
+    }
+
+    return json;
+  });
 };
+
 
 
 export const getAllUserAttendedSpecificEventRepository = async (eventId , userId , limitPlusOne , offset) => {
