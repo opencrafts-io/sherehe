@@ -5,7 +5,8 @@ import {
   getAttendeeByIdRepository,
   getAttendeesByUserIdRepository,
   getUserAttendedEventsRepository,
-  searchAttendeesByEventNameTicketNameRepository
+  searchAttendeesByEventNameTicketNameRepository,
+  getAllUserAttendedSpecificEventRepository
 } from "../Repositories/Attendee.repository.js";
 
 import { logs } from "../Utils/logs.js"; 
@@ -275,6 +276,53 @@ export const searchAttendeesByEventNameTicketNameController = async (req, res) =
     return res.status(200).json(
       result,
     );
+  } catch (error) {
+    const duration = Number(process.hrtime.bigint() - start) / 1000;
+    logs(duration, "ERR", req.ip, req.method, error.message, req.path, 500, req.headers["user-agent"]);
+
+    res.status(500).json({ error: error.message });
+  }
+}
+
+
+export const getAllUserAttendedSpecificEventsController = async (req, res) => {
+  const start = process.hrtime.bigint();
+
+  try {
+    const { limit, page, limitPlusOne, offset } = req.pagination;
+
+    const userId = req.user.sub;
+    const eventId = req.params.id;
+
+    const result = await getAllUserAttendedSpecificEventRepository( eventId,userId, limitPlusOne, offset);
+
+    const hasNextPage = result.length > limit;
+    const events = hasNextPage ? result.slice(0, limit) : result;
+
+    if (!result || result.length === 0) {
+      const duration = Number(process.hrtime.bigint() - start) / 1000;
+      logs(duration, "INFO", req.ip, req.method, "No events found", req.path, 404, req.headers["user-agent"]);
+      return res.status(200).json({
+        status: "success",
+        currentPage: page,
+        nextPage: hasNextPage ? page + 1 : null,
+        previousPage: page > 1 ? page - 1 : null,
+        totalEvents: events.length,
+        data: [],
+      });
+    }
+
+    const duration = Number(process.hrtime.bigint() - start) / 1000;
+    logs(duration, "INFO", req.ip, req.method, "Events retrieved", req.path, 200, req.headers["user-agent"]);
+
+    return res.status(200).json({
+      status: "success",
+      currentPage: page,
+      nextPage: hasNextPage ? page + 1 : null,
+      previousPage: page > 1 ? page - 1 : null,
+      totalEvents: events.length,
+      data: events,
+    });
   } catch (error) {
     const duration = Number(process.hrtime.bigint() - start) / 1000;
     logs(duration, "ERR", req.ip, req.method, error.message, req.path, 500, req.headers["user-agent"]);

@@ -6,7 +6,8 @@ import {
   getAllAttendeesByEventIdController,
   getAttendeesByUserIdController,
   getUserAttendedEventsController,
-  searchAttendeesByEventNameTicketNameController
+  searchAttendeesByEventNameTicketNameController,
+  getAllUserAttendedSpecificEventsController
 } from "../Controllers/Attendee.controller.js";
 
 const router = express.Router();
@@ -19,6 +20,7 @@ router.get("/search" , paginate, searchAttendeesByEventNameTicketNameController)
 router.post("/", createAttendeeController);
 router.get("/user/attended", paginate, getUserAttendedEventsController);
 router.get("/user/:id", paginate, getAttendeesByUserIdController);
+router.get("/event/user/:id", paginate, getAllUserAttendedSpecificEventsController);
 router.get("/event/:id", paginate, getAllAttendeesByEventIdController);
 router.get("/:id", getAttendeesByIdController);
 router.delete("/:id", deleteAttendeeController);

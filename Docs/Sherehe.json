@@ -40,12 +40,12 @@ collection:
         | **GET**    | `/api/event/organizer/:id`  | Get all events by organizer
         |
     children:
-      - url: https://api.opencrafts.io/qa-sherehe/event/
+      - url: http://localhost:3000/event/
         name: Create Event
         meta:
           id: req_87853c0415ad45ca912c6eac6e23e688
           created: 1751674151145
-          modified: 1767704361532
+          modified: 1767713465951
           isPrivate: false
           description: |
             🟢 Create Event
@@ -638,7 +638,7 @@ collection:
         meta:
           id: req_10935d13ed974718b76f9af6ef0bed48
           created: 1751676656623
-          modified: 1763282727195
+          modified: 1767714223216
           isPrivate: false
           description: >
             | Field             | Type      | Required |
@@ -733,7 +733,7 @@ collection:
           mimeType: application/json
           text: |
             {
-              "event_id": "76f3f854-3a67-4a7a-9ff5-6df8f7645f26",
+              "event_id": "980b9ae9-abee-4358-b736-582866574668",
               "ticket_name": "VIP Ticket",
               "ticket_price": 1500,
               "ticket_quantity": 200
@@ -808,12 +808,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/ticket/39b71130-320e-4db5-a7db-d211dbbd0e2f
+      - url: http://localhost:3000/ticket/01309ab6-b6ec-4566-9470-bb88a440019d
         name: Get by Ticket Id
         meta:
           id: req_08744788b76b4ca38487367868db3804
           created: 1751676656626
-          modified: 1761845592724
+          modified: 1767713829164
           isPrivate: false
           description: >
             🔵 Get Ticket by ID
@@ -882,12 +882,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/ticket/event/49acedb3-d85b-4d5e-8bf6-134b499508ef
+      - url: http://localhost:3000/ticket/event/980b9ae9-abee-4358-b736-582866574668
         name: Get Tickets by  Event Id
         meta:
           id: req_a55b7b8c2fe34bac917ad7f91f29ef61
           created: 1751676656627
-          modified: 1767699072495
+          modified: 1767715042956
           isPrivate: false
           description: >
             Get Tickets by Event ID
@@ -963,12 +963,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/ticket/6a777439-dd66-419d-aa0b-71b67ad2b579
+      - url: http://localhost:3000/ticket/01309ab6-b6ec-4566-9470-bb88a440019d
         name: Update Ticket
         meta:
           id: req_9e730538a3634991853b63941e99a46b
           created: 1761830906618
-          modified: 1761845747469
+          modified: 1767713838853
           isPrivate: false
           description: >
             ✏️ Update Ticket
@@ -1154,12 +1154,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/attendee/event/c95abad0-98ba-45c0-8aee-5417058b7183?page=1&limit=10
+      - url: http://localhost:3000/attendee/event/d7ec8f06-fe1b-4d8b-8869-09f37383ab25?page=1&limit=10
         name: Get attendees by Event id
         meta:
           id: req_691182551b6c4af396eaf96d072a894d
           created: 1751677247783
-          modified: 1763581917973
+          modified: 1767713906254
           isPrivate: false
           description: >+
             Get All Attendees for an Event
@@ -1289,12 +1289,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/attendee/user/458ccae4-b34f-4bc8-8724-6d8d791abbf6?page=1&limit=10
+      - url: http://localhost:3000/attendee/user/980b9ae9-abee-4358-b736-582866574668
         name: Veify attendee by Event id
         meta:
           id: req_af25ee091d2d4d47b3a9e50ee0e82c87
           created: 1763569200655
-          modified: 1767604860664
+          modified: 1767714320806
           isPrivate: false
           description: |
             # Attendee API Documentation
@@ -1457,12 +1457,12 @@ collection:
       sortKey: -1761825514602
       description: ""
     children:
-      - url: https://api.opencrafts.io/qa-sherehe/user/
+      - url: http://localhost:3000/user/
         name: Create
         meta:
           id: req_4d9b8461558b4d53aea07f5c2345ca82
           created: 1761825526376
-          modified: 1767704311297
+          modified: 1767714078661
           isPrivate: false
           description: >
             User API Documentation
@@ -1594,7 +1594,7 @@ collection:
     meta:
       id: fld_d95041431d3740a1929163b20617374c
       created: 1763283604877
-      modified: 1763284706494
+      modified: 1767713792093
       sortKey: -1763283604877
       description: ""
     children:
@@ -1603,7 +1603,7 @@ collection:
         meta:
           id: req_4e0455607be34fbbae55f010256592e8
           created: 1763283611299
-          modified: 1767699113020
+          modified: 1767714267814
           isPrivate: false
           description: |
             # Ticket API Documentation
@@ -1647,7 +1647,7 @@ collection:
           text: |-
             {
             	"ticket_quantity": 1,
-            	"ticket_id":"205d735b-85f4-4c96-8137-cf84f91d4db0"
+            	"ticket_id":"0e816f6b-a5c2-46f8-9a68-3cb3baf86e60"
             }
         headers:
           - name: Content-Type
