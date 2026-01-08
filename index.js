@@ -39,7 +39,7 @@ app.listen(PORT, async () => {
 
     await sequelize.sync({ alter: true });
 
-    startVerisafeListener();
+    // startVerisafeListener();
     console.log(`🚀 Server running on port ${PORT}`);
   } catch (error) {
     console.error("❌ Database error:", error);

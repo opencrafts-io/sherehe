@@ -40,12 +40,12 @@ collection:
         | **GET**    | `/api/event/organizer/:id`  | Get all events by organizer
         |
     children:
-      - url: https://api.opencrafts.io/qa-sherehe/event/
+      - url: http://localhost:3000/event/
         name: Create Event
         meta:
           id: req_87853c0415ad45ca912c6eac6e23e688
           created: 1751674151145
-          modified: 1767724153853
+          modified: 1767893232492
           isPrivate: false
           description: |
             🟢 Create Event
@@ -244,12 +244,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: https://api.opencrafts.io/qa-sherehe/event?page=1&limit=10
+      - url: http://localhost:3000/event?page=1&limit=10
         name: Get all Events
         meta:
           id: req_396769ef52ba480a9745f7b33982f1c2
           created: 1751675623663
-          modified: 1767702758621
+          modified: 1767892771110
           isPrivate: false
           description: |+
             Get All Events
@@ -299,12 +299,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: https://api.opencrafts.io/qa-sherehe/event/c1ad18b0-9100-4afd-b7c5-a6f48a91fd6e
+      - url: http://localhost:3000/event/980b9ae9-abee-4358-b736-582866574668
         name: Get Event by id
         meta:
           id: req_55aa26362ae64b58aaca84cf870a8403
           created: 1751675823601
-          modified: 1767702787678
+          modified: 1767892929281
           isPrivate: false
           description: >
             🔵 Get Event by ID
@@ -513,12 +513,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: https://api.opencrafts.io/qa-sherehe/event/organizer/6fdd587f-d1dd-49af-9c17-a709612297eb
+      - url: http://localhost:3000/event/organizer/6fdd587f-d1dd-49af-9c17-a709612297eb
         name: Get Event by Organizer Id
         meta:
           id: req_87420373029c4a39a838d9e8f0515324
           created: 1761829290787
-          modified: 1767702774160
+          modified: 1767892982987
           isPrivate: false
           description: >
             Get Events by Organizer
@@ -1289,12 +1289,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/attendee/user/980b9ae9-abee-4358-b736-582866574668
+      - url: http://localhost:3000/attendee/user/
         name: Veify attendee by Event id
         meta:
           id: req_af25ee091d2d4d47b3a9e50ee0e82c87
           created: 1763569200655
-          modified: 1767714320806
+          modified: 1767892146719
           isPrivate: false
           description: |
             # Attendee API Documentation
@@ -1328,8 +1328,17 @@ collection:
             - The authenticated user's ID is determined from the JWT (`req.user.sub`).
             - Returns all attendee records the user has for the specified event.
           sortKey: -1763569200655
-        method: GET
+        method: POST
+        body:
+          mimeType: application/json
+          text: |
+            {
+              "eventId": "980b9ae9-abee-4358-b736-582866574668",
+              "attendeeId": "84448737-cb95-42c1-9c2e-0bc5587de7ab"
+            }
         headers:
+          - name: Content-Type
+            value: application/json
           - name: User-Agent
             value: insomnia/11.6.2
         settings:
