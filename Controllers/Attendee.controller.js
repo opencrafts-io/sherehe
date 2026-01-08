@@ -171,7 +171,7 @@ export const getAttendeesByUserIdController = async (req, res) => {
     if (!result || result.length === 0) {
       const duration = Number(process.hrtime.bigint() - start) / 1000;
       logs(duration, "INFO", req.ip, req.method, "No attendees found", req.path, 404, req.headers["user-agent"]);
-               return res.status(404).json({
+               return res.status(200).json({
       status: "WRONG_EVENT",
     });
     }
