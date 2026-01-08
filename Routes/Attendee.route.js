@@ -19,7 +19,7 @@ router.use(verifyToken);
 router.get("/search" , paginate, searchAttendeesByEventNameTicketNameController);
 router.post("/", createAttendeeController);
 router.get("/user/attended", paginate, getUserAttendedEventsController);
-router.get("/user/:id", paginate, getAttendeesByUserIdController);
+router.post("/user/", paginate, getAttendeesByUserIdController);
 router.get("/event/user/:id", paginate, getAllUserAttendedSpecificEventsController);
 router.get("/event/:id", paginate, getAllAttendeesByEventIdController);
 router.get("/:id", getAttendeesByIdController);
