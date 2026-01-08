@@ -155,7 +155,7 @@ export const getAttendeesByUserIdController = async (req, res) => {
   const start = process.hrtime.bigint();
 
   try {
-    const eventId = req.params.id;
+    const {eventId , attendeeId} = req.body;
     const { limit, page, limitPlusOne, offset } = req.pagination;
     const userId = req.user.sub;
 
@@ -165,14 +165,14 @@ export const getAttendeesByUserIdController = async (req, res) => {
       return res.status(400).json({ error: "Event ID is required" });
     }
 
-    const result = await getAttendeesByUserIdRepository(eventId, userId);
+    const result = await getAttendeesByUserIdRepository(eventId, userId , attendeeId);
 
 
     if (!result || result.length === 0) {
       const duration = Number(process.hrtime.bigint() - start) / 1000;
       logs(duration, "INFO", req.ip, req.method, "No attendees found", req.path, 404, req.headers["user-agent"]);
                return res.status(404).json({
-      status: "Attendee not found",
+      status: "WRONG_EVENT",
     });
     }
 
@@ -186,7 +186,7 @@ export const getAttendeesByUserIdController = async (req, res) => {
     const now = Date.now();
     
     if(eventTimestamp < now) {
-      return res.status(200).json({ status: "Event has passed" });
+      return res.status(200).json({ status: "INVALID" });
     }
 
     const duration = Number(process.hrtime.bigint() - start) / 1000;
@@ -195,7 +195,7 @@ export const getAttendeesByUserIdController = async (req, res) => {
 
 
     return res.status(200).json({
-      status: "success"
+      status: "VALID"
     });
   } catch (error) {
     const duration = Number(process.hrtime.bigint() - start) / 1000;

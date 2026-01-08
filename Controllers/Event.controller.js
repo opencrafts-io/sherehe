@@ -212,7 +212,7 @@ export const createEventController = async (req, res) => {
         req.headers["user-agent"]
       );
 
-      const savepayment = createPaymentInfoRepository({
+      const savepayment = await createPaymentInfoRepository({
         event_id: event.id,
         payment_type,
         paybill_number,
@@ -227,9 +227,15 @@ export const createEventController = async (req, res) => {
         });
       }
 
+      // Add paymnet info to event
+      const data = {
+        event,
+        savepayment
+      }
+
       return res.status(201).json({
         message: "Event created successfully",
-        event,
+        data,
       });
     } catch (error) {
       await transaction.rollback();

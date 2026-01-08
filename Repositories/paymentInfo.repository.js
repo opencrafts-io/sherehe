@@ -4,7 +4,10 @@ import {PaymentInfo} from "../Models/index.js";
 export const createPaymentInfoRepository = async (data) => {
   try {
     const paymentInfo = await PaymentInfo.create(data);
-    return paymentInfo;
+    // remove event_id from response
+    const { event_id, ...response } = paymentInfo.toJSON();
+
+    return response;
   } catch (err) {
     throw err;
   }
