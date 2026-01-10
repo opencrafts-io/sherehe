@@ -24,6 +24,11 @@ const Transaction = sequelize.define(
       type: DataTypes.UUID,
       allowNull: true,
     },
+    ticket_quantity: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 1,
+    },
 
     amount: {
       type: DataTypes.DECIMAL(10, 2),

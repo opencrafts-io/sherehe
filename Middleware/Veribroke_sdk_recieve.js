@@ -1,5 +1,6 @@
 import amqp from "amqplib";
 import {updateTransactionRepository} from "../Repositories/Transactions.repository.js";
+import {createAttendeeRepository} from "../Repositories/Attendee.repository.js";
 
 
 const RABBITMQ_HOST=process.env.RABBITMQ_HOST
@@ -56,12 +57,14 @@ export async function startMpesaSuccessConsumer() {
           failure_reason = message;
         }
 
-        await updateTransactionRepository(request_id , {checkout_request_id: CheckoutRequestID , merchant_request_id: MerchantRequestID , status ,failure_reason , provider_response: stkCallback});
+        const transaction = await updateTransactionRepository(request_id , {checkout_request_id: CheckoutRequestID , merchant_request_id: MerchantRequestID , status ,failure_reason , provider_response: stkCallback});
+        const {user_id ,event_id ,ticket_id , ticket_quantity} = transaction
+        await createAttendeeRepository({user_id ,event_id ,ticket_id , ticket_quantity});
 
         channel.ack(msg);
       } catch (error) {
         console.error("❌ Error processing M-Pesa success:", error);
-
+        channel.ack(msg);
         // requeue if processing failed
         channel.nack(msg, false, true);
       }

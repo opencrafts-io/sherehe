@@ -5,6 +5,7 @@ import { logs } from '../Utils/logs.js';
 import { getUserByIdRepository } from '../Repositories/User.repository.js';
 import { sendPaymentRequest } from '../Middleware/Veribroke_sdk_push.js';
 import { createTransactionRepository , getTransactionByUserIdTicketIdRepository } from '../Repositories/Transactions.repository.js';
+import e from 'express';
 
 const generateSheId = () => `she_${randomUUID()}`;
 
@@ -52,7 +53,19 @@ export const purchaseTicketController = async (req, res) => {
       return res.status(404).json({ message: "Event not found" });
     }
 
-    let phoneNumber = user.phone || user_phone;
+    let phoneNumber 
+    if(user_phone){
+      phoneNumber = user_phone
+    }else{
+      if(user.phone === null)
+        {
+          const duration = Number(process.hrtime.bigint() - start) / 1000;
+          logs(duration, "WARN", req.ip, req.method, "User phone number is required", req.path, 400, req.headers["user-agent"]);
+          return res.status(400).json({ message: "User phone number is required" });
+        }else{
+          phoneNumber = user.phone
+        }
+    }
 
     if (phoneNumber.startsWith("0")) {
       phoneNumber = "254" + phoneNumber.slice(1); // replace leading 0 with 254
@@ -66,6 +79,7 @@ export const purchaseTicketController = async (req, res) => {
       event_id,
       ticket_id,
       amount: ticket_quantity * ticket.ticket_price,
+      ticket_quantity,
       payment_method: 'MPESA',
       phone_number: phoneNumber,
     });
