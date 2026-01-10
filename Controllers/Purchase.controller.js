@@ -63,6 +63,7 @@ export const purchaseTicketController = async (req, res) => {
     const paymentData = {
       "request_id": generateSheId(),
       "phone_number": phoneNumber,
+      "target_user_id": user_id,
       "trans_amount": ticket_quantity * ticket.ticket_price,
       "service_name": "SHERHE",
       "trans_desc": `Ticket purchase for ${ticket_quantity} ticket(s) to ${event.event_name}`,
