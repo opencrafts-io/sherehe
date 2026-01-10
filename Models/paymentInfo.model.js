@@ -20,7 +20,8 @@ const PaymentInfo = sequelize.define(
       type: DataTypes.ENUM(
         "MPESA_PAYBILL",
         "MPESA_TILL",
-        "MPESA_SEND_MONEY"
+        "MPESA_SEND_MONEY",
+        "POSHI_LA_BIASHARA",
       ),
       allowNull: false,
     },

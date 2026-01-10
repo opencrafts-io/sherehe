@@ -67,7 +67,7 @@ export const purchaseTicketController = async (req, res) => {
       "trans_amount": ticket_quantity * ticket.ticket_price,
       "service_name": "SHERHE",
       "trans_desc": `Ticket purchase for ${ticket_quantity} ticket(s) to ${event.event_name}`,
-      "reply_to": process.env.SHEREHE_ROUTING_KEY,
+      "reply_to": "sherehe.opencrafts",
     }
 
 
