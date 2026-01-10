@@ -3,6 +3,7 @@ import Event from './Event.model.js';
 import Ticket from './Ticket.model.js';
 import Attendee from './Attendee.model.js';
 import PaymentInfo from './paymentInfo.model.js';
+import Transaction from './Transactions.model.js';
 
 // Define relationships
 // User.hasMany(Event, { foreignKey: 'organizer_id' });
@@ -23,6 +24,10 @@ Attendee.belongsTo(Ticket, { foreignKey: 'ticket_id' , as: 'ticket' });
 Event.hasOne(PaymentInfo, { foreignKey: "event_id"});
 PaymentInfo.belongsTo(Event, { foreignKey: "event_id"});
 
+Transaction.belongsTo(User, { foreignKey: 'user_id' });
+Transaction.belongsTo(Ticket, { foreignKey: 'ticket_id' });
+Transaction.belongsTo(Event, { foreignKey: 'event_id' });
 
 
-export { User, Event, Ticket, Attendee , PaymentInfo};
+
+export { User, Event, Ticket, Attendee , PaymentInfo , Transaction};

@@ -1,11 +1,14 @@
-import { getTicketByIdRepository, updateTicketRepository } from '../Repositories/Ticket.repository.js';
-import { createAttendeeRepository } from '../Repositories/Attendee.repository.js';
-import { sendNotification } from '../Utils/Notification.js';
-import { getEventByIdRepository , updateEventRepository } from '../Repositories/Event.repository.js';
+import { getTicketByIdRepository } from '../Repositories/Ticket.repository.js';
+import { getEventByIdRepository } from '../Repositories/Event.repository.js';
 import { randomUUID } from 'crypto';
 import { logs } from '../Utils/logs.js';
+import { getUserByIdRepository } from '../Repositories/User.repository.js';
+
+import { sendPaymentRequest } from '../Middleware/Veribroke_sdk_push.js';
 
 const generateSheId = () => `she_${randomUUID()}`;
+
+
 
 export const purchaseTicketController = async (req, res) => {
   const start = process.hrtime.bigint();
@@ -13,6 +16,7 @@ export const purchaseTicketController = async (req, res) => {
   try {
     const user_id = req.user?.sub;
     const ticket_quantity = req.body.ticket_quantity;
+    const user_phone = req.body.user_phone;
     const ticket_id = req.body.ticket_id;
 
     // Missing fields
@@ -40,72 +44,42 @@ export const purchaseTicketController = async (req, res) => {
     const event_id = ticket.event_id;
     const event = await getEventByIdRepository(event_id);
 
+    const user = await getUserByIdRepository(user_id);
+
     if (!event) {
       const duration = Number(process.hrtime.bigint() - start) / 1000;
       logs(duration, "WARN", req.ip, req.method, "Event not found", req.path, 404, req.headers["user-agent"]);
       return res.status(404).json({ message: "Event not found" });
     }
 
-    // Create attendee record
-    const attendee = await createAttendeeRepository({
-      ticket_id,
-      user_id,
-      ticket_quantity,
-      event_id,
-    });
+    let phoneNumber = user.phone || user_phone;
 
-    // Update ticket count
-    await updateTicketRepository(ticket_id, {
-      ticket_quantity: ticket.ticket_quantity - ticket_quantity,
-    });
+    if (phoneNumber.startsWith("0")) {
+      phoneNumber = "254" + phoneNumber.slice(1); // replace leading 0 with 254
+    } else if (phoneNumber.startsWith("+")) {
+      phoneNumber = phoneNumber.slice(1); // remove leading +
+    }
 
-    // Update attendee count
-   const test = await updateEventRepository(event_id, {
-      attendee_count: event.attendee_count + ticket_quantity,
-    }, event.organizer_id);
+    const paymentData = {
+      "request_id": generateSheId(),
+      "phone_number": phoneNumber,
+      "target_user_id": user_id,
+      "trans_amount": ticket_quantity * ticket.ticket_price,
+      "service_name": "SHERHE",
+      "trans_desc": `Ticket purchase for ${ticket_quantity} ticket(s) to ${event.event_name}`,
+      "reply_to": "sherehe.opencrafts",
+    }
 
-    const eventDate = new Date(event.event_date).toLocaleDateString("en-GB", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
 
-    const contents = {
-      en: `Hello,\n\nYou have successfully purchased ${ticket_quantity} ticket(s) for "${event.event_name}" scheduled on ${eventDate}.\n\nThank you for your purchase!`,
-    };
+    await sendPaymentRequest(paymentData);
 
-    const notificationPayload = {
-      notification: {
-        app_id: "88ca0bb7-c0d7-4e36-b9e6-ea0e29213593",
-        headings: { en: "Ticket Purchase Successful!" },
-        contents,
-        target_user_id: user_id,
-        include_external_user_ids: [],
-        subtitle: { en: "Thank you for your purchase" },
-        android_channel_id: "60023d0b-dcd4-41ae-8e58-7eabbf382c8c",
-        ios_sound: "pay",
-        big_picture: "https://images.com/image.png",
-        large_icon: "https://images.com/image.png",
-        small_icon: "https://images.com/image.png",
-        url: "https://opencrafts.io",
-        buttons: [{ id: ticket_id, text: "View Ticket", icon: "" }],
-      },
-      meta: {
-        event_type: "notification.requested",
-        source_service_id: "io.opencrafts.verisafe",
-        request_id: generateSheId(),
-      },
-    };
 
-    sendNotification(notificationPayload);
 
     const duration = Number(process.hrtime.bigint() - start) / 1000;
     logs(duration, "INFO", req.ip, req.method, "Ticket purchased successfully", req.path, 201, req.headers["user-agent"]);
 
-    res.status(201).json({
-      message: "Ticket purchased successfully",
-      attendee,
+    res.status(200).json({
+      message: "Sdk request sent successfully",
     });
   } catch (error) {
     const duration = Number(process.hrtime.bigint() - start) / 1000;
