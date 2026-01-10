@@ -4,11 +4,11 @@ import { randomUUID } from 'crypto';
 import { logs } from '../Utils/logs.js';
 import { getUserByIdRepository } from '../Repositories/User.repository.js';
 import { sendPaymentRequest } from '../Middleware/Veribroke_sdk_push.js';
-import { createTransactionRepository } from '../Repositories/Transactions.repository.js';
+import { createTransactionRepository , getTransactionByUserIdTicketIdRepository } from '../Repositories/Transactions.repository.js';
 
 const generateSheId = () => `she_${randomUUID()}`;
 
-const SHEREHE_ROUTING_KEY=process.env.SHEREHE_ROUTING_KEY
+const SHEREHE_ROUTING_KEY = process.env.SHEREHE_ROUTING_KEY
 
 export const purchaseTicketController = async (req, res) => {
   const start = process.hrtime.bigint();
@@ -81,10 +81,7 @@ export const purchaseTicketController = async (req, res) => {
       "reply_to": SHEREHE_ROUTING_KEY,
     }
 
-
     await sendPaymentRequest(paymentData);
-
-
 
     const duration = Number(process.hrtime.bigint() - start) / 1000;
     logs(duration, "INFO", req.ip, req.method, "Ticket purchased successfully", req.path, 201, req.headers["user-agent"]);
@@ -97,5 +94,80 @@ export const purchaseTicketController = async (req, res) => {
     logs(duration, "ERR", req.ip, req.method, error.message, req.path, 500, req.headers["user-agent"]);
 
     res.status(500).json({ message: error.message });
+  }
+};
+
+
+export const verifyPaymentController = async (req, res) => {
+  const start = process.hrtime.bigint();
+
+  try {
+    const user_id = req.user?.sub;
+    const ticket_id = req.params.id;
+
+    // Validate required fields
+    if (!user_id || !ticket_id) {
+      const duration = Number(process.hrtime.bigint() - start) / 1000;
+      logs(
+        duration,
+        "WARN",
+        req.ip,
+        req.method,
+        "Missing required fields",
+        req.path,
+        400,
+        req.headers["user-agent"]
+      );
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    const transaction =
+      await getTransactionByUserIdTicketIdRepository(user_id, ticket_id);
+
+    if (!transaction) {
+      const duration = Number(process.hrtime.bigint() - start) / 1000;
+      logs(
+        duration,
+        "WARN",
+        req.ip,
+        req.method,
+        "Transaction not found",
+        req.path,
+        404,
+        req.headers["user-agent"]
+      );
+      return res.status(404).json({ message: "Transaction not found" });
+    }
+
+    // ✅ Successful verification
+    const duration = Number(process.hrtime.bigint() - start) / 1000;
+    logs(
+      duration,
+      "INFO",
+      req.ip,
+      req.method,
+      `Transaction status: ${transaction.status}`,
+      req.path,
+      200,
+      req.headers["user-agent"]
+    );
+
+    return res.status(200).json({
+      status: transaction.status,
+    });
+  } catch (error) {
+    const duration = Number(process.hrtime.bigint() - start) / 1000;
+    logs(
+      duration,
+      "ERR",
+      req.ip,
+      req.method,
+      error.message,
+      req.path,
+      500,
+      req.headers["user-agent"]
+    );
+
+    return res.status(500).json({ message: error.message });
   }
 };
