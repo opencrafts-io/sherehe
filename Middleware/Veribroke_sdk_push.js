@@ -7,13 +7,13 @@ const RABBITMQ_PORT=process.env.RABBITMQ_PORT
 const RABBITMQ_USER=process.env.RABBITMQ_USER
 const RABBITMQ_VHOST=process.env.RABBITMQ_VHOST
 const EXCHANGE_NAME=process.env.EXCHANGE_NAME
+
 const ROUTING_KEY=process.env.ROUTING_KEY
 
 export const sendPaymentRequest = async (data) => {
 
   // RabbitMQ config
   const RABBITMQ_URL = `amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@${RABBITMQ_HOST}:${RABBITMQ_PORT}${RABBITMQ_VHOST || '/'}`;
-  const EXCHANGE_NAME = process.env.EXCHANGE_NAME;
   const EXCHANGE_TYPE = "direct";
 
   // Connect to RabbitMQ

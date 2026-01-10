@@ -39,3 +39,17 @@ export const getTransactionByIdRepository = async (id) => {
     throw error;
   }
 };
+
+export const updateTransactionRepository = async (id, data) => {
+  try {
+    const transaction = await Transaction.findByPk(id);
+    if (!transaction) {
+      throw new Error('Transaction not found');
+    }
+    await transaction.update(data);
+    return transaction;
+  } catch (error) {
+    console.error('❌ Error updating transaction:', error);
+    throw error;
+  }
+};

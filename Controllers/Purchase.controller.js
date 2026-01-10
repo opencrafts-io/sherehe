@@ -3,12 +3,12 @@ import { getEventByIdRepository } from '../Repositories/Event.repository.js';
 import { randomUUID } from 'crypto';
 import { logs } from '../Utils/logs.js';
 import { getUserByIdRepository } from '../Repositories/User.repository.js';
-
 import { sendPaymentRequest } from '../Middleware/Veribroke_sdk_push.js';
+import { createTransactionRepository } from '../Repositories/Transactions.repository.js';
 
 const generateSheId = () => `she_${randomUUID()}`;
 
-
+const SHEREHE_ROUTING_KEY=process.env.SHEREHE_ROUTING_KEY
 
 export const purchaseTicketController = async (req, res) => {
   const start = process.hrtime.bigint();
@@ -60,14 +60,25 @@ export const purchaseTicketController = async (req, res) => {
       phoneNumber = phoneNumber.slice(1); // remove leading +
     }
 
+    // const create transaction
+    const transaction = await createTransactionRepository({
+      user_id,
+      event_id,
+      ticket_id,
+      amount: ticket_quantity * ticket.ticket_price,
+      payment_method: 'MPESA',
+      phone_number: phoneNumber,
+    });
+
+
     const paymentData = {
-      "request_id": generateSheId(),
+      "request_id": transaction.id,
       "phone_number": phoneNumber,
       "target_user_id": user_id,
       "trans_amount": ticket_quantity * ticket.ticket_price,
       "service_name": "SHERHE",
       "trans_desc": `Ticket purchase for ${ticket_quantity} ticket(s) to ${event.event_name}`,
-      "reply_to": "sherehe.opencrafts",
+      "reply_to": SHEREHE_ROUTING_KEY,
     }
 
 
