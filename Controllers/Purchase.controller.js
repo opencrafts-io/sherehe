@@ -172,7 +172,7 @@ export const verifyPaymentController = async (req, res) => {
     const trans_id = req.params.id;
 
     // Validate required fields
-    if (!user_id || !ticket_id) {
+    if (!user_id || !trans_id) {
       const duration = Number(process.hrtime.bigint() - start) / 1000;
       logs(
         duration,
