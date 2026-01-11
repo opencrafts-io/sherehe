@@ -15,7 +15,8 @@ const QUEUE = "sherehe_mpesa_success_queue";
 const RABBIT_URL = `amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@${RABBITMQ_HOST}:${RABBITMQ_PORT}${RABBITMQ_VHOST || '/'}`;
 
 export async function startMpesaSuccessConsumer() {
-  const connection = await amqp.connect(RABBIT_URL);
+ try {
+   const connection = await amqp.connect(RABBIT_URL);
   const channel = await connection.createChannel();
 
   await channel.assertExchange(EXCHANGE_NAME, "direct", { durable: true });
@@ -71,5 +72,9 @@ export async function startMpesaSuccessConsumer() {
     },
     { noAck: false }
   );
+ } catch (error) {
+  console.error("❌ Veribroke sdk recieve error:", error);
+  throw error;
+ }
 }
 
