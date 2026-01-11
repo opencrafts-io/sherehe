@@ -26,7 +26,7 @@ export async function startMpesaSuccessConsumer() {
     durable: true,
   });
 
-  await channel.bindQueue(q.queue, EXCHANGE_NAME, SHEREHE_ROUTING_KEY);
+  await channel.bindQueue(q.queue, "io.opencrafts.veribroke", "NDOVUKUU");
 
   console.log("👂");
 
