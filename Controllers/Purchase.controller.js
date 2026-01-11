@@ -4,8 +4,8 @@ import { randomUUID } from 'crypto';
 import { logs } from '../Utils/logs.js';
 import { getUserByIdRepository } from '../Repositories/User.repository.js';
 import { sendPaymentRequest } from '../Middleware/Veribroke_sdk_push.js';
-import { createTransactionRepository , getTransactionByUserIdTicketIdRepository } from '../Repositories/Transactions.repository.js';
-import {getPaymentInfoByEventIdRepository} from '../Repositories/paymentInfo.repository.js';
+import { createTransactionRepository, getTransactionByIdRepository } from '../Repositories/Transactions.repository.js';
+import { getPaymentInfoByEventIdRepository } from '../Repositories/paymentInfo.repository.js';
 
 const generateSheId = () => `she_${randomUUID()}`;
 
@@ -53,26 +53,30 @@ export const purchaseTicketController = async (req, res) => {
       return res.status(404).json({ message: "Event not found" });
     }
 
-    let phoneNumber 
-    if(user_phone){
-      phoneNumber = user_phone
-    }else{
-      if(user.phone === null)
-        {
-          const duration = Number(process.hrtime.bigint() - start) / 1000;
-          logs(duration, "WARN", req.ip, req.method, "User phone number is required", req.path, 400, req.headers["user-agent"]);
-          return res.status(400).json({ message: "User phone number is required" });
-        }else{
-          phoneNumber = user.phone
-        }
+    let phoneNumber = req.body.user_phone ?? user.phone;
+
+    // 2️⃣ If still missing, reject
+    if (!phoneNumber) {
+      const duration = Number(process.hrtime.bigint() - start) / 1000;
+      logs(
+        duration,
+        "WARN",
+        req.ip,
+        req.method,
+        "User phone number is required",
+        req.path,
+        400,
+        req.headers["user-agent"]
+      );
+      return res.status(400).json({ message: "User phone number is required" });
     }
+    phoneNumber = phoneNumber.toString().trim();
 
     if (phoneNumber.startsWith("0")) {
-      phoneNumber = "254" + phoneNumber.slice(1); // replace leading 0 with 254
+      phoneNumber = "254" + phoneNumber.slice(1);
     } else if (phoneNumber.startsWith("+")) {
-      phoneNumber = phoneNumber.slice(1); // remove leading +
+      phoneNumber = phoneNumber.slice(1);
     }
-
     // const create transaction
     const transaction = await createTransactionRepository({
       user_id,
@@ -97,21 +101,21 @@ export const purchaseTicketController = async (req, res) => {
     const amount = ticket_quantity * ticket.ticket_price
 
 
-    if(paymentInfo.payment_type === "MPESA_PAYBILL"){
+    if (paymentInfo.payment_type === "MPESA_PAYBILL") {
       type = "paybill"
       recipient = paymentInfo.paybill_number
       account_reference = paymentInfo.paybill_account_number
-    }else if(paymentInfo.payment_type === "MPESA_TILL"){
+    } else if (paymentInfo.payment_type === "MPESA_TILL") {
       type = "till"
       recipient = paymentInfo.till_number
-    }else if(paymentInfo.payment_type === "MPESA_SEND_MONEY"){
+    } else if (paymentInfo.payment_type === "MPESA_SEND_MONEY") {
       type = "personal"
       recipient = paymentInfo.phone_number
-    }else if(paymentInfo.payment_type === "POSHI_LA_BIASHARA"){
+    } else if (paymentInfo.payment_type === "POSHI_LA_BIASHARA") {
       type = "poshi"
       recipient = paymentInfo.phone_number
     }
-    
+
 
 
     const paymentData = {
@@ -123,15 +127,15 @@ export const purchaseTicketController = async (req, res) => {
       "trans_desc": `Ticket purchase for ${ticket_quantity} ticket(s) to ${event.event_name}`,
       "reply_to": SHEREHE_ROUTING_KEY,
       "split_data": {
-            "originator": "MPESA",
-            "extras": {
-                "type": type,
-                "amount": 0.05 * amount,
-                "recipient": recipient,
-                "account_reference": account_reference,
-                "occassion": "Service fee split"
-            },
+        "originator": "MPESA",
+        "extras": {
+          "type": type,
+          "amount": 0.05 * amount,
+          "recipient": recipient,
+          "account_reference": account_reference,
+          "occassion": "Service fee split"
         },
+      },
     }
 
     await sendPaymentRequest(paymentData);
@@ -141,6 +145,7 @@ export const purchaseTicketController = async (req, res) => {
 
     res.status(200).json({
       message: "Sdk request sent successfully",
+      trans_id: transaction.id
     });
   } catch (error) {
     const duration = Number(process.hrtime.bigint() - start) / 1000;
@@ -156,7 +161,7 @@ export const verifyPaymentController = async (req, res) => {
 
   try {
     const user_id = req.user?.sub;
-    const ticket_id = req.params.id;
+    const trans_id = req.params.id;
 
     // Validate required fields
     if (!user_id || !ticket_id) {
@@ -175,7 +180,7 @@ export const verifyPaymentController = async (req, res) => {
     }
 
     const transaction =
-      await getTransactionByUserIdTicketIdRepository(user_id, ticket_id);
+      await getTransactionByIdRepository(trans_id);
 
     if (!transaction) {
       const duration = Number(process.hrtime.bigint() - start) / 1000;
