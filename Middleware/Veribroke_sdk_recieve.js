@@ -18,8 +18,6 @@ export async function startMpesaSuccessConsumer() {
   const connection = await amqp.connect(RABBIT_URL);
   const channel = await connection.createChannel();
 
-  console.log(RABBIT_URL , EXCHANGE_NAME , SHEREHE_ROUTING_KEY);
-
   await channel.assertExchange(EXCHANGE_NAME, "direct", { durable: true });
 
   const q = await channel.assertQueue(QUEUE, {
