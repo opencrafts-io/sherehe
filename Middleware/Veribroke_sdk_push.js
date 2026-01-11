@@ -11,7 +11,8 @@ const EXCHANGE_NAME=process.env.EXCHANGE_NAME || "io.opencrafts.veribroke"
 const ROUTING_KEY=process.env.ROUTING_KEY || "veribroke.mpesa-stk"
 
 export const sendPaymentRequest = async (data) => {
-
+try {
+  
   // RabbitMQ config
   const RABBITMQ_URL = `amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@${RABBITMQ_HOST}:${RABBITMQ_PORT}${RABBITMQ_VHOST || '/'}`;
   const EXCHANGE_TYPE = "direct";
@@ -33,4 +34,8 @@ export const sendPaymentRequest = async (data) => {
   // Close connection
   await channel.close();
   await connection.close();
+} catch (error) {
+  console.error("❌ Veribroke sdk recieve error:", error);
+  throw error;
+}
 };

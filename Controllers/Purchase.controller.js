@@ -116,7 +116,7 @@ export const purchaseTicketController = async (req, res) => {
       recipient = paymentInfo.phone_number
     }
 
-
+    
 
     const paymentData = {
       "request_id": transaction.id,
@@ -138,10 +138,18 @@ export const purchaseTicketController = async (req, res) => {
       },
     }
 
-    await sendPaymentRequest(paymentData);
+    console.log(paymentData)
+
+    try{
+      await sendPaymentRequest(paymentData);
+    }catch (error) {
+      const duration = Number(process.hrtime.bigint() - start) / 1000;
+      logs(duration, "ERR", req.ip, req.method, error.message, req.path, 500, req.headers["user-agent"]);
+      return res.status(500).json({ message: error.message });
+    }
 
     const duration = Number(process.hrtime.bigint() - start) / 1000;
-    logs(duration, "INFO", req.ip, req.method, "Ticket purchased successfully", req.path, 201, req.headers["user-agent"]);
+    logs(duration, "INFO", req.ip, req.method, "Sdk request sent", req.path, 201, req.headers["user-agent"]);
 
     res.status(200).json({
       message: "Sdk request sent successfully",
