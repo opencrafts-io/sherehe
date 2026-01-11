@@ -38,7 +38,7 @@ app.listen(PORT, async () => {
     console.log("✅ Database connected...");
 
     await sequelize.sync({ alter: true });
-
+    console.log("✅ Models synced...");
     // startVerisafeListener();
     startMpesaSuccessConsumer();
     console.log(`🚀 Server running on port ${PORT}`);
