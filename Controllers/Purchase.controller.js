@@ -5,7 +5,7 @@ import { logs } from '../Utils/logs.js';
 import { getUserByIdRepository } from '../Repositories/User.repository.js';
 import { sendPaymentRequest } from '../Middleware/Veribroke_sdk_push.js';
 import { createTransactionRepository , getTransactionByUserIdTicketIdRepository } from '../Repositories/Transactions.repository.js';
-import e from 'express';
+import {getPaymentInfoByEventIdRepository} from '../Repositories/paymentInfo.repository.js';
 
 const generateSheId = () => `she_${randomUUID()}`;
 
@@ -84,15 +84,54 @@ export const purchaseTicketController = async (req, res) => {
       phone_number: phoneNumber,
     });
 
+    const paymentInfo = await getPaymentInfoByEventIdRepository(event_id)
+    if (!paymentInfo) {
+      const duration = Number(process.hrtime.bigint() - start) / 1000;
+      logs(duration, "WARN", req.ip, req.method, "Payment info not found", req.path, 404, req.headers["user-agent"]);
+      return res.status(404).json({ message: "Payment info not found" });
+    }
+
+    let type;
+    let recipient;
+    let account_reference = null
+    const amount = ticket_quantity * ticket.ticket_price
+
+
+    if(paymentInfo.payment_type === "MPESA_PAYBILL"){
+      type = "paybill"
+      recipient = paymentInfo.paybill_number
+      account_reference = paymentInfo.paybill_account_number
+    }else if(paymentInfo.payment_type === "MPESA_TILL"){
+      type = "till"
+      recipient = paymentInfo.till_number
+    }else if(paymentInfo.payment_type === "MPESA_SEND_MONEY"){
+      type = "personal"
+      recipient = paymentInfo.phone_number
+    }else if(paymentInfo.payment_type === "POSHI_LA_BIASHARA"){
+      type = "poshi"
+      recipient = paymentInfo.phone_number
+    }
+    
+
 
     const paymentData = {
       "request_id": transaction.id,
       "phone_number": phoneNumber,
       "target_user_id": user_id,
-      "trans_amount": ticket_quantity * ticket.ticket_price,
+      "trans_amount": amount,
       "service_name": "SHERHE",
       "trans_desc": `Ticket purchase for ${ticket_quantity} ticket(s) to ${event.event_name}`,
       "reply_to": SHEREHE_ROUTING_KEY,
+      "split_data": {
+            "originator": "MPESA",
+            "extras": {
+                "type": type,
+                "amount": 0.05 * amount,
+                "recipient": recipient,
+                "account_reference": account_reference,
+                "occassion": "Service fee split"
+            },
+        },
     }
 
     await sendPaymentRequest(paymentData);
