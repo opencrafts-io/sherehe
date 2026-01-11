@@ -1,14 +1,14 @@
 // veribrokeService.js
 import amqp from "amqplib";
 
-const RABBITMQ_HOST=process.env.RABBITMQ_HOST
+const RABBITMQ_HOST=process.env.RABBITMQ_HOST 
 const RABBITMQ_PASSWORD=process.env.RABBITMQ_PASSWORD
 const RABBITMQ_PORT=process.env.RABBITMQ_PORT
 const RABBITMQ_USER=process.env.RABBITMQ_USER
 const RABBITMQ_VHOST=process.env.RABBITMQ_VHOST
-const EXCHANGE_NAME=process.env.EXCHANGE_NAME
+const EXCHANGE_NAME=process.env.EXCHANGE_NAME || "io.opencrafts.veribroke"
 
-const ROUTING_KEY=process.env.ROUTING_KEY
+const ROUTING_KEY=process.env.ROUTING_KEY || "veribroke.mpesa-stk"
 
 export const sendPaymentRequest = async (data) => {
 

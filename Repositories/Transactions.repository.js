@@ -22,7 +22,7 @@ export const getAllTransactionsRepository = async () => {
 
 export const getTransactionByUserIdTicketIdRepository = async (userId , ticketId) => {
   try {
-    const transactions = await Transaction.findAll({ where: { user_id: userId , ticket_id: ticketId } });
+    const transactions = await Transaction.findOne({ where: { user_id: userId , ticket_id: ticketId } });
     return transactions;
   } catch (error) {
     console.error('❌ Error getting transactions:', error);
