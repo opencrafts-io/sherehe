@@ -23,9 +23,7 @@ export const getAllEventsRepository = async (params) => {
   try {
     // Check delete_tag is false
     const { limitPlusOne, offset } = params;
-    const events = await Event.findAll({include: [{ model: PaymentInfo, as: "payment_info" , attributes: {
-      exclude: ["event_id"]
-    } }], order: [["created_at", "DESC"]] , limit: limitPlusOne, offset: offset });
+    const events = await Event.findAll({order: [["created_at", "DESC"]] , limit: limitPlusOne, offset: offset });
     const formattedEvents = events.map(event => ({
   ...event.toJSON(),
   event_genre: Array.isArray(event.event_genre)
@@ -41,9 +39,7 @@ export const getAllEventsRepository = async (params) => {
 
 export const getEventByIdRepository = async (eventId) => {
   try {
-    const event = await Event.findByPk(eventId , {include: [{ model: PaymentInfo, as: "payment_info" , attributes: {
-      exclude: ["event_id"]
-    } }] });
+    const event = await Event.findByPk(eventId);
 
     if (!event) return null;
 
@@ -146,9 +142,7 @@ export const searchEventRepository = async (searchQuery) => {
 
 export const getEventbyOrganizerIdRepository = async (organizerId) => {
   try {
-    const events = await Event.findAll({ where: { organizer_id: organizerId}, include: [{ model: PaymentInfo, as: "payment_info" , attributes: {
-      exclude: ["event_id"]
-    } }] , order: [["created_at", "DESC"]] });
+    const events = await Event.findAll({ where: { organizer_id: organizerId}, order: [["created_at", "DESC"]] });
         const formattedEvents = events.map(event => ({
   ...event.toJSON(),
   event_genre: Array.isArray(event.event_genre)
