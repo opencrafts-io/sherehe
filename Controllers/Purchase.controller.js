@@ -9,7 +9,7 @@ import {getPaymentInfoByEventIdRepository} from '../Repositories/paymentInfo.rep
 
 const generateSheId = () => `she_${randomUUID()}`;
 
-const SHEREHE_ROUTING_KEY = process.env.SHEREHE_ROUTING_KEY
+const SHEREHE_ROUTING_KEY = process.env.SHEREHE_ROUTING_KEY || "NDOVUKUU";
 
 export const purchaseTicketController = async (req, res) => {
   const start = process.hrtime.bigint();
