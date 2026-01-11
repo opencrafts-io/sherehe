@@ -882,12 +882,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/ticket/event/980b9ae9-abee-4358-b736-582866574668
+      - url: http://localhost:3000/ticket/event/52cb46cf-6530-481c-9171-6f85566e8ed9
         name: Get Tickets by  Event Id
         meta:
           id: req_a55b7b8c2fe34bac917ad7f91f29ef61
           created: 1751676656627
-          modified: 1767715042956
+          modified: 1768064734158
           isPrivate: false
           description: >
             Get Tickets by Event ID
@@ -1658,12 +1658,12 @@ collection:
       sortKey: -1763283604877
       description: ""
     children:
-      - url: http://localhost:3000/purchase/
-        name: New Request
+      - url: http://localhost:3000/purchase/472b04f9-d483-4ee5-a31a-6ad08ce8f2c8
+        name: Verify Ticket
         meta:
           id: req_4e0455607be34fbbae55f010256592e8
           created: 1763283611299
-          modified: 1767794206286
+          modified: 1768065247554
           isPrivate: false
           description: |
             # Ticket API Documentation
@@ -1701,13 +1701,68 @@ collection:
             - A notification is sent to the user upon successful purchase.
             - `ticket_id` and `ticket_quantity` must be valid and available.
           sortKey: -1763283611299
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.2
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3000/purchase/
+        name: Purchase Ticket
+        meta:
+          id: req_f671a6c5aef7431bbd4f4e2020c06daa
+          created: 1768063660618
+          modified: 1768065195724
+          isPrivate: false
+          description: |
+            # Ticket API Documentation
+
+            ## 1. Purchase a Ticket
+
+            `Endpoint: POST /api/ticket/purchase`  
+            `Description: Allows a user to purchase tickets for an event, updates ticket availability, and sends a notification to the user.`
+
+            🧩 Request Body
+
+            | Field           | Type   | Required | Description                                 |
+            | --------------- | ------ | -------- | ------------------------------------------- |
+            | `ticket_id`     | UUID   | ✅ Yes    | The ID of the ticket being purchased        |
+            | `ticket_quantity` | number | ✅ Yes  | Number of tickets the user wants to buy     |
+
+            📥 Example Response (201 Created)
+
+            | Field     | Type     | Example                                                                 | Description                         |
+            | --------- | -------- | ----------------------------------------------------------------------- | ----------------------------------- |
+            | `message` | string   | "Ticket purchased successfully"                                         | Confirmation message                |
+            | `attendee`| object   | `{ ticket_id: "uuid", user_id: "uuid", ticket_quantity: 2, event_id: "uuid" }` | Details of the created attendee record |
+
+            ⚠️ Example Error Statuses
+
+            | Status Code                 | Description                                                                 |
+            | --------------------------- | --------------------------------------------------------------------------- |
+            | `400 Bad Request`           | Missing required fields or not enough tickets available                     |
+            | `404 Not Found`             | Ticket or event not found                                                   |
+            | `500 Internal Server Error` | Server or database error                                                    |
+
+            📌 Notes
+            - The API updates the ticket count in the database.
+            - The attendee count for the event is updated automatically.
+            - A notification is sent to the user upon successful purchase.
+            - `ticket_id` and `ticket_quantity` must be valid and available.
+          sortKey: -1763110673016.5
         method: POST
         body:
           mimeType: application/json
           text: |-
             {
             	"ticket_quantity": 1,
-            	"ticket_id":"0e816f6b-a5c2-46f8-9a68-3cb3baf86e60"
+            	"ticket_id":"472b04f9-d483-4ee5-a31a-6ad08ce8f2c8"
             }
         headers:
           - name: Content-Type
