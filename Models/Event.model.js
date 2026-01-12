@@ -23,7 +23,7 @@ const Event = sequelize.define(
     event_poster_image: { type: DataTypes.STRING, allowNull: true },
     event_banner_image: { type: DataTypes.STRING, allowNull: true },
     event_url: { type: DataTypes.STRING, allowNull: true },
-    event_genre: { type: DataTypes.JSON, allowNull: true },
+    event_genre: { type: DataTypes.JSONB, allowNull: true },
     created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
     updated_at: {
       type: DataTypes.DATE,

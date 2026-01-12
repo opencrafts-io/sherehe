@@ -157,3 +157,22 @@ export const getEventbyOrganizerIdRepository = async (organizerId) => {
 
 
 
+export const getEventByTagsRepository = async (tags) => {
+  try {
+    const events = await Event.findAll({
+      where: {
+        event_genre: {
+  [Op.overlap]: tags
+}
+      },
+      order: [["created_at", "DESC"]],
+    });
+
+    return events.map(event => ({
+      ...event.toJSON(),
+      event_genre: event.event_genre ?? []
+    }));
+  } catch (error) {
+    throw error;
+  }
+};
