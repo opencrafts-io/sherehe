@@ -6,7 +6,8 @@ import {
   updateEventController,
   deleteEventController,
   searchEventController,
-  getEventbyOrganizerIdController
+  getEventbyOrganizerIdController,
+  getEventByTagsController
 } from "../Controllers/Event.controller.js";
 import upload from '../Middleware/upload.js';
 
@@ -28,6 +29,7 @@ router.get("/:id", getEventByIdController);
 router.put("/:id", updateEventController);
 router.delete("/:id", deleteEventController);
 router.get("/organizer/:id", getEventbyOrganizerIdController);
+router.get("/tags/:tags", getEventByTagsController);
 
 
 export default router;
