@@ -147,20 +147,24 @@ export const createEventController = async (req, res) => {
     // ✅ POST-COMMIT OPERATIONS (NO ROLLBACK HERE)
     // =====================================================
 
-    const savepayment = await createPaymentInfoRepository({
-      event_id: event.id,
-      payment_type,
-      paybill_number,
-      paybill_account_number: account_reference,
-      till_number,
-      phone_number: send_money_phone
-    });
-
-    if (!savepayment) {
-      return res.status(500).json({
-        error: "Event created but payment info failed to save",
+    if (!(payment_type === null || payment_type === undefined)) {
+      const savepayment = await createPaymentInfoRepository({
+        event_id: event.id,
+        payment_type,
+        paybill_number,
+        paybill_account_number: account_reference,
+        till_number,
+        phone_number: send_money_phone
       });
+
+      if (!savepayment) {
+        return res.status(500).json({
+          error: "Event created but payment info failed to save",
+        });
+      }
     }
+
+
 
     // -------------------------
     // NOTIFICATION (SAFE)
@@ -205,13 +209,22 @@ export const createEventController = async (req, res) => {
       req.headers["user-agent"]
     );
 
-    return res.status(201).json({
+    if (!(payment_type === null || payment_type === undefined)) {
+      return res.status(201).json({
       message: "Event created successfully",
       data: {
         event,
-        payment: savepayment,
       },
-    });
+    })
+    }else
+      {
+        return res.status(201).json({
+          message: "Event created successfully",
+          data: {
+            event,
+          },
+        });
+      }
 
   } catch (error) {
     cleanupFiles(savedFiles);
