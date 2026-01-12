@@ -52,7 +52,6 @@ const Ticket = sequelize.define(
     },
     indexes: [
       {
-        unique: true,
         fields: ['event_id', 'ticket_name']
       }
     ]
