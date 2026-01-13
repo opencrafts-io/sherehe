@@ -6,6 +6,7 @@ import { getUserByIdRepository } from '../Repositories/User.repository.js';
 import { sendPaymentRequest } from '../Middleware/Veribroke_sdk_push.js';
 import { createTransactionRepository, getTransactionByIdRepository } from '../Repositories/Transactions.repository.js';
 import { getPaymentInfoByEventIdRepository } from '../Repositories/paymentInfo.repository.js';
+import { createAttendeeRepository } from '../Repositories/Attendee.repository.js';
 
 const generateSheId = () => `she_${randomUUID()}`;
 
@@ -44,6 +45,8 @@ export const purchaseTicketController = async (req, res) => {
       return res.status(400).json({ message: "Not enough tickets available" });
     }
 
+
+
     const event_id = ticket.event_id;
     const event = await getEventByIdRepository(event_id);
 
@@ -53,6 +56,17 @@ export const purchaseTicketController = async (req, res) => {
       const duration = Number(process.hrtime.bigint() - start) / 1000;
       logs(duration, "WARN", req.ip, req.method, "Event not found", req.path, 404, req.headers["user-agent"]);
       return res.status(404).json({ message: "Event not found" });
+    }
+
+    if (ticket.ticket_price === 0) {
+     const attendee = await createAttendeeRepository({ user_id, event_id, ticket_id, ticket_quantity });
+      const duration = Number(process.hrtime.bigint() - start) / 1000;
+      logs(duration, "INFO", req.ip, req.method, "Successfully registered for event", req.path, 201, req.headers["user-agent"]);
+      return res.status(201).json({ message: "Successfully registered for event", attendee_id : attendee.id });
+    }else if (!user) {
+      const duration = Number(process.hrtime.bigint() - start) / 1000;
+      logs(duration, "WARN", req.ip, req.method, "User not found", req.path, 404, req.headers["user-agent"]);
+      return res.status(404).json({ message: "User not found" });
     }
 
     let phoneNumber = req.body.user_phone ?? user.phone;
@@ -118,7 +132,7 @@ export const purchaseTicketController = async (req, res) => {
       recipient = paymentInfo.phone_number
     }
 
-    
+
 
     const paymentData = {
       "request_id": transaction.id,
@@ -142,9 +156,9 @@ export const purchaseTicketController = async (req, res) => {
 
     console.log(paymentData)
 
-    try{
+    try {
       await sendPaymentRequest(paymentData);
-    }catch (error) {
+    } catch (error) {
       const duration = Number(process.hrtime.bigint() - start) / 1000;
       logs(duration, "ERR", req.ip, req.method, error.message, req.path, 500, req.headers["user-agent"]);
       return res.status(500).json({ message: error.message });
