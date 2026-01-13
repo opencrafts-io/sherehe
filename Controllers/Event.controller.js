@@ -68,20 +68,7 @@ export const createEventController = async (req, res) => {
     // IMAGE PROCESSING
     // -------------------------
     const resized = await processAndSaveImages(req);
-    savedFiles = Object.values(resized);
-
-    let event_card_image = resized.event_card_image
-      ? `${process.env.BASE_URL}/${resized.event_card_image}`
-      : null;
-
-    let event_poster_image = resized.event_poster_image
-      ? `${process.env.BASE_URL}/${resized.event_poster_image}`
-      : null;
-
-    let event_banner_image = resized.event_banner_image
-      ? `${process.env.BASE_URL}/${resized.event_banner_image}`
-      : null;
-
+        const { event_card_image, event_poster_image, event_banner_image } = req.images;
     // -------------------------
     // TICKETS PARSING
     // -------------------------

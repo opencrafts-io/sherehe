@@ -1,31 +1,43 @@
-import fs from "fs";
+import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
+
+const s3 = new S3Client({
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
+});
 
 /**
- * Removes uploaded image files (both original and resized versions).
- * @param {string[]} files - Array of file paths to delete.
+ * Removes uploaded image files (both original and resized versions) from S3.
+ * @param {string[]} files - Array of S3 object keys
  */
-export const cleanupFiles = (files = []) => {
+const extractS3Key = (url) => {
+  try {
+    return new URL(url).pathname.substring(1);
+  } catch {
+    return null;
+  }
+};
+
+export const cleanupFiles = async (files = []) => {
   for (const file of files) {
     if (!file) continue;
-
+    file = extractS3Key(file);
     const resizedVersion = `${file}-resized.jpg`;
 
-    // Attempt to delete the original file
-    if (fs.existsSync(file)) {
+    for (const key of [file, resizedVersion]) {
       try {
-        fs.unlinkSync(file);
-      } catch (err) {
-        console.error("⚠️ Failed to delete file:", file, err.message);
-      }
-    }
+        await s3.send(
+          new DeleteObjectCommand({
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: key,
+          })
+        );
 
-    // Attempt to delete the resized version
-    if (fs.existsSync(resizedVersion)) {
-      try {
-        fs.unlinkSync(resizedVersion);
-        console.log("🗑️ Deleted resized file:", resizedVersion);
+        console.log("🗑️ Deleted from S3:", key);
       } catch (err) {
-        console.error("⚠️ Failed to delete resized file:", resizedVersion, err.message);
+        console.error("⚠️ Failed to delete from S3:", key, err.message);
       }
     }
   }
