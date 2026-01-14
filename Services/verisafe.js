@@ -23,13 +23,14 @@ export const startVerisafeListener = async () => {
     channel.consume(QUEUE_NAME, async msg => {
       if (!msg) return;
 
-      const data = JSON.parse(msg.content.toString());
-      await processVerisafeEvent(data);
+      const data = msg.content.toString();
+      await processVerisafeEvent(JSON.parse(data));
 
       channel.ack(msg);
     });
   } catch (error) {
     console.error("❌ RabbitMQ connection failed:", error);
+    channel.nack(msg, false, false);
   }
 };
 
