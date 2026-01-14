@@ -16,7 +16,7 @@ export const startVerisafeListener = async () => {
     const connection = await amqp.connect(RABBIT_URL);
     const channel = await connection.createChannel();
 
-    await channel.assertExchange(EXCHANGE_NAME, 'fanout', { durable: true });
+    await channel.assertExchange(EXCHANGE_NAME, 'topic', { durable: true });
     await channel.assertQueue(QUEUE_NAME, { durable: true });
     await channel.bindQueue(QUEUE_NAME, EXCHANGE_NAME, ROUTING_KEY);
 
