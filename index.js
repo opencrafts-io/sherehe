@@ -40,6 +40,8 @@ app.listen(PORT, async () => {
     console.log("✅ Models synced...");
     // startVerisafeListener();
     await startMpesaSuccessConsumer();
+    // Start Verisafe
+    await startVerisafeListener();
     console.log(`🚀 Server running on port ${PORT}`);
   } catch (error) {
     console.error("❌ Database error:", error);
