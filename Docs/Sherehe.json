@@ -1,0 +1,1799 @@
+type: collection.insomnia.rest/5.0
+name: Sherehe
+meta:
+  id: wrk_475a56c476294de9935f3a08571f9bfe
+  created: 1762714346364
+  modified: 1762714382770
+  description: ""
+collection:
+  - name: Events
+    meta:
+      id: fld_7846574000064e15ae9fb8dbb707f9c1
+      created: 1751675358991
+      modified: 1767726361886
+      sortKey: -1751675358991
+      description: >
+        | Method     | Endpoint                    |
+        Description                 |
+
+        | ---------- | --------------------------- | ---------------------------
+        |
+
+        | **POST**   | `/api/event`                | Create an
+        event             |
+
+        | **GET**    | `/api/event`                | Get all events
+        (paginated)  |
+
+        | **GET**    | `/api/event/:id`            | Get a single event by
+        ID    |
+
+        | **PUT**    | `/api/event/:id`            | Update event
+        details        |
+
+        | **DELETE** | `/api/event/:id`            | Delete an
+        event             |
+
+        | **GET**    | `/api/event/search?q=`      | Search events by
+        keyword    |
+
+        | **GET**    | `/api/event/organizer/:id`  | Get all events by organizer
+        |
+    children:
+      - url: http://localhost:3000/event/
+        name: Create Event
+        meta:
+          id: req_87853c0415ad45ca912c6eac6e23e688
+          created: 1751674151145
+          modified: 1767893232492
+          isPrivate: false
+          description: |
+            🟢 Create Event
+            `Endpoint: POST /api/events
+            Description: Creates a new event with optional tickets and images (card, poster, banner).`
+
+            📤 Example Request
+
+            | Field               | Type         | Required | Description                                                               |
+            | ------------------- | ------------ | -------- | ------------------------------------------------------------------------- |
+            | `event_name`        | string       | ✅ Yes    | Name of the event                                                         |
+            | `event_description` | string       | ✅ Yes    | Description of the event                                                  |
+            | `event_location`    | string       | ✅ Yes    | Location of the event                                                     |
+            | `event_date`        | string (ISO) | ✅ Yes    | Event date (ISO format, e.g., "2025-12-01T18:00:00.000Z")                 |
+            | `event_url`         | string       | ✅ Yes     | External URL of the event                                                 |
+            | `event_genre`       | string       | ✅ Yes      | Genre or type of the event                                                |
+            | `organizer_id`      | integer      | ✅ Yes    | ID of the user creating the event                                         |
+            | `tickets`           | array        | ✅ Yes      | Array of ticket objects: `{ ticket_name, ticket_price, ticket_quantity }` |
+
+            📥 Example Response (201 Created)
+
+            | Field               | Type     | Example                                                  | Description                          |
+            | ------------------- | -------- | -------------------------------------------------------- | ------------------------------------ |
+            | `message`           | string   | "Event created successfully"                             | Status message of the operation      |
+            | `event.id`          | uuid  | bcba5efb-2284-4b7c-a1a7-040340131a53                                                        | Event ID                             |
+            | `event_name`        | string   | "Music Festival 2025"                                    | Event name                           |
+            | `event_description` | string   | "Annual outdoor music festival."                         | Event description                    |
+            | `event_location`    | string   | "Nairobi, Kenya"                                         | Event location                       |
+            | `event_date`        | datetime | "2025-12-01T18:00:00.000Z"                               | Event date                           |
+            | `event_url`         | string   | "[https://musicfest2025.com](https://musicfest2025.com)" | External URL                         |
+            | `event_genre`       | string   | "Music"                                                  | Genre/type of event                  |
+            | `organizer_id`      | uuid  | bcba5efb-2284-4b7c-a1a7-040340131a53                                                       | ID of the user who created the event |
+            | `tickets`           | array    | See ticket objects below                                 | Array of created tickets             |
+            | `createdAt`         | datetime | "2025-10-30T10:00:00.000Z"                               | Event creation timestamp             |
+            | `updatedAt`         | datetime | "2025-10-30T10:00:00.000Z"                               | Event last update timestamp          |
+
+            ⚠️ Example Error Statuses
+
+            | **Status Code**             | **Description**                           |
+            | --------------------------- | ----------------------------------------- |
+            | `400 Bad Request`           | Missing required fields or invalid input. |
+            | `500 Internal Server Error` | Database or server error.                 |
+          sortKey: -1751675384567
+        method: POST
+        body:
+          mimeType: multipart/form-data
+          params:
+            - name: event_name
+              value: Tech Conference 2025
+              description: ""
+              disabled: false
+              id: pair_d80291def04e41c1994b97d9162442b7
+            - name: event_description
+              value: Annual technology conference focusing on AI and web development.
+              description: ""
+              disabled: false
+              id: pair_06daa53edd2b4ef3941c71bb19c1dfb4
+            - name: event_url
+              value: '"none"'
+              description: ""
+              disabled: false
+              id: pair_20af7dca8faf450ba7ed751e266ad0a2
+            - name: event_location
+              value: Nairobi International Convention Centre
+              description: ""
+              disabled: false
+              id: pair_ab4a8275d7cf49959d56672f5b0bebc3
+            - name: event_date
+              value: 2025-09-10
+              description: ""
+              disabled: false
+              id: pair_ca0a0e1fd0d7455b86a9ae69d5f30acf
+            - name: event_card_image
+              value: ""
+              description: ""
+              disabled: true
+              id: pair_beddf5ff39a94fa6ae903cb66f7aac87
+              fileName: /home/ordo-chao/Pictures/Screenshots/Screenshot from 2025-10-02
+                00-19-27.png
+              type: file
+            - name: event_genre
+              value: '["Adult Time"]'
+              description: ""
+              disabled: false
+              id: pair_84d94397758640079d7009150ee41daa
+            - name: organizer_id
+              value: 68c60564-a407-4271-87f2-eb6efbfeb1ea
+              description: ""
+              disabled: true
+              id: pair_afa89f68172d43ecaaace3fae46647e6
+            - name: event_poster_image
+              value: ""
+              description: ""
+              disabled: true
+              id: pair_9496d31d6595497382069bee6403c6a6
+              fileName: /home/ordo-chao/Pictures/Screenshots/Screenshot from 2025-10-28
+                17-58-13.png
+              type: file
+            - name: event_banner_image
+              value: ""
+              description: ""
+              disabled: true
+              id: pair_50ff89ddc2af484f911677e351c71a2d
+              fileName: /home/ordo-chao/Pictures/Screenshots/Screenshot from 2025-10-28
+                04-49-54.png
+              type: file
+            - name: tickets
+              value: '[{"ticket_name": "VIP Ticket",  "ticket_price":
+                1500,  "ticket_quantity": 200}]'
+              description: ""
+              disabled: false
+              id: pair_c9526f4d655d4bb0841de7a32bb46e87
+            - id: pair_c6c8cbfef6b94df589bb1e8b3aa2b9ee
+              name: payment_type
+              value: MPESA_PAYBILL
+              description: ""
+              disabled: false
+            - id: pair_eae2b5d36bfb4dc68906737a6239c901
+              name: paybill_number
+              value: "123456"
+              description: ""
+              disabled: false
+            - id: pair_9fa265774eb444daab55f5a0b8b56a52
+              name: account_reference
+              value: SHEREHE2026
+              description: ""
+              disabled: false
+        headers:
+          - name: Content-Type
+            value: multipart/form-data
+          - name: User-Agent
+            value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3000/event/c1ad18b0-9100-4afd-b7c5-a6f48a91fd6e
+        name: Delete Event
+        meta:
+          id: req_f68e97063dde4fd7847adeed68e75abc
+          created: 1751675406540
+          modified: 1763282077425
+          isPrivate: false
+          description: >
+            🗑️ Delete Event
+
+
+            `Endpoint: DELETE /api/events/:id
+
+            Description: Deletes an event (soft delete or marks as deleted).`
+
+
+            📥 Example Response (200 OK)
+
+
+            | Field     | Type   | Example                      |
+            Description                                     |
+
+            | --------- | ------ | ---------------------------- |
+            ----------------------------------------------- |
+
+            | `message` | string | "Event deleted successfully" | Status message
+            confirming the event was deleted |
+
+
+            Note: The event is marked as deleted but not permanently removed
+            from the database (soft delete).
+
+
+            ⚠️ Example Error Statuses
+
+
+            | **Status Code**             | **Description**              |
+
+            | --------------------------- | ---------------------------- |
+
+            | `400 Bad Request`           | Invalid or missing event ID. |
+
+            | `404 Not Found`             | Event not found.             |
+
+            | `500 Internal Server Error` | Database or server error.    |
+          sortKey: -1751675406540
+        method: DELETE
+        headers:
+          - name: User-Agent
+            value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3000/event?page=1&limit=10
+        name: Get all Events
+        meta:
+          id: req_396769ef52ba480a9745f7b33982f1c2
+          created: 1751675623663
+          modified: 1767892771110
+          isPrivate: false
+          description: |+
+            Get All Events
+
+            `Endpoint: GET /api/events
+            Description: Retrieves a paginated list of all events.`
+
+            Query Parameters
+
+            | Parameter | Type    | Description                            |
+            | --------- | ------- | -------------------------------------- |
+            | `page`    | integer | Page number (default: 1)               |
+            | `limit`   | integer | Number of items per page (default: 10) |
+
+            Example Response (200 OK)
+            | Field               | Type     | Example                                                  | Description                          |
+            | ------------------- | -------- | -------------------------------------------------------- | ------------------------------------ |
+            | `id`                | uuid     | "a1b2c3d4-e5f6-7890-abcd-1234567890ef"                   | Event ID (UUID)                      |
+            | `event_name`        | string   | "Music Festival 2025"                                    | Event name                           |
+            | `event_description` | string   | "Annual outdoor music festival."                         | Event description                    |
+            | `event_location`    | string   | "Nairobi, Kenya"                                         | Event location                       |
+            | `event_date`        | datetime | "2025-12-01T18:00:00.000Z"                               | Event date                           |
+            | `event_url`         | string   | "[https://musicfest2025.com](https://musicfest2025.com)" | External URL                         |
+            | `event_genre`       | string   | "Music"                                                  | Genre/type of event                  |
+            | `organizer_id`      | uuid  | "a1b2c3d4-e5f6-7890-abcd-1234567890ef"                                                        | ID of the user who created the event |
+            | `tickets`           | array    | See ticket objects                                       | Array of associated tickets          |
+            | `createdAt`         | datetime | "2025-10-30T10:00:00.000Z"                               | Event creation timestamp             |
+            | `updatedAt`         | datetime | "2025-10-30T12:00:00.000Z"                               | Event last update timestamp          |
+
+            ⚠️ Example Error Statuses
+
+            | **Status Code**             | **Description**           |
+            | --------------------------- | ------------------------- |
+            | `400 Bad Request`           | Invalid query parameters. |
+            | `500 Internal Server Error` | Database or server error. |
+
+          sortKey: -1751675623663
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3000/event/980b9ae9-abee-4358-b736-582866574668
+        name: Get Event by id
+        meta:
+          id: req_55aa26362ae64b58aaca84cf870a8403
+          created: 1751675823601
+          modified: 1767892929281
+          isPrivate: false
+          description: >
+            🔵 Get Event by ID
+
+
+            `Endpoint: GET /api/events/:id
+
+            Description: Retrieves a single event by its unique ID (UUID).`
+
+
+            📥 Example Response (200 OK)
+
+
+            | Field               | Type     |
+            Example                                                  |
+            Description                          |
+
+            | ------------------- | -------- |
+            -------------------------------------------------------- |
+            ------------------------------------ |
+
+            | `id`                | uuid     |
+            "a1b2c3d4-e5f6-7890-abcd-1234567890ef"                   | Event ID
+            (UUID)                      |
+
+            | `event_name`        | string   | "Music Festival
+            2025"                                    | Event
+            name                           |
+
+            | `event_description` | string   | "Annual outdoor music
+            festival."                         | Event
+            description                    |
+
+            | `event_location`    | string   | "Nairobi,
+            Kenya"                                         | Event
+            location                       |
+
+            | `event_date`        | datetime |
+            "2025-12-01T18:00:00.000Z"                               | Event
+            date                           |
+
+            | `event_url`         | string   |
+            "[https://musicfest2025.com](https://musicfest2025.com)" | External
+            URL                         |
+
+            | `event_genre`       | string   |
+            "Music"                                                  |
+            Genre/type of event                  |
+
+            | `organizer_id`      | uuid  |
+            "a1b2c3d4-e5f6-7890-abcd-1234567890ef"                   | ID of the
+            user who created the event |
+
+            | `tickets`           | array    | See ticket
+            objects                                       | Array of associated
+            tickets          |
+
+            | `createdAt`         | datetime |
+            "2025-10-30T10:00:00.000Z"                               | Event
+            creation timestamp             |
+
+            | `updatedAt`         | datetime |
+            "2025-10-30T12:00:00.000Z"                               | Event
+            last update timestamp          |
+
+
+
+            ⚠️ Example Error Statuses
+
+
+            | **Status Code**             | **Description**              |
+
+            | --------------------------- | ---------------------------- |
+
+            | `400 Bad Request`           | Invalid or missing event ID. |
+
+            | `404 Not Found`             | Event not found.             |
+
+            | `500 Internal Server Error` | Database or server error.    |
+          sortKey: -1751675823601
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3000/event/search?q=International
+        name: Search Events
+        meta:
+          id: req_ced738ac5b634b488c8bd9207ed0a8fd
+          created: 1755668093481
+          modified: 1761846786509
+          isPrivate: false
+          description: >
+            🔴 Search Events
+
+
+            `Endpoint: GET /api/events/search?q=<query>
+
+            Description: Searches events by name, description, or genre.`
+
+
+            🧩 Query Parameters
+
+
+            | Parameter | Type   |
+            Description                                               |
+
+            | --------- | ------ |
+            --------------------------------------------------------- |
+
+            | `q`       | string | Search query string (matches name,
+            description, or genre) |
+
+
+            📥 Example Response (200 OK)
+
+
+            | Field               | Type     |
+            Example                                                  |
+            Description                          |
+
+            | ------------------- | -------- |
+            -------------------------------------------------------- |
+            ------------------------------------ |
+
+            | `id`                | uuid     |
+            "a1b2c3d4-e5f6-7890-abcd-1234567890ef"                   | Event ID
+            (UUID)                      |
+
+            | `event_name`        | string   | "Music Festival
+            2025"                                    | Event
+            name                           |
+
+            | `event_description` | string   | "Annual outdoor music
+            festival."                         | Event
+            description                    |
+
+            | `event_location`    | string   | "Nairobi,
+            Kenya"                                         | Event
+            location                       |
+
+            | `event_date`        | datetime |
+            "2025-12-01T18:00:00.000Z"                               | Event
+            date                           |
+
+            | `event_url`         | string   |
+            "[https://musicfest2025.com](https://musicfest2025.com)" | External
+            URL                         |
+
+            | `event_genre`       | string   |
+            "Music"                                                  |
+            Genre/type of event                  |
+
+            | `organizer_id`      | uuid  |
+            "a1b2c3d4-e5f6-7890-abcd-1234567890ef"                   | ID of the
+            user who created the event |
+
+            | `tickets`           | array    | See ticket
+            objects                                       | Array of associated
+            tickets          |
+
+            | `createdAt`         | datetime |
+            "2025-10-30T10:00:00.000Z"                               | Event
+            creation timestamp             |
+
+            | `updatedAt`         | datetime |
+            "2025-10-30T12:00:00.000Z"                               | Event
+            last update timestamp          |
+
+
+
+            ⚠️ Example Error Statuses
+
+
+            | **Status Code**             |
+            **Description**                     |
+
+            | --------------------------- | -----------------------------------
+            |
+
+            | `400 Bad Request`           | Missing or invalid query parameter.
+            |
+
+            | `404 Not Found`             | No events match the search
+            query.   |
+
+            | `500 Internal Server Error` | Database or server
+            error.           |
+          sortKey: -1755668093481
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.4.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3000/event/organizer/6fdd587f-d1dd-49af-9c17-a709612297eb
+        name: Get Event by Organizer Id
+        meta:
+          id: req_87420373029c4a39a838d9e8f0515324
+          created: 1761829290787
+          modified: 1767892982987
+          isPrivate: false
+          description: >
+            Get Events by Organizer
+
+
+            `Endpoint: GET /api/events/organizer/:id
+
+            Description: Retrieves all events created by a specific organizer.`
+
+
+            📥 Example Response (200 OK)
+
+
+            | Field               | Type     |
+            Example                                                  |
+            Description                          |
+
+            | ------------------- | -------- |
+            -------------------------------------------------------- |
+            ------------------------------------ |
+
+            | `id`                | uuid     |
+            "a1b2c3d4-e5f6-7890-abcd-1234567890ef"                   | Event ID
+            (UUID)                      |
+
+            | `event_name`        | string   | "Music Festival
+            2025"                                    | Event
+            name                           |
+
+            | `event_description` | string   | "Annual outdoor music
+            festival."                         | Event
+            description                    |
+
+            | `event_location`    | string   | "Nairobi,
+            Kenya"                                         | Event
+            location                       |
+
+            | `event_date`        | datetime |
+            "2025-12-01T18:00:00.000Z"                               | Event
+            date                           |
+
+            | `event_url`         | string   |
+            "[https://musicfest2025.com](https://musicfest2025.com)" | External
+            URL                         |
+
+            | `event_genre`       | string   |
+            "Music"                                                  |
+            Genre/type of event                  |
+
+            | `organizer_id`      | uuid     |
+            "a1b2c3d4-e5f6-7890-abcd-1234567890ef"                   | ID of the
+            user who created the event |
+
+            | `tickets`           | array    | See ticket
+            objects                                       | Array of associated
+            tickets          |
+
+            | `createdAt`         | datetime |
+            "2025-10-30T10:00:00.000Z"                               | Event
+            creation timestamp             |
+
+            | `updatedAt`         | datetime |
+            "2025-10-30T12:00:00.000Z"                               | Event
+            last update timestamp          |
+
+
+            ⚠️ Example Error Statuses
+
+
+            | **Status Code**             | **Description**                    |
+
+            | --------------------------- | ---------------------------------- |
+
+            | `400 Bad Request`           | Invalid or missing organizer ID.   |
+
+            | `404 Not Found`             | No events found for the organizer. |
+
+            | `500 Internal Server Error` | Database or server error.          |
+          sortKey: -1751675773616.5
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+    headers:
+      - id: pair_8d9c7f9ab1ae4bd78651011229e28100
+        name: Authorization
+        value: Bearer
+          eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3ZlcmlzYWZlLm9wZW5jcmFmdHMuaW8vIiwic3ViIjoiNmZkZDU4N2YtZDFkZC00OWFmLTljMTctYTcwOTYxMjI5N2ViIiwiYXVkIjpbImh0dHBzOi8vYWNhZGVtaWEub3BlbmNyYWZ0cy5pby8iXSwiZXhwIjoxNzYyMjAxNDg3LCJpYXQiOjE3NjE1OTY2ODd9.WkYeAv_nClidDnjmWL9fw3jDN_tn3pTA_gy7uBrzfmk
+        description: ""
+        disabled: false
+  - name: Tickets
+    meta:
+      id: fld_7a8efd5265454d09907f3d503435afb1
+      created: 1751676656622
+      modified: 1763282779465
+      sortKey: -1751644905958
+      description: |
+        | Method     | Endpoint                 | Description             |
+        | ---------- | ------------------------ | ----------------------- |
+        | **POST**   | `/api/tickets`           | Create a new ticket     |
+        | **GET**    | `/api/tickets`           | Get all tickets         |
+        | **GET**    | `/api/tickets/:id`       | Get ticket by ID        |
+        | **GET**    | `/api/tickets/event/:id` | Get tickets by event ID |
+        | **PUT**    | `/api/tickets/:id`       | Update ticket details   |
+        | **DELETE** | `/api/tickets/:id`       | Soft delete a ticket    |
+    children:
+      - url: http://localhost:3000/ticket/
+        name: Create Ticket
+        meta:
+          id: req_10935d13ed974718b76f9af6ef0bed48
+          created: 1751676656623
+          modified: 1767714223216
+          isPrivate: false
+          description: >
+            | Field             | Type      | Required |
+            Description                                         |
+
+            | ----------------- | --------- | -------- |
+            --------------------------------------------------- |
+
+            | `event_id`        | `integer` | ✅        | The ID of the event
+            this ticket belongs to.         |
+
+            | `ticket_name`     | `string`  | ✅        | The name or type of the
+            ticket (e.g. VIP, Regular). |
+
+            | `ticket_price`    | `decimal` | ✅        | The cost of the
+            ticket.                             |
+
+            | `ticket_quantity` | `integer` | ✅        | The number of available
+            tickets.                    |
+
+
+
+            `Example Request`
+
+            | Field             | Type    | Required | Example    |
+            Description                                          |
+
+            | ----------------- | ------- | -------- | ---------- |
+            ---------------------------------------------------- |
+
+            | `event_id`        | integer | ✅ Yes    | 12         | The ID of
+            the event this ticket belongs to.          |
+
+            | `ticket_name`     | string  | ✅ Yes    | "VIP Pass" | The name or
+            type of the ticket (e.g., VIP, Regular). |
+
+            | `ticket_price`    | decimal | ✅ Yes    | 2500       | The cost of
+            the ticket.                              |
+
+            | `ticket_quantity` | integer | ✅ Yes    | 100        | The number
+            of available tickets.                     |
+
+
+
+            `Example Response (201 Created)`
+
+            | Field             | Type     | Example                       |
+            Description                     |
+
+            | ----------------- | -------- | ----------------------------- |
+            ------------------------------- |
+
+            | `message`         | string   | "Ticket created successfully" |
+            Status message of the operation |
+
+            | `ticket.id`       | integer  | 1                             |
+            Ticket ID                       |
+
+            | `ticket.event_id` | integer  | 12                            |
+            Event ID the ticket belongs to  |
+
+            | `ticket_name`     | string   | "VIP Pass"                    |
+            Ticket name/type                |
+
+            | `ticket_price`    | decimal  | 2500                          |
+            Ticket price                    |
+
+            | `ticket_quantity` | integer  | 100                           |
+            Number of available tickets     |
+
+            | `delete_tag`      | boolean  | false                         |
+            Soft-delete status              |
+
+            | `createdAt`       | datetime | "2025-10-30T10:00:00.000Z"    |
+            Ticket creation timestamp       |
+
+
+
+            `Example Error Satuses`
+
+
+            | **Status Code**             | **Description**               |
+
+            | --------------------------- | ----------------------------- |
+
+            | `400 Bad Request`           | Missing required fields.      |
+
+            | `500 Internal Server Error` | Database or validation error. |
+          sortKey: -1751675384567
+        method: POST
+        body:
+          mimeType: application/json
+          text: |
+            {
+              "event_id": "980b9ae9-abee-4358-b736-582866574668",
+              "ticket_name": "VIP Ticket",
+              "ticket_price": 1500,
+              "ticket_quantity": 200
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3000/ticket/2668c9ac-78c7-4c88-b8cd-4f0539832314
+        name: Delete Tickets
+        meta:
+          id: req_d8cd2abe1a8d4764ac8472e5903117ea
+          created: 1751676656625
+          modified: 1763283379510
+          isPrivate: false
+          description: >
+            🗑️ Delete Ticket (Soft Delete)
+
+            `Endpoint: DELETE /api/tickets/:id
+
+            Description: Marks a ticket as deleted by setting delete_tag to
+            true.`
+
+
+            Example Response (204 No Content)
+
+            | Field     | Type   | Example |
+            Description                                        |
+
+            | --------- | ------ | ------- |
+            -------------------------------------------------- |
+
+            | `message` | string | —       | No content returned (ticket deleted
+            successfully). |
+
+
+            Note: A 204 No Content status means the operation was successful but
+            the server does not return any body content.
+
+
+            ⚠️ Example Error Statuses
+
+
+            | **Status Code**             | **Description**               |
+
+            | --------------------------- | ----------------------------- |
+
+            | `400 Bad Request`           | Invalid or missing ticket ID. |
+
+            | `404 Not Found`             | Ticket not found.             |
+
+            | `500 Internal Server Error` | Database or server error.     |
+          sortKey: -1751675406540
+        method: DELETE
+        headers:
+          - name: User-Agent
+            value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3000/ticket/01309ab6-b6ec-4566-9470-bb88a440019d
+        name: Get by Ticket Id
+        meta:
+          id: req_08744788b76b4ca38487367868db3804
+          created: 1751676656626
+          modified: 1767713829164
+          isPrivate: false
+          description: >
+            🔵 Get Ticket by ID
+
+
+            `Endpoint: GET /api/tickets/:id
+
+            Description: Retrieves a single ticket by its unique ID.`
+
+
+
+            📥 Example Response (200 OK)
+
+            | Field             | Type     | Example                    |
+            Description                    |
+
+            | ----------------- | -------- | -------------------------- |
+            ------------------------------ |
+
+            | `id`              | integer  | 1                          | Ticket
+            ID                      |
+
+            | `event_id`        | integer  | 12                         | Event
+            ID the ticket belongs to |
+
+            | `ticket_name`     | string   | "VIP Pass"                 | Ticket
+            name/type               |
+
+            | `ticket_price`    | decimal  | 2500                       | Ticket
+            price                   |
+
+            | `ticket_quantity` | integer  | 100                        | Number
+            of available tickets    |
+
+            | `delete_tag`      | boolean  | false                      |
+            Soft-delete status             |
+
+            | `createdAt`       | datetime | "2025-10-30T10:00:00.000Z" | Ticket
+            creation timestamp      |
+
+            | `updatedAt`       | datetime | "2025-10-30T12:00:00.000Z" | Ticket
+            last update timestamp   |
+
+
+            ⚠️ Example Error Statuses
+
+            | **Status Code**             | **Description**               |
+
+            | --------------------------- | ----------------------------- |
+
+            | `400 Bad Request`           | Invalid or missing ticket ID. |
+
+            | `404 Not Found`             | Ticket not found.             |
+
+            | `500 Internal Server Error` | Database or server error.     |
+          sortKey: -1751675623663
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3000/ticket/event/52cb46cf-6530-481c-9171-6f85566e8ed9
+        name: Get Tickets by  Event Id
+        meta:
+          id: req_a55b7b8c2fe34bac917ad7f91f29ef61
+          created: 1751676656627
+          modified: 1768064734158
+          isPrivate: false
+          description: >
+            Get Tickets by Event ID
+
+
+            `Endpoint: GET /api/tickets/event/:id     Description: Retrieves all
+            tickets associated with a specific event.`
+
+
+
+            📥 Example Response (200 OK)
+
+
+            | Field             | Type     | Example                    |
+            Description                    |
+
+            | ----------------- | -------- | -------------------------- |
+            ------------------------------ |
+
+            | `id`              | integer  | 1                          | Ticket
+            ID                      |
+
+            | `event_id`        | integer  | 12                         | Event
+            ID the ticket belongs to |
+
+            | `ticket_name`     | string   | "VIP Pass"                 | Ticket
+            name/type               |
+
+            | `ticket_price`    | decimal  | 2500                       | Ticket
+            price                   |
+
+            | `ticket_quantity` | integer  | 100                        | Number
+            of available tickets    |
+
+            | `delete_tag`      | boolean  | false                      |
+            Soft-delete status             |
+
+            | `createdAt`       | datetime | "2025-10-30T10:00:00.000Z" | Ticket
+            creation timestamp      |
+
+            | `updatedAt`       | datetime | "2025-10-30T12:00:00.000Z" | Ticket
+            last update timestamp   |
+
+
+            ⚠️ Example Error Statuses
+
+
+
+            | **Status Code**             |
+            **Description**                       |
+
+            | --------------------------- |
+            ------------------------------------- |
+
+            | `400 Bad Request`           | Invalid or missing event
+            ID.          |
+
+            | `404 Not Found`             | No tickets found for the given
+            event. |
+
+            | `500 Internal Server Error` | Database or server
+            error.             |
+          sortKey: -1751675823601
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3000/ticket/01309ab6-b6ec-4566-9470-bb88a440019d
+        name: Update Ticket
+        meta:
+          id: req_9e730538a3634991853b63941e99a46b
+          created: 1761830906618
+          modified: 1767713838853
+          isPrivate: false
+          description: >
+            ✏️ Update Ticket
+
+
+            `Endpoint: PUT /api/tickets/:id
+
+            Description: Updates ticket details by ID (e.g., name, price, or
+            quantity).`
+
+
+            Request Body
+
+
+            | Field             | Type    | Required | Description             |
+
+            | ----------------- | ------- | -------- | ----------------------- |
+
+            | `ticket_name`     | string  | ❌ No     | New ticket name         |
+
+            | `ticket_price`    | decimal | ❌ No     | Updated ticket price    |
+
+            | `ticket_quantity` | integer | ❌ No     | Updated ticket quantity |
+
+
+            📥 Example Response (200 OK)
+
+            | Field             | Type     | Example                       |
+            Description                     |
+
+            | ----------------- | -------- | ----------------------------- |
+            ------------------------------- |
+
+            | `message`         | string   | "Ticket updated successfully" |
+            Status message of the operation |
+
+            | `ticket.id`       | integer  | 1                             |
+            Ticket ID                       |
+
+            | `ticket.event_id` | integer  | 12                            |
+            Event ID the ticket belongs to  |
+
+            | `ticket_name`     | string   | "VIP Pass Updated"            |
+            Updated ticket name/type        |
+
+            | `ticket_price`    | decimal  | 3000                          |
+            Updated ticket price            |
+
+            | `ticket_quantity` | integer  | 120                           |
+            Updated number of tickets       |
+
+            | `delete_tag`      | boolean  | false                         |
+            Soft-delete status              |
+
+            | `updatedAt`       | datetime | "2025-10-30T15:00:00.000Z"    |
+            Ticket last update timestamp    |
+
+
+            ⚠️ Example Error Statuses
+
+            | **Status Code**             | **Description**                  |
+
+            | --------------------------- | -------------------------------- |
+
+            | `400 Bad Request`           | Invalid input or missing fields. |
+
+            | `404 Not Found`             | Ticket not found.                |
+
+            | `500 Internal Server Error` | Database or server error.        |
+          sortKey: -1761830906618
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |
+            {
+              "ticket_name": "VIP Ticket",
+              "ticket_price": 1500,
+              "ticket_quantity": 600
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.2
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+    headers:
+      - id: pair_f9d89e6e393b4fbf9793c4ee42d005dd
+        name: Authorization
+        value: Bearer
+          eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3ZlcmlzYWZlLm9wZW5jcmFmdHMuaW8vIiwic3ViIjoiNmZkZDU4N2YtZDFkZC00OWFmLTljMTctYTcwOTYxMjI5N2ViIiwiYXVkIjpbImh0dHBzOi8vYWNhZGVtaWEub3BlbmNyYWZ0cy5pby8iXSwiZXhwIjoxNzYyMjAxNDg3LCJpYXQiOjE3NjE1OTY2ODd9.WkYeAv_nClidDnjmWL9fw3jDN_tn3pTA_gy7uBrzfmk
+        description: ""
+        disabled: false
+  - name: Attendies
+    meta:
+      id: fld_634ba505cbb549b69198733060fcaaf2
+      created: 1751677247772
+      modified: 1763279672376
+      sortKey: -1751629679441.5
+      description: >
+        | Method     | Endpoint                   |
+        Description                           |
+
+        | ---------- | -------------------------- |
+        ------------------------------------- |
+
+        | **POST**   | `/api/attendee`            | Register attendee for an
+        event        |
+
+        | **DELETE** | `/api/attendee/:id`        | Soft delete an
+        attendee               |
+
+        | **GET**    | `/api/attendee/event/:id`  | Get all attendees of a
+        specific event |
+
+        | **GET**    | `/api/attendee/:id`        | Get attendee details by
+        ID            |
+    children:
+      - url: http://localhost:3000/attendee/12329e25-37e3-481d-b05e-e61bc47cd2e0
+        name: Remove Attendii
+        meta:
+          id: req_3d5fb4b707894a878e7453b8215993b8
+          created: 1751677247777
+          modified: 1761847217081
+          isPrivate: false
+          description: >+
+            🗑️ Delete Attendee
+
+
+            `Endpoint: DELETE /api/attendees/:id
+
+            Description: Soft deletes an attendee by marking the record as
+            deleted.`
+
+
+            📥 Example Response (200 OK)
+
+
+            | Field     | Type   | Example                         |
+            Description                                        |
+
+            | --------- | ------ | ------------------------------- |
+            -------------------------------------------------- |
+
+            | `message` | string | "Attendee deleted successfully" | Status
+            message confirming the attendee was deleted |
+
+
+
+            Note: The attendee is not permanently removed from the database
+            (soft delete).
+
+
+            ⚠️ Example Error Statuses
+
+
+            | **Status Code**             | **Description**                 |
+
+            | --------------------------- | ------------------------------- |
+
+            | `400 Bad Request`           | Invalid or missing attendee ID. |
+
+            | `404 Not Found`             | Attendee not found.             |
+
+            | `500 Internal Server Error` | Database or server error.       |
+
+          sortKey: -1751675406540
+        method: DELETE
+        headers:
+          - name: User-Agent
+            value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3000/attendee/event/d7ec8f06-fe1b-4d8b-8869-09f37383ab25?page=1&limit=10
+        name: Get attendees by Event id
+        meta:
+          id: req_691182551b6c4af396eaf96d072a894d
+          created: 1751677247783
+          modified: 1767713906254
+          isPrivate: false
+          description: >+
+            Get All Attendees for an Event
+
+
+            `Endpoint: GET /api/attendees/event/:id
+
+            Description: Retrieves all attendees registered for a specific
+            event.`
+
+
+            📥 Example Response (200 OK)
+
+
+            | Field       | Type     | Example                                |
+            Description               |
+
+            | ----------- | -------- | -------------------------------------- |
+            ------------------------- |
+
+            | `id`        | UUID     | "c1d2e3f4-a5b6-7890-abcd-34567890def"  |
+            Attendee record ID        |
+
+            | `event_id`  | UUID     | "a1b2c3d4-e5f6-7890-abcd-1234567890ef" |
+            ID of the event           |
+
+            | `user_id`   | UUID     | "b1c2d3e4-f5a6-7890-abcd-234567890abc" |
+            ID of the registered user |
+
+            | `createdAt` | datetime | "2025-10-30T10:00:00.000Z"             |
+            Timestamp of registration |
+
+            | `updatedAt` | datetime | "2025-10-30T10:00:00.000Z"             |
+            Timestamp of last update  |
+
+
+
+            ⚠️ Example Error Statuses
+
+
+            | **Status Code**             | **Description**                   |
+
+            | --------------------------- | --------------------------------- |
+
+            | `400 Bad Request`           | Invalid or missing event ID.      |
+
+            | `404 Not Found`             | No attendees found for the event. |
+
+            | `500 Internal Server Error` | Database or server error.         |
+
+          sortKey: -1751675823601
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3000/attendee/9c88d891-3332-401f-a50e-571cd9c14326?page=1&limit=10
+        name: Get attendee by id
+        meta:
+          id: req_68c735a0226241498092272afcef47f3
+          created: 1751695650671
+          modified: 1763581010153
+          isPrivate: false
+          description: >
+            Get Attendee by ID
+
+
+            `Endpoint: GET /api/attendees/:id
+
+            Description: Retrieves a single attendee by their unique ID (UUID).`
+
+
+            📥 Example Response (200 OK)
+
+
+            | Field       | Type     | Example                                |
+            Description               |
+
+            | ----------- | -------- | -------------------------------------- |
+            ------------------------- |
+
+            | `id`        | UUID     | "c1d2e3f4-a5b6-7890-abcd-34567890def"  |
+            Attendee record ID        |
+
+            | `event_id`  | UUID     | "a1b2c3d4-e5f6-7890-abcd-1234567890ef" |
+            ID of the event           |
+
+            | `user_id`   | UUID     | "b1c2d3e4-f5a6-7890-abcd-234567890abc" |
+            ID of the registered user |
+
+            | `createdAt` | datetime | "2025-10-30T10:00:00.000Z"             |
+            Timestamp of registration |
+
+            | `updatedAt` | datetime | "2025-10-30T10:00:00.000Z"             |
+            Timestamp of last update  |
+
+
+            ⚠️ Example Error Statuses
+
+
+            | **Status Code**             | **Description**                 |
+
+            | --------------------------- | ------------------------------- |
+
+            | `400 Bad Request`           | Invalid or missing attendee ID. |
+
+            | `404 Not Found`             | Attendee not found.             |
+
+            | `500 Internal Server Error` | Database or server error.       |
+          sortKey: -1751675723632
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3000/attendee/user/
+        name: Veify attendee by Event id
+        meta:
+          id: req_af25ee091d2d4d47b3a9e50ee0e82c87
+          created: 1763569200655
+          modified: 1767892146719
+          isPrivate: false
+          description: |
+            # Attendee API Documentation
+
+            ## 1. Get Attendees by User for an Event
+
+            `Endpoint: GET /api/attendees/user/:id`  
+            `Description: Retrieves all attendees registered by the authenticated user for a specific event.`
+
+            🧩 URL Parameters
+
+            | Parameter  | Type   | Required | Description                  |
+            | ---------- | ------ | -------- | ---------------------------- |
+            | `id`       | UUID   | ✅ Yes    | The ID of the event to query |
+
+            📥 Example Response (200 OK)
+
+            | Field         | Type   | Example                                                                 | Description                              |
+            | ------------- | ------ | ----------------------------------------------------------------------- | ---------------------------------------- |
+            | `attendees`   | array  | `[ { ticket_id: "uuid", user_id: "uuid", ticket_quantity: 2, event_id: "uuid" } ]` | List of attendee records for the user    |
+
+            ⚠️ Example Error Statuses
+
+            | Status Code                 | Description                                           |
+            | --------------------------- | ----------------------------------------------------- |
+            | `400 Bad Request`           | Missing event ID                                      |
+            | `404 Not Found`             | No attendees found for this event                     |
+            | `500 Internal Server Error` | Server or database error                              |
+
+            📌 Notes
+            - The authenticated user's ID is determined from the JWT (`req.user.sub`).
+            - Returns all attendee records the user has for the specified event.
+          sortKey: -1763569200655
+        method: POST
+        body:
+          mimeType: application/json
+          text: |
+            {
+              "eventId": "980b9ae9-abee-4358-b736-582866574668",
+              "attendeeId": "84448737-cb95-42c1-9c2e-0bc5587de7ab"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.2
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3000/attendee/user/attended?page=1&limit=10
+        name: Get all user attended events
+        meta:
+          id: req_c4ff14b77a954b1297ff053aaf6fd366
+          created: 1767606094401
+          modified: 1767606114805
+          isPrivate: false
+          description: |
+            # Attendee API Documentation
+
+            ## 1. Get Attendees by User for an Event
+
+            `Endpoint: GET /api/attendees/user/:id`  
+            `Description: Retrieves all attendees registered by the authenticated user for a specific event.`
+
+            🧩 URL Parameters
+
+            | Parameter  | Type   | Required | Description                  |
+            | ---------- | ------ | -------- | ---------------------------- |
+            | `id`       | UUID   | ✅ Yes    | The ID of the event to query |
+
+            📥 Example Response (200 OK)
+
+            | Field         | Type   | Example                                                                 | Description                              |
+            | ------------- | ------ | ----------------------------------------------------------------------- | ---------------------------------------- |
+            | `attendees`   | array  | `[ { ticket_id: "uuid", user_id: "uuid", ticket_quantity: 2, event_id: "uuid" } ]` | List of attendee records for the user    |
+
+            ⚠️ Example Error Statuses
+
+            | Status Code                 | Description                                           |
+            | --------------------------- | ----------------------------------------------------- |
+            | `400 Bad Request`           | Missing event ID                                      |
+            | `404 Not Found`             | No attendees found for this event                     |
+            | `500 Internal Server Error` | Server or database error                              |
+
+            📌 Notes
+            - The authenticated user's ID is determined from the JWT (`req.user.sub`).
+            - Returns all attendee records the user has for the specified event.
+          sortKey: -1763426405977
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.2
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3000/attendee/search?q=Tech
+        name: Search Attended Event using user id
+        meta:
+          id: req_b70d565f7090448e93efd78ffe86a89a
+          created: 1767698631521
+          modified: 1767699714180
+          isPrivate: false
+          description: |
+            # Attendee API Documentation
+
+            ## 1. Get Attendees by User for an Event
+
+            `Endpoint: GET /api/attendees/user/:id`  
+            `Description: Retrieves all attendees registered by the authenticated user for a specific event.`
+
+            🧩 URL Parameters
+
+            | Parameter  | Type   | Required | Description                  |
+            | ---------- | ------ | -------- | ---------------------------- |
+            | `id`       | UUID   | ✅ Yes    | The ID of the event to query |
+
+            📥 Example Response (200 OK)
+
+            | Field         | Type   | Example                                                                 | Description                              |
+            | ------------- | ------ | ----------------------------------------------------------------------- | ---------------------------------------- |
+            | `attendees`   | array  | `[ { ticket_id: "uuid", user_id: "uuid", ticket_quantity: 2, event_id: "uuid" } ]` | List of attendee records for the user    |
+
+            ⚠️ Example Error Statuses
+
+            | Status Code                 | Description                                           |
+            | --------------------------- | ----------------------------------------------------- |
+            | `400 Bad Request`           | Missing event ID                                      |
+            | `404 Not Found`             | No attendees found for this event                     |
+            | `500 Internal Server Error` | Server or database error                              |
+
+            📌 Notes
+            - The authenticated user's ID is determined from the JWT (`req.user.sub`).
+            - Returns all attendee records the user has for the specified event.
+          sortKey: -1763355008638
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.2
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3000/attendee/event/user/980b9ae9-abee-4358-b736-582866574668?page=1&limit=10
+        name: Get all user attended events ( specific event)
+        meta:
+          id: req_a8af71feaaff448f82e24d57253d77e7
+          created: 1767794069022
+          modified: 1767794323053
+          isPrivate: false
+          description: |
+            # Attendee API Documentation
+
+            ## 1. Get Attendees by User for an Event
+
+            `Endpoint: GET /api/attendees/user/:id`  
+            `Description: Retrieves all attendees registered by the authenticated user for a specific event.`
+
+            🧩 URL Parameters
+
+            | Parameter  | Type   | Required | Description                  |
+            | ---------- | ------ | -------- | ---------------------------- |
+            | `id`       | UUID   | ✅ Yes    | The ID of the event to query |
+
+            📥 Example Response (200 OK)
+
+            | Field         | Type   | Example                                                                 | Description                              |
+            | ------------- | ------ | ----------------------------------------------------------------------- | ---------------------------------------- |
+            | `attendees`   | array  | `[ { ticket_id: "uuid", user_id: "uuid", ticket_quantity: 2, event_id: "uuid" } ]` | List of attendee records for the user    |
+
+            ⚠️ Example Error Statuses
+
+            | Status Code                 | Description                                           |
+            | --------------------------- | ----------------------------------------------------- |
+            | `400 Bad Request`           | Missing event ID                                      |
+            | `404 Not Found`             | No attendees found for this event                     |
+            | `500 Internal Server Error` | Server or database error                              |
+
+            📌 Notes
+            - The authenticated user's ID is determined from the JWT (`req.user.sub`).
+            - Returns all attendee records the user has for the specified event.
+          sortKey: -1763390707307.5
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.2
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+    headers:
+      - id: pair_fef2bdd5ddf4453895aec4dcc27500a6
+        name: Authorization
+        value: Bearer
+          eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3ZlcmlzYWZlLm9wZW5jcmFmdHMuaW8vIiwic3ViIjoiNmZkZDU4N2YtZDFkZC00OWFmLTljMTctYTcwOTYxMjI5N2ViIiwiYXVkIjpbImh0dHBzOi8vYWNhZGVtaWEub3BlbmNyYWZ0cy5pby8iXSwiZXhwIjoxNzYyMjAxNDg3LCJpYXQiOjE3NjE1OTY2ODd9.WkYeAv_nClidDnjmWL9fw3jDN_tn3pTA_gy7uBrzfmk
+        description: ""
+        disabled: false
+  - name: User
+    meta:
+      id: fld_953e8508addb474197bd0c02b5401cf6
+      created: 1761825514602
+      modified: 1763831231025
+      sortKey: -1761825514602
+      description: ""
+    children:
+      - url: http://localhost:3000/user/
+        name: Create
+        meta:
+          id: req_4d9b8461558b4d53aea07f5c2345ca82
+          created: 1761825526376
+          modified: 1767714078661
+          isPrivate: false
+          description: >
+            User API Documentation
+
+
+            1. Register a User
+
+
+            `Endpoint: POST /api/user
+
+            Description: Creates a new user account`
+
+
+            🧩 Request Body
+
+
+            | Field      | Type   | Required | Description              |
+
+            | ---------- | ------ | -------- | ------------------------ |
+
+            | `name`     | string | ✅ Yes    | Full name of the user    |
+
+            | `email`    | string | ✅ Yes    | User email address       |
+
+            | `password` | string | ✅ Yes    | Password for the account |
+
+            | `phone`    | string | ✅ Yes    | Phone number (optional)  |
+
+
+            📥 Example Response (201 Created)
+
+
+            | Field       | Type     |
+            Example                                       |
+            Description                |
+
+            | ----------- | -------- |
+            --------------------------------------------- |
+            -------------------------- |
+
+            | `id`        | UUID     |
+            "a1b2c3d4-e5f6-7890-abcd-1234567890ef"        | User
+            ID                    |
+
+            | `name`      | string   | "John
+            Doe"                                    | User full
+            name             |
+
+            | `email`     | string   |
+            "[john@example.com](mailto:john@example.com)" | User email
+            address         |
+
+            | `phone`     | string   |
+            "+254712345678"                               | User phone
+            number          |
+
+            | `createdAt` | datetime |
+            "2025-10-30T10:00:00.000Z"                    | Account creation
+            timestamp |
+
+
+
+            ⚠️ Example Error Statuses
+
+
+            | Status Code                 | Description               |
+
+            | --------------------------- | ------------------------- |
+
+            | `400 Bad Request`           | Missing or invalid fields |
+
+            | `409 Conflict`              | Email already exists      |
+
+            | `500 Internal Server Error` | Database or server error  |
+          sortKey: -1761825526376
+        method: POST
+        body:
+          mimeType: application/json
+          text: |
+            {
+              "id": "6fdd587f-d1dd-49af-9c17-a709612297eb",
+              "username": "eugene",
+              "email": "eugen.ben@example.com",
+              "name": "Eugen Wachir",
+              "phone": "+254741414893"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.2
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: https://api.opencrafts.io/qa-sherehe/user/68c60564-a407-4271-87f2-eb6efbfeb1ea
+        name: Get user by user id
+        meta:
+          id: req_ac7f002efd0046799c3bf92a3d46f481
+          created: 1763831079021
+          modified: 1767703180085
+          isPrivate: false
+          description: ""
+          sortKey: -1763831079021
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.2
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+    headers:
+      - id: pair_dc47cafd13224d819cf809e8cac41f0a
+        name: Authorization
+        value: Bearer
+          eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3ZlcmlzYWZlLm9wZW5jcmFmdHMuaW8vIiwic3ViIjoiNmZkZDU4N2YtZDFkZC00OWFmLTljMTctYTcwOTYxMjI5N2ViIiwiYXVkIjpbImh0dHBzOi8vYWNhZGVtaWEub3BlbmNyYWZ0cy5pby8iXSwiZXhwIjoxNzYyMjAxNDg3LCJpYXQiOjE3NjE1OTY2ODd9.WkYeAv_nClidDnjmWL9fw3jDN_tn3pTA_gy7uBrzfmk
+        description: ""
+        disabled: false
+  - name: Purchase Ticket
+    meta:
+      id: fld_d95041431d3740a1929163b20617374c
+      created: 1763283604877
+      modified: 1767713792093
+      sortKey: -1763283604877
+      description: ""
+    children:
+      - url: http://localhost:3000/purchase/472b04f9-d483-4ee5-a31a-6ad08ce8f2c8
+        name: Verify Ticket
+        meta:
+          id: req_4e0455607be34fbbae55f010256592e8
+          created: 1763283611299
+          modified: 1768065247554
+          isPrivate: false
+          description: |
+            # Ticket API Documentation
+
+            ## 1. Purchase a Ticket
+
+            `Endpoint: POST /api/ticket/purchase`  
+            `Description: Allows a user to purchase tickets for an event, updates ticket availability, and sends a notification to the user.`
+
+            🧩 Request Body
+
+            | Field           | Type   | Required | Description                                 |
+            | --------------- | ------ | -------- | ------------------------------------------- |
+            | `ticket_id`     | UUID   | ✅ Yes    | The ID of the ticket being purchased        |
+            | `ticket_quantity` | number | ✅ Yes  | Number of tickets the user wants to buy     |
+
+            📥 Example Response (201 Created)
+
+            | Field     | Type     | Example                                                                 | Description                         |
+            | --------- | -------- | ----------------------------------------------------------------------- | ----------------------------------- |
+            | `message` | string   | "Ticket purchased successfully"                                         | Confirmation message                |
+            | `attendee`| object   | `{ ticket_id: "uuid", user_id: "uuid", ticket_quantity: 2, event_id: "uuid" }` | Details of the created attendee record |
+
+            ⚠️ Example Error Statuses
+
+            | Status Code                 | Description                                                                 |
+            | --------------------------- | --------------------------------------------------------------------------- |
+            | `400 Bad Request`           | Missing required fields or not enough tickets available                     |
+            | `404 Not Found`             | Ticket or event not found                                                   |
+            | `500 Internal Server Error` | Server or database error                                                    |
+
+            📌 Notes
+            - The API updates the ticket count in the database.
+            - The attendee count for the event is updated automatically.
+            - A notification is sent to the user upon successful purchase.
+            - `ticket_id` and `ticket_quantity` must be valid and available.
+          sortKey: -1763283611299
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.2
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:3000/purchase/
+        name: Purchase Ticket
+        meta:
+          id: req_f671a6c5aef7431bbd4f4e2020c06daa
+          created: 1768063660618
+          modified: 1768065195724
+          isPrivate: false
+          description: |
+            # Ticket API Documentation
+
+            ## 1. Purchase a Ticket
+
+            `Endpoint: POST /api/ticket/purchase`  
+            `Description: Allows a user to purchase tickets for an event, updates ticket availability, and sends a notification to the user.`
+
+            🧩 Request Body
+
+            | Field           | Type   | Required | Description                                 |
+            | --------------- | ------ | -------- | ------------------------------------------- |
+            | `ticket_id`     | UUID   | ✅ Yes    | The ID of the ticket being purchased        |
+            | `ticket_quantity` | number | ✅ Yes  | Number of tickets the user wants to buy     |
+
+            📥 Example Response (201 Created)
+
+            | Field     | Type     | Example                                                                 | Description                         |
+            | --------- | -------- | ----------------------------------------------------------------------- | ----------------------------------- |
+            | `message` | string   | "Ticket purchased successfully"                                         | Confirmation message                |
+            | `attendee`| object   | `{ ticket_id: "uuid", user_id: "uuid", ticket_quantity: 2, event_id: "uuid" }` | Details of the created attendee record |
+
+            ⚠️ Example Error Statuses
+
+            | Status Code                 | Description                                                                 |
+            | --------------------------- | --------------------------------------------------------------------------- |
+            | `400 Bad Request`           | Missing required fields or not enough tickets available                     |
+            | `404 Not Found`             | Ticket or event not found                                                   |
+            | `500 Internal Server Error` | Server or database error                                                    |
+
+            📌 Notes
+            - The API updates the ticket count in the database.
+            - The attendee count for the event is updated automatically.
+            - A notification is sent to the user upon successful purchase.
+            - `ticket_id` and `ticket_quantity` must be valid and available.
+          sortKey: -1763110673016.5
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"ticket_quantity": 1,
+            	"ticket_id":"472b04f9-d483-4ee5-a31a-6ad08ce8f2c8"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.2
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+    headers:
+      - id: pair_f97d5b2ef9ed49a1a833034c3ba1aee9
+        name: Authorization
+        value: Bearer
+          eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3ZlcmlzYWZlLm9wZW5jcmFmdHMuaW8vIiwic3ViIjoiNmZkZDU4N2YtZDFkZC00OWFmLTljMTctYTcwOTYxMjI5N2ViIiwiYXVkIjpbImh0dHBzOi8vYWNhZGVtaWEub3BlbmNyYWZ0cy5pby8iXSwiZXhwIjoxNzYyMjAxNDg3LCJpYXQiOjE3NjE1OTY2ODd9.WkYeAv_nClidDnjmWL9fw3jDN_tn3pTA_gy7uBrzfmk
+        description: ""
+        disabled: false
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_0ec50288514a42c4a02d1ac20e655ff6
+    created: 1751674150857
+    modified: 1751674150857
+environments:
+  name: Base Environment
+  meta:
+    id: env_2018c78472f749338e8f3755f6fa9474
+    created: 1751674150845
+    modified: 1751674150845
+    isPrivate: false

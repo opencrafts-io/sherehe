@@ -1,8 +1,7 @@
 node_modules
 .env
 .idea
-uploads
+uploads/
 *.png
 *.jpg
 *.svg
-
