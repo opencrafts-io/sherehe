@@ -55,7 +55,7 @@ export const processVerisafeEvent = async (event) => {
     }
 
   } catch (error) {
-    console.error("❌ Error processing event:", error);
+    console.error("Error processing event:", error.message);
   }
 };
 
