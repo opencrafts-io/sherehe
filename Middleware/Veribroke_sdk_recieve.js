@@ -8,7 +8,7 @@ const RABBITMQ_PASSWORD=process.env.RABBITMQ_PASSWORD
 const RABBITMQ_PORT=process.env.RABBITMQ_PORT
 const RABBITMQ_USER=process.env.RABBITMQ_USER
 const RABBITMQ_VHOST=process.env.RABBITMQ_VHOST
-const EXCHANGE_NAME=process.env.EXCHANGE_NAME || "io.opencrafts.veribroke"
+const EXCHANGE_NAME=process.env.RABBITMQ_NOTIFICATION_EXCHANGE || "io.opencrafts.veribroke-notifications"
 const SHEREHE_ROUTING_KEY=process.env.SHEREHE_ROUTING_KEY || "NDOVUKUU"
 
 const QUEUE = "sherehe_mpesa_success_queue";
@@ -25,7 +25,7 @@ export async function startMpesaSuccessConsumer() {
     durable: true,
   });
 
-  await channel.bindQueue(q.queue, "io.opencrafts.veribroke", "NDOVUKUU");
+  await channel.bindQueue(q.queue, "io.opencrafts.veribroke-notifications", "NDOVUKUU");
 
   console.log("👂");
 
