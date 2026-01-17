@@ -35,41 +35,65 @@ export async function startMpesaSuccessConsumer() {
       if (!msg) return;
 
       try {
-        const routingKey = msg.fields.routingKey;
-        const payload = JSON.parse(msg.content.toString());
+       const {
+  request_id = null,
+  success = false,
+  message = null,
+  metadata = null
+} = payload || {};
 
-        console.log(payload);
+const stkCallback = metadata?.Body ?? null;
 
-        const {request_id , success ,message , metadata , errors} = payload;
-        const stkCallback = metadata.Body;
-        const {MerchantRequestID ,CheckoutRequestID} = stkCallback;
+const MerchantRequestID = stkCallback?.MerchantRequestID ?? null;
+const CheckoutRequestID = stkCallback?.CheckoutRequestID ?? null;
 
-        let status;
+let status = "FAILED";
 
-        let failure_reason = null;
+if (success === true) {
+  status = "SUCCESS";
+} else if (message === "Request Cancelled by user") {
+  status = "CANCELLED";
+}
 
-        if(success){
-          status = "SUCCESS";
-        }else if(message === "Request Cancelled by user"){
-          status = "CANCELLED";
-        }else{
-          status = "FAILED";
-        }
+const failure_reason = success === true ? null : message;
 
-        if(!success){
-          failure_reason = message;
-        }
+const transaction = await updateTransactionRepository(
+  request_id,
+  {
+    checkout_request_id: CheckoutRequestID,
+    merchant_request_id: MerchantRequestID,
+    status,
+    failure_reason,
+    provider_response: stkCallback
+  }
+);
 
-        const transaction = await updateTransactionRepository(request_id , {checkout_request_id: CheckoutRequestID , merchant_request_id: MerchantRequestID , status ,failure_reason , provider_response: stkCallback});
-        const {user_id ,event_id ,ticket_id , ticket_quantity} = transaction
-        await createAttendeeRepository({user_id ,event_id ,ticket_id , ticket_quantity});
+if (!transaction) return;
+
+const {
+  user_id = null,
+  event_id = null,
+  ticket_id = null,
+  ticket_quantity = null
+} = transaction;
+
+if (user_id && event_id && ticket_id && ticket_quantity) {
+  await createAttendeeRepository({
+    user_id,
+    event_id,
+    ticket_id,
+    ticket_quantity
+  });
+}
+
 
         channel.ack(msg);
       } catch (error) {
-        console.error("❌ Error processing M-Pesa success:", error);
-        channel.ack(msg);
-        // requeue if processing failed
-        channel.nack(msg, false, true);
+        if (msg.fields.redelivered) {
+      channel.ack(msg);
+    } else {
+      channel.nack(msg, false, true);
+    }
       }
     },
     { noAck: false }
