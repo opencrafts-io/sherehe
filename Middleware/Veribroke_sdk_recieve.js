@@ -35,32 +35,57 @@ export async function startMpesaSuccessConsumer() {
       if (!msg) return;
 
       try {
-        const routingKey = msg.fields.routingKey;
-        const payload = JSON.parse(msg.content.toString());
+       const {
+  request_id = null,
+  success = false,
+  message = null,
+  metadata = null
+} = payload || {};
 
-        const {request_id , success ,message , metadata , errors} = payload;
-        const stkCallback = metadata.Body;
-        const {MerchantRequestID ,CheckoutRequestID} = stkCallback;
+const stkCallback = metadata?.Body ?? null;
 
-        let status;
+const MerchantRequestID = stkCallback?.MerchantRequestID ?? null;
+const CheckoutRequestID = stkCallback?.CheckoutRequestID ?? null;
 
-        let failure_reason = null;
+let status = "FAILED";
 
-        if(success){
-          status = "SUCCESS";
-        }else if(message === "Request Cancelled by user"){
-          status = "CANCELLED";
-        }else{
-          status = "FAILED";
-        }
+if (success === true) {
+  status = "SUCCESS";
+} else if (message === "Request Cancelled by user") {
+  status = "CANCELLED";
+}
 
-        if(!success){
-          failure_reason = message;
-        }
+const failure_reason = success === true ? null : message;
 
-        const transaction = await updateTransactionRepository(request_id , {checkout_request_id: CheckoutRequestID , merchant_request_id: MerchantRequestID , status ,failure_reason , provider_response: stkCallback});
-        const {user_id ,event_id ,ticket_id , ticket_quantity} = transaction
-        await createAttendeeRepository({user_id ,event_id ,ticket_id , ticket_quantity});
+const transaction = await updateTransactionRepository(
+  request_id,
+  {
+    checkout_request_id: CheckoutRequestID,
+    merchant_request_id: MerchantRequestID,
+    status,
+    failure_reason,
+    provider_response: stkCallback
+  }
+);
+
+if (!transaction) return;
+
+const {
+  user_id = null,
+  event_id = null,
+  ticket_id = null,
+  ticket_quantity = null
+} = transaction;
+
+if (user_id && event_id && ticket_id && ticket_quantity) {
+  await createAttendeeRepository({
+    user_id,
+    event_id,
+    ticket_id,
+    ticket_quantity
+  });
+}
+
 
         channel.ack(msg);
       } catch (error) {
