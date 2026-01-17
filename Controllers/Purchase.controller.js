@@ -104,6 +104,7 @@ export const purchaseTicketController = async (req, res) => {
       phone_number: phoneNumber,
     });
 
+    //! Check on this
     const paymentInfo = await getPaymentInfoByEventIdRepository(event_id)
     if (!paymentInfo) {
       const duration = Number(process.hrtime.bigint() - start) / 1000;
@@ -153,8 +154,6 @@ export const purchaseTicketController = async (req, res) => {
         },
       },
     }
-
-    console.log(paymentData)
 
     try {
       await sendPaymentRequest(paymentData);
