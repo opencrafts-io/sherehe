@@ -38,8 +38,6 @@ export async function startMpesaSuccessConsumer() {
         const routingKey = msg.fields.routingKey;
         const payload = JSON.parse(msg.content.toString());
 
-        console.log(payload);
-
         const {request_id , success ,message , metadata , errors} = payload;
         const stkCallback = metadata.Body;
         const {MerchantRequestID ,CheckoutRequestID} = stkCallback;
@@ -66,10 +64,11 @@ export async function startMpesaSuccessConsumer() {
 
         channel.ack(msg);
       } catch (error) {
-        console.error("❌ Error processing M-Pesa success:", error);
-        channel.ack(msg);
-        // requeue if processing failed
-        channel.nack(msg, false, true);
+        if (msg.fields.redelivered) {
+      channel.ack(msg);
+    } else {
+      channel.nack(msg, false, true);
+    }
       }
     },
     { noAck: false }

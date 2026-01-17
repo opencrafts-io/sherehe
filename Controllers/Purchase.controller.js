@@ -21,8 +21,6 @@ export const purchaseTicketController = async (req, res) => {
     const user_phone = req.body.user_phone;
     const ticket_id = req.body.ticket_id;
 
-    console.log(user_id);
-
     // Missing fields
     if (!user_id || !ticket_quantity || !ticket_id) {
       const duration = Number(process.hrtime.bigint() - start) / 1000;
