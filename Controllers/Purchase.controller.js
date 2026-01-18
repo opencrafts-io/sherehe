@@ -132,6 +132,11 @@ export const purchaseTicketController = async (req, res) => {
       recipient = paymentInfo.phone_number
     }
 
+    if (!recipient) {
+  throw new Error("Invalid payment recipient configuration");
+  }
+
+
 
 
     const paymentData = {
