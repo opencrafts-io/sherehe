@@ -121,6 +121,11 @@ export const purchaseTicketController = async (req, res) => {
     } else if (paymentInfo.payment_type === "MPESA_TILL") {
       type = "till"
       recipient = paymentInfo.till_number
+       if (recipient.startsWith("0")) {
+      recipient = "254" + recipient.slice(1);
+    } else if (recipient.startsWith("+")) {
+      recipient = recipient.slice(1);
+    }
     } else if (paymentInfo.payment_type === "MPESA_SEND_MONEY") {
       type = "personal"
       recipient = paymentInfo.phone_number
