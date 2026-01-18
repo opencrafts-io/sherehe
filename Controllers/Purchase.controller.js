@@ -152,21 +152,24 @@ export const purchaseTicketController = async (req, res) => {
       },
     }
 
+        console.log(paymentData)
+
     try {
       await sendPaymentRequest(paymentData);
-    } catch (error) {
-      const duration = Number(process.hrtime.bigint() - start) / 1000;
-      logs(duration, "ERR", req.ip, req.method, error.message, req.path, 500, req.headers["user-agent"]);
-      return res.status(500).json({ message: error.message });
-    }
 
-    const duration = Number(process.hrtime.bigint() - start) / 1000;
+      const duration = Number(process.hrtime.bigint() - start) / 1000;
     logs(duration, "INFO", req.ip, req.method, "Sdk request sent", req.path, 201, req.headers["user-agent"]);
 
     res.status(200).json({
       message: "Sdk request sent successfully",
       trans_id: transaction.id
     });
+    } catch (error) {
+      const duration = Number(process.hrtime.bigint() - start) / 1000;
+      logs(duration, "ERR", req.ip, req.method, error.message, req.path, 500, req.headers["user-agent"]);
+      return res.status(500).json({ message: error.message });
+    }
+    
   } catch (error) {
     const duration = Number(process.hrtime.bigint() - start) / 1000;
     logs(duration, "ERR", req.ip, req.method, error.message, req.path, 500, req.headers["user-agent"]);
