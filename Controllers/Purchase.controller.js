@@ -1,14 +1,11 @@
 import { getTicketByIdRepository } from '../Repositories/Ticket.repository.js';
 import { getEventByIdRepository } from '../Repositories/Event.repository.js';
-import { randomUUID } from 'crypto';
 import { logs } from '../Utils/logs.js';
 import { getUserByIdRepository } from '../Repositories/User.repository.js';
 import { sendPaymentRequest } from '../Middleware/Veribroke_sdk_push.js';
 import { createTransactionRepository, getTransactionByIdRepository } from '../Repositories/Transactions.repository.js';
 import { getPaymentInfoByEventIdRepository } from '../Repositories/paymentInfo.repository.js';
 import { createAttendeeRepository } from '../Repositories/Attendee.repository.js';
-
-const generateSheId = () => `she_${randomUUID()}`;
 
 const SHEREHE_ROUTING_KEY = process.env.SHEREHE_ROUTING_KEY || "NDOVUKUU";
 
@@ -21,7 +18,7 @@ export const purchaseTicketController = async (req, res) => {
     const user_phone = req.body.user_phone;
     const ticket_id = req.body.ticket_id;
 
-    console.log(user_id);
+    console.log(req.body)
 
     // Missing fields
     if (!user_id || !ticket_quantity || !ticket_id) {
@@ -104,6 +101,7 @@ export const purchaseTicketController = async (req, res) => {
       phone_number: phoneNumber,
     });
 
+    //! Check on this
     const paymentInfo = await getPaymentInfoByEventIdRepository(event_id)
     if (!paymentInfo) {
       const duration = Number(process.hrtime.bigint() - start) / 1000;
@@ -153,8 +151,6 @@ export const purchaseTicketController = async (req, res) => {
         },
       },
     }
-
-    console.log(paymentData)
 
     try {
       await sendPaymentRequest(paymentData);

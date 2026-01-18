@@ -8,7 +8,7 @@ const RABBITMQ_PASSWORD=process.env.RABBITMQ_PASSWORD
 const RABBITMQ_PORT=process.env.RABBITMQ_PORT
 const RABBITMQ_USER=process.env.RABBITMQ_USER
 const RABBITMQ_VHOST=process.env.RABBITMQ_VHOST
-const EXCHANGE_NAME=process.env.EXCHANGE_NAME || "io.opencrafts.veribroke"
+const EXCHANGE_NAME=process.env.RABBITMQ_NOTIFICATION_EXCHANGE || "io.opencrafts.veribroke-notifications"
 const SHEREHE_ROUTING_KEY=process.env.SHEREHE_ROUTING_KEY || "NDOVUKUU"
 
 const QUEUE = "sherehe_mpesa_success_queue";
@@ -19,13 +19,13 @@ export async function startMpesaSuccessConsumer() {
    const connection = await amqp.connect(RABBIT_URL);
   const channel = await connection.createChannel();
 
-  await channel.assertExchange(EXCHANGE_NAME, "direct", { durable: true });
+  await channel.assertExchange(EXCHANGE_NAME, "topic", { durable: true });
 
   const q = await channel.assertQueue(QUEUE, {
     durable: true,
   });
 
-  await channel.bindQueue(q.queue, "io.opencrafts.veribroke", "NDOVUKUU");
+  await channel.bindQueue(q.queue, "io.opencrafts.veribroke-notifications", "NDOVUKUU");
 
   console.log("👂");
 
@@ -58,16 +58,17 @@ export async function startMpesaSuccessConsumer() {
           failure_reason = message;
         }
 
-        const transaction = await updateTransactionRepository(request_id , {checkout_request_id: CheckoutRequestID , merchant_request_id: MerchantRequestID , status ,failure_reason , provider_response: stkCallback});
+        const transaction = await updateTransactionRepository(request_id , {checkout_request_id: CheckoutRequestID || null , merchant_request_id: MerchantRequestID || null , status ,failure_reason , provider_response: stkCallback || null});
         const {user_id ,event_id ,ticket_id , ticket_quantity} = transaction
         await createAttendeeRepository({user_id ,event_id ,ticket_id , ticket_quantity});
 
         channel.ack(msg);
       } catch (error) {
-        console.error("❌ Error processing M-Pesa success:", error);
-        channel.ack(msg);
-        // requeue if processing failed
-        channel.nack(msg, false, true);
+        if (msg.fields.redelivered) {
+      channel.ack(msg); // prevent infinite loop
+    } else {
+      channel.nack(msg, false, true);
+    }
       }
     },
     { noAck: false }
