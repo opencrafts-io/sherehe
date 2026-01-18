@@ -1,14 +1,11 @@
 import { getTicketByIdRepository } from '../Repositories/Ticket.repository.js';
 import { getEventByIdRepository } from '../Repositories/Event.repository.js';
-import { randomUUID } from 'crypto';
 import { logs } from '../Utils/logs.js';
 import { getUserByIdRepository } from '../Repositories/User.repository.js';
 import { sendPaymentRequest } from '../Middleware/Veribroke_sdk_push.js';
 import { createTransactionRepository, getTransactionByIdRepository } from '../Repositories/Transactions.repository.js';
 import { getPaymentInfoByEventIdRepository } from '../Repositories/paymentInfo.repository.js';
 import { createAttendeeRepository } from '../Repositories/Attendee.repository.js';
-
-const generateSheId = () => `she_${randomUUID()}`;
 
 const SHEREHE_ROUTING_KEY = process.env.SHEREHE_ROUTING_KEY || "NDOVUKUU";
 
@@ -20,6 +17,8 @@ export const purchaseTicketController = async (req, res) => {
     const ticket_quantity = req.body.ticket_quantity;
     const user_phone = req.body.user_phone;
     const ticket_id = req.body.ticket_id;
+
+    console.log(req.body)
 
     // Missing fields
     if (!user_id || !ticket_quantity || !ticket_id) {
