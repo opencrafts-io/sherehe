@@ -18,8 +18,6 @@ export const purchaseTicketController = async (req, res) => {
     const user_phone = req.body.user_phone;
     const ticket_id = req.body.ticket_id;
 
-    console.log(req.body)
-
     // Missing fields
     if (!user_id || !ticket_quantity || !ticket_id) {
       const duration = Number(process.hrtime.bigint() - start) / 1000;
@@ -109,7 +107,6 @@ export const purchaseTicketController = async (req, res) => {
       return res.status(404).json({ message: "Payment info not found" });
     }
 
-    console.log(paymentInfo)
 
     let type;
     let recipient;
@@ -136,7 +133,11 @@ export const purchaseTicketController = async (req, res) => {
   throw new Error("Invalid payment recipient configuration");
   }
 
+  let changableAmount = Math.round(0.05 * amount)
 
+  if(changableAmount < 1){
+    changableAmount = 1
+  }
 
 
     const paymentData = {
@@ -151,7 +152,7 @@ export const purchaseTicketController = async (req, res) => {
         "originator": "MPESA",
         "extras": {
           "type": type,
-          "amount": Math.round(0.05 * amount),
+          "amount":changableAmount ,
           "recipient": recipient,
           "account_reference": account_reference,
           "occassion": "Service fee split"
@@ -159,11 +160,8 @@ export const purchaseTicketController = async (req, res) => {
       },
     }
 
-        console.log(paymentData)
-
     try {
       await sendPaymentRequest(paymentData);
-
       const duration = Number(process.hrtime.bigint() - start) / 1000;
     logs(duration, "INFO", req.ip, req.method, "Sdk request sent", req.path, 201, req.headers["user-agent"]);
 

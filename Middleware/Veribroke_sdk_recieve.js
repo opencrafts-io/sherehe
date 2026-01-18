@@ -60,7 +60,9 @@ export async function startMpesaSuccessConsumer() {
 
         const transaction = await updateTransactionRepository(request_id , {checkout_request_id: CheckoutRequestID || null , merchant_request_id: MerchantRequestID || null , status ,failure_reason , provider_response: stkCallback || null});
         const {user_id ,event_id ,ticket_id , ticket_quantity} = transaction
-        await createAttendeeRepository({user_id ,event_id ,ticket_id , ticket_quantity});
+       if(success){
+        await createAttendeeRepository(user_id , event_id , ticket_id , ticket_quantity);
+       }
 
         channel.ack(msg);
       } catch (error) {
