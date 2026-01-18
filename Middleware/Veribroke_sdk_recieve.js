@@ -62,7 +62,7 @@ export async function startMpesaSuccessConsumer() {
         const {user_id ,event_id ,ticket_id , ticket_quantity} = transaction
         console.log(transaction)
        if(success){
-        const attendee = createAttendeeRepository(user_id , event_id , ticket_id , ticket_quantity);
+        const attendee = await createAttendeeRepository(user_id , event_id , ticket_id , ticket_quantity);
         console.log(attendee);
        }
 
