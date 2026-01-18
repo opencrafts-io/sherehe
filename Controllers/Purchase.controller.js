@@ -109,6 +109,8 @@ export const purchaseTicketController = async (req, res) => {
       return res.status(404).json({ message: "Payment info not found" });
     }
 
+    console.log(paymentInfo)
+
     let type;
     let recipient;
     let account_reference = null
@@ -130,6 +132,11 @@ export const purchaseTicketController = async (req, res) => {
       recipient = paymentInfo.phone_number
     }
 
+    if (!recipient) {
+  throw new Error("Invalid payment recipient configuration");
+  }
+
+
 
 
     const paymentData = {
@@ -137,14 +144,14 @@ export const purchaseTicketController = async (req, res) => {
       "phone_number": phoneNumber,
       "target_user_id": user_id,
       "trans_amount": amount,
-      "service_name": "SHERHE",
+      "service_name": "SHEREHE",
       "trans_desc": `Ticket purchase for ${ticket_quantity} ticket(s) to ${event.event_name}`,
       "reply_to": SHEREHE_ROUTING_KEY,
       "split_data": {
         "originator": "MPESA",
         "extras": {
           "type": type,
-          "amount": 0.05 * amount,
+          "amount": Math.round(0.05 * amount),
           "recipient": recipient,
           "account_reference": account_reference,
           "occassion": "Service fee split"
@@ -152,21 +159,24 @@ export const purchaseTicketController = async (req, res) => {
       },
     }
 
+        console.log(paymentData)
+
     try {
       await sendPaymentRequest(paymentData);
-    } catch (error) {
-      const duration = Number(process.hrtime.bigint() - start) / 1000;
-      logs(duration, "ERR", req.ip, req.method, error.message, req.path, 500, req.headers["user-agent"]);
-      return res.status(500).json({ message: error.message });
-    }
 
-    const duration = Number(process.hrtime.bigint() - start) / 1000;
+      const duration = Number(process.hrtime.bigint() - start) / 1000;
     logs(duration, "INFO", req.ip, req.method, "Sdk request sent", req.path, 201, req.headers["user-agent"]);
 
     res.status(200).json({
       message: "Sdk request sent successfully",
       trans_id: transaction.id
     });
+    } catch (error) {
+      const duration = Number(process.hrtime.bigint() - start) / 1000;
+      logs(duration, "ERR", req.ip, req.method, error.message, req.path, 500, req.headers["user-agent"]);
+      return res.status(500).json({ message: error.message });
+    }
+    
   } catch (error) {
     const duration = Number(process.hrtime.bigint() - start) / 1000;
     logs(duration, "ERR", req.ip, req.method, error.message, req.path, 500, req.headers["user-agent"]);
