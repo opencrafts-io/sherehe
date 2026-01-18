@@ -74,15 +74,14 @@ export async function startMpesaSuccessConsumer() {
 
           const { user_id, event_id, ticket_id, ticket_quantity } = plainTransaction;
 
-          console.log("Transaction data:", plainTransaction);
 
           if (success) {
             console.log("Creating attendee...");
             await createAttendeeRepository(
-              user_id,
+              {user_id,
               event_id,
               ticket_id,
-              ticket_quantity
+              ticket_quantity}
             );
           }
 
