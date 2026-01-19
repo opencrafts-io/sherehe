@@ -1,6 +1,7 @@
 import amqp from "amqplib";
 import { updateTransactionRepository } from "../Repositories/Transactions.repository.js";
 import { createAttendeeRepository } from "../Repositories/Attendee.repository.js";
+import { updateTicketRepository } from "../Repositories/Ticket.repository.js";
 
 
 const RABBITMQ_HOST = process.env.RABBITMQ_HOST
@@ -76,13 +77,22 @@ export async function startMpesaSuccessConsumer() {
 
 
           if (success) {
-            console.log("Creating attendee...");
             await createAttendeeRepository(
-              {user_id,
+              {
+                user_id,
               event_id,
               ticket_id,
-              ticket_quantity}
+              ticket_quantity
+            }
             );
+          }else{
+            await updateTicketRepository(
+    ticket_id,
+    {
+      ticket_quantity: Sequelize.literal(
+        `ticket_quantity + ${ticket_quantity}`
+      )
+    },)
           }
 
           channel.ack(msg);

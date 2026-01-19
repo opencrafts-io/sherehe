@@ -1,4 +1,4 @@
-import { getTicketByIdRepository } from '../Repositories/Ticket.repository.js';
+import { getTicketByIdRepository , updateTicketRepository } from '../Repositories/Ticket.repository.js';
 import { getEventByIdRepository } from '../Repositories/Event.repository.js';
 import { logs } from '../Utils/logs.js';
 import { getUserByIdRepository } from '../Repositories/User.repository.js';
@@ -39,6 +39,11 @@ export const purchaseTicketController = async (req, res) => {
       logs(duration, "WARN", req.ip, req.method, "Not enough tickets available", req.path, 400, req.headers["user-agent"]);
       return res.status(400).json({ message: "Not enough tickets available" });
     }
+
+   await updateTicketRepository(ticket_id, {
+  ticket_quantity: Sequelize.literal(`ticket_quantity - ${ticket_quantity}`)
+});
+
 
 
 
