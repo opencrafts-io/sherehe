@@ -19,18 +19,13 @@ export const getAllAttendeesByEventIdRepository = async (
     const attendees = await Attendee.findAll({
       where: { event_id: eventId },
 
-      attributes: [
-        "user_id",
-        [
-          Sequelize.fn("MAX", Sequelize.col("attendees.created_at")),
-          "latest_created_at"
-        ]
-      ],
-
-      group: ["attendees.user_id", "user.id"],
+      // DISTINCT ON user_id
+      distinct: true,
+      col: "user_id",
 
       order: [
-        [Sequelize.literal('"latest_created_at"'), "DESC"]
+        ["user_id", "ASC"],      // required for DISTINCT ON
+        ["created_at", "DESC"]   // picks latest attendance per user
       ],
 
       limit: limitPlusOne,
