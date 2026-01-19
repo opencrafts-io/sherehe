@@ -90,7 +90,7 @@ export async function startMpesaSuccessConsumer() {
     ticket_id,
     {
       ticket_quantity: Sequelize.literal(
-        `ticket_quantity - ${ticket_quantity}`
+        `ticket_quantity + ${ticket_quantity}`
       )
     },)
           }

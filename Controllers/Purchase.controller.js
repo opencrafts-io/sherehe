@@ -41,7 +41,7 @@ export const purchaseTicketController = async (req, res) => {
     }
 
    await updateTicketRepository(ticket_id, {
-  ticket_quantity: Sequelize.literal(`ticket_quantity + ${ticket_quantity}`)
+  ticket_quantity: Sequelize.literal(`ticket_quantity - ${ticket_quantity}`)
 });
 
 

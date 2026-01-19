@@ -1,5 +1,5 @@
 import { Attendee , User , Ticket , Event } from "../Models/index.js";
-import { Op } from "sequelize";
+import { Op , Sequelize } from "sequelize";
 
 export const createAttendeeRepository = async (attendee) => {
   try {
@@ -10,17 +10,37 @@ export const createAttendeeRepository = async (attendee) => {
   }
 };
 
-export const getAllAttendeesByEventIdRepository = async (eventId , limitPlusOne, offset) => {
+export const getAllAttendeesByEventIdRepository = async (
+  eventId,
+  limitPlusOne,
+  offset
+) => {
   try {
     const attendees = await Attendee.findAll({
       where: { event_id: eventId },
-      order: [["created_at", "DESC"]],
-       limit: limitPlusOne, offset: offset,
+
+      attributes: [
+        "user_id",
+        [
+          Sequelize.fn("MAX", Sequelize.col("attendees.created_at")),
+          "latest_created_at"
+        ]
+      ],
+
+      group: ["attendees.user_id", "user.id"],
+
+      order: [
+        [Sequelize.literal('"latest_created_at"'), "DESC"]
+      ],
+
+      limit: limitPlusOne,
+      offset,
+
       include: [
         {
           model: User,
           as: "user",
-          attributes: ["id", "username", "email", "name", "phone"] // choose fields you want
+          attributes: ["id", "username", "email", "name", "phone"]
         }
       ]
     });
@@ -30,6 +50,7 @@ export const getAllAttendeesByEventIdRepository = async (eventId , limitPlusOne,
     throw error;
   }
 };
+
 
 
 
