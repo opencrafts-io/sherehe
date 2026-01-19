@@ -6,7 +6,7 @@ import { sendPaymentRequest } from '../Middleware/Veribroke_sdk_push.js';
 import { createTransactionRepository, getTransactionByIdRepository } from '../Repositories/Transactions.repository.js';
 import { getPaymentInfoByEventIdRepository } from '../Repositories/paymentInfo.repository.js';
 import { createAttendeeRepository } from '../Repositories/Attendee.repository.js';
-
+import { Op , Sequelize } from "sequelize";
 const SHEREHE_ROUTING_KEY = process.env.SHEREHE_ROUTING_KEY || "NDOVUKUU";
 
 export const purchaseTicketController = async (req, res) => {
