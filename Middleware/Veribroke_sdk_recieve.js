@@ -2,7 +2,7 @@ import amqp from "amqplib";
 import { updateTransactionRepository } from "../Repositories/Transactions.repository.js";
 import { createAttendeeRepository } from "../Repositories/Attendee.repository.js";
 import { updateTicketRepository } from "../Repositories/Ticket.repository.js";
-
+import { Op , Sequelize } from "sequelize";
 
 const RABBITMQ_HOST = process.env.RABBITMQ_HOST
 const RABBITMQ_PASSWORD = process.env.RABBITMQ_PASSWORD
