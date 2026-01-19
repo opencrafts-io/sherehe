@@ -17,16 +17,21 @@ export const getAllAttendeesByEventIdRepository = async (
 ) => {
   try {
     const attendees = await Attendee.findAll({
-      where: { event_id: eventId },
+      where: {
+        event_id: eventId,
+        id: {
+          [Op.in]: Sequelize.literal(`
+            (
+              SELECT DISTINCT ON (user_id) id
+              FROM attendees
+              WHERE event_id = '${eventId}'
+              ORDER BY user_id, created_at DESC
+            )
+          `)
+        }
+      },
 
-      // DISTINCT ON user_id
-      distinct: true,
-      col: "user_id",
-
-      order: [
-        ["user_id", "ASC"],      // required for DISTINCT ON
-        ["created_at", "DESC"]   // picks latest attendance per user
-      ],
+      order: [["created_at", "DESC"]],
 
       limit: limitPlusOne,
       offset,
@@ -45,6 +50,7 @@ export const getAllAttendeesByEventIdRepository = async (
     throw error;
   }
 };
+
 
 
 
