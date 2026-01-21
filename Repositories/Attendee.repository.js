@@ -111,39 +111,36 @@ export const getAttendeeByIdRepository = async (id) => {
   }
 }
 
-export const getAttendeesByUserIdRepository = async (eventId, userId, attendeeId = null) => {
+export const getAttendeeByEventAndIdRepository = async (
+  eventId,
+  attendeeId
+) => {
   try {
-    const whereClause = {
-      event_id: eventId,
-      user_id: userId,
-    };
-
-    if (attendeeId) {
-      whereClause.id = { [Op.ne]: attendeeId };
-    }
-
-    const attendees = await Attendee.findAll({
-      where: whereClause,
-      order: [["created_at", "DESC"]],
+    const attendee = await Attendee.findOne({
+      where: {
+        event_id: eventId,
+        id: attendeeId
+      },
       include: [
         {
           model: Ticket,
           as: "ticket",
-          attributes: ["id", "ticket_name", "ticket_price", "ticket_quantity"],
+          attributes: ["id", "ticket_name", "ticket_price", "ticket_quantity"]
         },
         {
           model: Event,
           as: "event",
-          attributes: ["id", "event_date"],
-        },
-      ],
+          attributes: ["id", "event_date"]
+        }
+      ]
     });
 
-    return attendees;
+    return attendee;
   } catch (error) {
     throw error;
   }
 };
+
 
 
 export const getUserAttendedEventsRepository = async (
