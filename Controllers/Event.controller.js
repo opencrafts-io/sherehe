@@ -16,6 +16,7 @@ import { processAndSaveImages } from "../Middleware/upload.js";
 import sequelize from "../Utils/db.js";
 import { randomUUID } from "crypto";
 import { sendNotification } from "../Utils/Notification.js";
+import {createEventScannerRepository} from "../Repositories/eventScanners.repository.js";
 import { logs } from "../Utils/logs.js";
 
 const generateSheId = () => `she_${randomUUID()}`;
@@ -151,8 +152,6 @@ export const createEventController = async (req, res) => {
       }
     }
 
-
-
     // -------------------------
     // NOTIFICATION (SAFE)
     // -------------------------
@@ -196,22 +195,21 @@ export const createEventController = async (req, res) => {
       req.headers["user-agent"]
     );
 
-    if (!(payment_type === null || payment_type === undefined)) {
+    const eventOrganizer =
+    {
+        event_id: event.id,
+        user_id: organizer_id,
+        role: "SUPERVISOR"
+    }
+
+    await createEventScannerRepository(eventOrganizer)
+
       return res.status(201).json({
       message: "Event created successfully",
       data: {
         event,
       },
     })
-    }else
-      {
-        return res.status(201).json({
-          message: "Event created successfully",
-          data: {
-            event,
-          },
-        });
-      }
 
   } catch (error) {
     cleanupFiles(savedFiles);

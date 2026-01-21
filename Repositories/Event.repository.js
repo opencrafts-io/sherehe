@@ -1,4 +1,4 @@
-import { Event , PaymentInfo } from '../Models/index.js';
+import { Event , EventScanner } from '../Models/index.js';
 import { Op } from "sequelize";
 
 import {updateUserRepository} from '../Repositories/User.repository.js';
@@ -177,12 +177,3 @@ export const getEventByTagsRepository = async (tags) => {
   }
 };
 
-
-export const getEventByOrganizerIdEventIdRepository = async (organizerId, eventId) => {
-  try {
-    const event = await Event.findOne({ where: { organizer_id: organizerId, id: eventId } });
-    return event;
-  } catch (error) {
-    throw error;
-  }
-}

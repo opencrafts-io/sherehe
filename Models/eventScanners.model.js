@@ -26,15 +26,9 @@ const EventScanner = sequelize.define(
       defaultValue: "SCANNER"
     },
 
-    is_active: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: true
-    },
-
     granted_by: {
       type: DataTypes.UUID,
-      allowNull: false,
+      allowNull: true,
     },
 
     created_at: {
