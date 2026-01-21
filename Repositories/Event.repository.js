@@ -176,3 +176,13 @@ export const getEventByTagsRepository = async (tags) => {
     throw error;
   }
 };
+
+
+export const getEventByOrganizerIdEventIdRepository = async (organizerId, eventId) => {
+  try {
+    const event = await Event.findOne({ where: { organizer_id: organizerId, id: eventId } });
+    return event;
+  } catch (error) {
+    throw error;
+  }
+}

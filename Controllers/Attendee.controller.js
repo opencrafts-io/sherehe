@@ -3,12 +3,13 @@ import {
   getAllAttendeesByEventIdRepository,
   deleteAttendeeRepository,
   getAttendeeByIdRepository,
-  getAttendeesByUserIdRepository,
+  getAttendeeByEventAndIdRepository,
   getUserAttendedEventsRepository,
   searchAttendeesByEventNameTicketNameRepository,
   getAllUserAttendedSpecificEventRepository
 } from "../Repositories/Attendee.repository.js";
 
+import {getEventByOrganizerIdEventIdRepository} from "../Repositories/Event.repository.js";
 import { logs } from "../Utils/logs.js"; 
 
 
@@ -165,10 +166,19 @@ export const getAttendeesByUserIdController = async (req, res) => {
       return res.status(400).json({ error: "Event ID is required" });
     }
 
-    const result = await getAttendeesByUserIdRepository(eventId, userId , attendeeId);
+
+    // const organizer = await getEventByOrganizerIdEventIdRepository(userId , eventId);
+
+    // if(!organizer) {
+    //   const duration = Number(process.hrtime.bigint() - start) / 1000;
+    //   logs(duration, "INFO", req.ip, req.method, "Not Authorized to scan the event", req.path, 404, req.headers["user-agent"]);
+    //   return res.status(403).json({ message: "Not Authorized to scan the event" });
+    // }
+
+    const result = await getAttendeeByEventAndIdRepository(eventId , attendeeId);
 
 
-    if (!result || result.length === 0) {
+    if (!result) {
       const duration = Number(process.hrtime.bigint() - start) / 1000;
       logs(duration, "INFO", req.ip, req.method, "No attendees found", req.path, 404, req.headers["user-agent"]);
                return res.status(200).json({
