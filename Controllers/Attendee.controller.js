@@ -9,7 +9,7 @@ import {
   getAllUserAttendedSpecificEventRepository
 } from "../Repositories/Attendee.repository.js";
 
-import {getEventByOrganizerIdEventIdRepository} from "../Repositories/Event.repository.js";
+import {getEventScannerByUserIdEventIdRepository} from "../Repositories/eventScanners.repository.js";
 import { logs } from "../Utils/logs.js"; 
 
 
@@ -167,13 +167,13 @@ export const getAttendeesByUserIdController = async (req, res) => {
     }
 
 
-    // const organizer = await getEventByOrganizerIdEventIdRepository(userId , eventId);
+    const organizer = await getEventScannerByUserIdEventIdRepository(userId , eventId);
 
-    // if(!organizer) {
-    //   const duration = Number(process.hrtime.bigint() - start) / 1000;
-    //   logs(duration, "INFO", req.ip, req.method, "Not Authorized to scan the event", req.path, 404, req.headers["user-agent"]);
-    //   return res.status(403).json({ message: "Not Authorized to scan the event" });
-    // }
+    if(!organizer) {
+      const duration = Number(process.hrtime.bigint() - start) / 1000;
+      logs(duration, "INFO", req.ip, req.method, "Not Authorized to scan the event", req.path, 404, req.headers["user-agent"]);
+      return res.status(403).json({ message: "Not Authorized to scan the event" });
+    }
 
     const result = await getAttendeeByEventAndIdRepository(eventId , attendeeId);
 
