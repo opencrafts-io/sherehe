@@ -44,16 +44,21 @@ export const getEventScannerByEventIdRepository = async (eventId) => {
 };
 
 
-export const deleteEventScannerRepository = async (id) => {
-  try {
-    const scanner = await EventScanner.findByPk(id);
-    if (!scanner) {
-      return null;
-    }
-    await scanner.destroy();
-    return true;
-  } catch (error) {
-    throw error;
+export const deleteEventScannerRepository = async (
+  scannerId,
+  organizer_id
+) => {
+  const scanner = await EventScanner.findByPk(scannerId);
+
+  if (!scanner) {
+    return null;
   }
+
+  if (scanner.granted_by !== organizer_id) {
+    throw new Error("Unauthorized: You cannot delete this scanner");
+  }
+
+  await scanner.destroy();
+  return scanner;
 };
    

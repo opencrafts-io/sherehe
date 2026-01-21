@@ -81,7 +81,9 @@ export const deleteEventScannerController = async (req, res) => {
         const start = process.hrtime.bigint();
   try {      
     const event_id = req.params.id;
-    const scanner = await deleteEventScannerRepository(event_id);
+        const organizer_id = req.user.sub;
+
+    const scanner = await deleteEventScannerRepository(event_id , organizer_id);
     const duration = Number(process.hrtime.bigint() - start) / 1000;
 
     logs(
@@ -94,10 +96,19 @@ export const deleteEventScannerController = async (req, res) => {
       200,
       req.headers["user-agent"]
     )
+    if(!scanner) {
+      return res.status(404).json({ message: "Event Scanners not found" });
+    }
     return res.status(200).json({ message: "Event Scanners deleted successfully" });
   } catch (error) {
-    const duration = Number(process.hrtime.bigint() - start) / 1000;
+        const duration = Number(process.hrtime.bigint() - start) / 1000;
+
+    if(error.message === "Unauthorized: You cannot delete this scanner") {
+          logs(duration, "ERR", req.ip, req.method, error.message, req.path, 500, req.headers["user-agent"]);
+      return res.status(403).json({ message: "Unauthorized: You cannot delete this scanner" });
+    }else{
     logs(duration, "ERR", req.ip, req.method, error.message, req.path, 500, req.headers["user-agent"]);
     res.status(500).json({ error: error.message });
+    }
   }
 };
