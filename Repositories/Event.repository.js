@@ -1,4 +1,4 @@
-import { Event , PaymentInfo } from '../Models/index.js';
+import { Event , EventScanner } from '../Models/index.js';
 import { Op } from "sequelize";
 
 import {updateUserRepository} from '../Repositories/User.repository.js';
@@ -176,3 +176,4 @@ export const getEventByTagsRepository = async (tags) => {
     throw error;
   }
 };
+

@@ -1,15 +1,12 @@
-import { getTicketByIdRepository } from '../Repositories/Ticket.repository.js';
+import { getTicketByIdRepository , updateTicketRepository } from '../Repositories/Ticket.repository.js';
 import { getEventByIdRepository } from '../Repositories/Event.repository.js';
-import { randomUUID } from 'crypto';
 import { logs } from '../Utils/logs.js';
 import { getUserByIdRepository } from '../Repositories/User.repository.js';
 import { sendPaymentRequest } from '../Middleware/Veribroke_sdk_push.js';
 import { createTransactionRepository, getTransactionByIdRepository } from '../Repositories/Transactions.repository.js';
 import { getPaymentInfoByEventIdRepository } from '../Repositories/paymentInfo.repository.js';
 import { createAttendeeRepository } from '../Repositories/Attendee.repository.js';
-
-const generateSheId = () => `she_${randomUUID()}`;
-
+import { Op , Sequelize } from "sequelize";
 const SHEREHE_ROUTING_KEY = process.env.SHEREHE_ROUTING_KEY || "NDOVUKUU";
 
 export const purchaseTicketController = async (req, res) => {
@@ -20,8 +17,6 @@ export const purchaseTicketController = async (req, res) => {
     const ticket_quantity = req.body.ticket_quantity;
     const user_phone = req.body.user_phone;
     const ticket_id = req.body.ticket_id;
-
-    console.log(user_id);
 
     // Missing fields
     if (!user_id || !ticket_quantity || !ticket_id) {
@@ -44,6 +39,11 @@ export const purchaseTicketController = async (req, res) => {
       logs(duration, "WARN", req.ip, req.method, "Not enough tickets available", req.path, 400, req.headers["user-agent"]);
       return res.status(400).json({ message: "Not enough tickets available" });
     }
+
+   await updateTicketRepository(ticket_id, {
+  ticket_quantity: Sequelize.literal(`ticket_quantity - ${ticket_quantity}`)
+});
+
 
 
 
@@ -104,12 +104,14 @@ export const purchaseTicketController = async (req, res) => {
       phone_number: phoneNumber,
     });
 
+    //! Check on this
     const paymentInfo = await getPaymentInfoByEventIdRepository(event_id)
     if (!paymentInfo) {
       const duration = Number(process.hrtime.bigint() - start) / 1000;
       logs(duration, "WARN", req.ip, req.method, "Payment info not found", req.path, 404, req.headers["user-agent"]);
       return res.status(404).json({ message: "Payment info not found" });
     }
+
 
     let type;
     let recipient;
@@ -124,6 +126,11 @@ export const purchaseTicketController = async (req, res) => {
     } else if (paymentInfo.payment_type === "MPESA_TILL") {
       type = "till"
       recipient = paymentInfo.till_number
+       if (recipient.startsWith("0")) {
+      recipient = "254" + recipient.slice(1);
+    } else if (recipient.startsWith("+")) {
+      recipient = recipient.slice(1);
+    }
     } else if (paymentInfo.payment_type === "MPESA_SEND_MONEY") {
       type = "personal"
       recipient = paymentInfo.phone_number
@@ -132,6 +139,15 @@ export const purchaseTicketController = async (req, res) => {
       recipient = paymentInfo.phone_number
     }
 
+    if (!recipient) {
+  throw new Error("Invalid payment recipient configuration");
+  }
+
+  let changableAmount = Math.round(0.05 * amount)
+
+  if(changableAmount < 1){
+    changableAmount = 1
+  }
 
 
     const paymentData = {
@@ -139,14 +155,14 @@ export const purchaseTicketController = async (req, res) => {
       "phone_number": phoneNumber,
       "target_user_id": user_id,
       "trans_amount": amount,
-      "service_name": "SHERHE",
+      "service_name": "SHEREHE",
       "trans_desc": `Ticket purchase for ${ticket_quantity} ticket(s) to ${event.event_name}`,
       "reply_to": SHEREHE_ROUTING_KEY,
       "split_data": {
         "originator": "MPESA",
         "extras": {
           "type": type,
-          "amount": 0.05 * amount,
+          "amount":changableAmount ,
           "recipient": recipient,
           "account_reference": account_reference,
           "occassion": "Service fee split"
@@ -154,23 +170,21 @@ export const purchaseTicketController = async (req, res) => {
       },
     }
 
-    console.log(paymentData)
-
     try {
       await sendPaymentRequest(paymentData);
-    } catch (error) {
       const duration = Number(process.hrtime.bigint() - start) / 1000;
-      logs(duration, "ERR", req.ip, req.method, error.message, req.path, 500, req.headers["user-agent"]);
-      return res.status(500).json({ message: error.message });
-    }
-
-    const duration = Number(process.hrtime.bigint() - start) / 1000;
     logs(duration, "INFO", req.ip, req.method, "Sdk request sent", req.path, 201, req.headers["user-agent"]);
 
     res.status(200).json({
       message: "Sdk request sent successfully",
       trans_id: transaction.id
     });
+    } catch (error) {
+      const duration = Number(process.hrtime.bigint() - start) / 1000;
+      logs(duration, "ERR", req.ip, req.method, error.message, req.path, 500, req.headers["user-agent"]);
+      return res.status(500).json({ message: error.message });
+    }
+    
   } catch (error) {
     const duration = Number(process.hrtime.bigint() - start) / 1000;
     logs(duration, "ERR", req.ip, req.method, error.message, req.path, 500, req.headers["user-agent"]);
