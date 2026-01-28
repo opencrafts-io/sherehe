@@ -63,4 +63,17 @@ export const deleteEventScannerRepository = async (
   await scanner.destroy();
   return scanner;
 };
-   
+  
+export const getTotalScannersByEventIdRepository = async (eventId) => {
+  try {
+    const totalScanners = await EventScanner.count({
+      where: {
+        event_id: eventId,
+      },
+    });
+
+    return totalScanners;
+  } catch (error) {
+    throw error;
+  }
+};
