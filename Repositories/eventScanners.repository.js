@@ -27,12 +27,14 @@ export const getEventScannerByUserIdEventIdRepository = async (userId, eventId) 
   }
 };
 
-export const getEventScannerByEventIdRepository = async (eventId) => {
+export const getEventScannerByEventIdRepository = async (eventId , limitPlusOne, offset) => {
   try {
     const scanner = await EventScanner.findAll({
       where: {
         event_id: eventId,
       },
+      limit: limitPlusOne,
+      offset,
     });
 
     if (!scanner) return null;

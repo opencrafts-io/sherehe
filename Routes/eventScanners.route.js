@@ -4,10 +4,11 @@ import { createEventScannerController , getEventScannersByEventIdController , de
 const router = express.Router();
 
 import {verifyToken} from "../Middleware/jwt_token_verification.js";
-router.use(verifyToken);
+import { paginate } from '../Middleware/paginate.js';
 
+router.use(verifyToken);
 router.post("/", createEventScannerController);
-router.get("/event/:id", getEventScannersByEventIdController);
+router.get("/event/:id", paginate, getEventScannersByEventIdController);
 router.delete("/:id", deleteEventScannerController);
 
 export default router;
