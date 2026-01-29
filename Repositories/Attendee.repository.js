@@ -275,3 +275,16 @@ export const getTotalAttendeesByEventIdRepository = async (eventId) => {
     throw error;
   }
 };
+
+export const getAttendeesByTicketIdRepository = async (ticketId) => {
+  try {
+    const attendees = await Attendee.findAll({
+      where: {
+        ticket_id: ticketId,
+      },
+    });
+    return attendees;
+  } catch (error) {
+    throw error;
+  }
+}

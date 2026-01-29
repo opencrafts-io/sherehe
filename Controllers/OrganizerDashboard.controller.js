@@ -7,6 +7,7 @@ import { logs } from '../Utils/logs.js';
 // import { getPaymentInfoByEventIdRepository } from '../Repositories/paymentInfo.repository.js';
 import { createAttendeeRepository, getTotalAttendeesByEventIdRepository } from '../Repositories/Attendee.repository.js';
 import { getTotalScannersByEventIdRepository } from '../Repositories/eventScanners.repository.js';
+import {getEventTicketSalesStatsRepository} from '../Repositories/Ticket.repository.js';
 import { Op, Sequelize } from "sequelize";
 
 
@@ -21,6 +22,19 @@ export const getEventStatsController = async (req, res) => {
       attendees: attendees,
       scanners: scanners
     });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
+export const getTicketStatsController = async (req, res) => {
+  try {
+    const event_id = req.params.id;
+    const event = await getEventTicketSalesStatsRepository(event_id);
+
+   return res.status(200).json(event);
+    
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
