@@ -27,12 +27,14 @@ export const getEventScannerByUserIdEventIdRepository = async (userId, eventId) 
   }
 };
 
-export const getEventScannerByEventIdRepository = async (eventId) => {
+export const getEventScannerByEventIdRepository = async (eventId , limitPlusOne, offset) => {
   try {
     const scanner = await EventScanner.findAll({
       where: {
         event_id: eventId,
       },
+      limit: limitPlusOne,
+      offset,
     });
 
     if (!scanner) return null;
@@ -61,4 +63,17 @@ export const deleteEventScannerRepository = async (
   await scanner.destroy();
   return scanner;
 };
-   
+  
+export const getTotalScannersByEventIdRepository = async (eventId) => {
+  try {
+    const totalScanners = await EventScanner.count({
+      where: {
+        event_id: eventId,
+      },
+    });
+
+    return totalScanners;
+  } catch (error) {
+    throw error;
+  }
+};

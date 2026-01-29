@@ -259,3 +259,35 @@ export const getAllUserAttendedSpecificEventRepository = async (eventId , userId
     throw error;
   }
 }
+
+export const getTotalAttendeesByEventIdRepository = async (eventId) => {
+  try {
+  const count = await Attendee.count({
+    where: {
+      event_id: eventId
+    },
+    distinct: true,
+    col: "user_id"
+  });
+
+    return count;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getAttendeesByTicketIdRepository = async (ticketId ,  limitPlusOne, offset) => {
+  try {
+    const attendees = await Attendee.findAll({
+      where: {
+        ticket_id: ticketId,
+      },
+      order: [["created_at", "DESC"]],
+      limit: limitPlusOne,
+      offset
+    });
+    return attendees;
+  } catch (error) {
+    throw error;
+  }
+}
