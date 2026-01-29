@@ -262,15 +262,15 @@ export const getAllUserAttendedSpecificEventRepository = async (eventId , userId
 
 export const getTotalAttendeesByEventIdRepository = async (eventId) => {
   try {
-    const totalAttendees = await Attendee.count({
-      where: {
-        event_id: eventId,
-          distinct: true,
-        col: "user_id",
-      },
-    });
+  const count = await Attendee.count({
+    where: {
+      event_id: eventId
+    },
+    distinct: true,
+    col: "user_id"
+  });
 
-    return totalAttendees;
+    return count;
   } catch (error) {
     throw error;
   }
