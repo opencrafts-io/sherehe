@@ -92,7 +92,12 @@ export const getAttendeesByTicketIdController = async (req, res) => {
    const start = process.hrtime.bigint();
   try {
     const ticketId = req.params.id;
-    const attendees = await getAttendeesByTicketIdRepository(ticketId);
+    const { limit, page, limitPlusOne, offset } = req.pagination;
+
+    const result = await getAttendeesByTicketIdRepository(ticketId ,  limitPlusOne, offset);
+
+             const hasNextPage = result.length > limit;
+    const attendees = hasNextPage ? result.slice(0, limit) : result;
 
         const end = process.hrtime.bigint();
     const durationMicroseconds = Number(end - start) / 1000;
@@ -108,7 +113,14 @@ export const getAttendeesByTicketIdController = async (req, res) => {
       req.headers["user-agent"]
     );
 
-    res.status(200).json(attendees);
+          return res.status(200).json({
+      status: "success",
+      currentPage: page,
+      nextPage: hasNextPage ? page + 1 : null,
+      previousPage: page > 1 ? page - 1 : null,
+      totalAttendees: attendees.length,
+      data: attendees,
+    });
   } catch (error) {
         const end = process.hrtime.bigint();
     const durationMicroseconds = Number(end - start) / 1000;
