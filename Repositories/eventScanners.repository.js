@@ -3,6 +3,17 @@ import { Op } from "sequelize";
 
 export const createEventScannerRepository = async (eventScanner) =>{
     try {
+      // check if the scanner already exists
+      const existingScanner = await EventScanner.findOne({
+        where: {
+          event_id: eventScanner.event_id,
+          user_id: eventScanner.user_id,
+        },
+      })
+
+      if (existingScanner) {
+        return existingScanner;
+      }
     const neweventScanner = await EventScanner.create(eventScanner);
     return neweventScanner;
   } catch (error) {
