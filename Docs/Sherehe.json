@@ -1910,14 +1910,12 @@ collection:
       modified: 1769007963789
       sortKey: -1751637292699.75
       description: |
-        | Method     | Endpoint                 | Description             |
-        | ---------- | ------------------------ | ----------------------- |
-        | **POST**   | `/api/tickets`           | Create a new ticket     |
-        | **GET**    | `/api/tickets`           | Get all tickets         |
-        | **GET**    | `/api/tickets/:id`       | Get ticket by ID        |
-        | **GET**    | `/api/tickets/event/:id` | Get tickets by event ID |
-        | **PUT**    | `/api/tickets/:id`       | Update ticket details   |
-        | **DELETE** | `/api/tickets/:id`       | Soft delete a ticket    |
+        | Method     | Endpoint                      | Description                     |
+        | ---------- | ----------------------------- | ------------------------------- |
+        | **POST**   | `/eventscanner`               | Create a new event scanner      |
+        | **GET**    | `/eventscanner/:id`           | Get event scanner by ID         |
+        | **GET**    | `/eventscanner/event/:id`     | Get scanners for a specific event |
+        | **DELETE** | `/eventscanner/:id`           | Delete an event scanner         |
     children:
       - url: http://localhost:3000/eventscanner/
         name: Create Event Scanner
