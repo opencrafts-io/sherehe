@@ -1,5 +1,5 @@
 import { logs } from '../Utils/logs.js';
-import { getTotalAttendeesByEventIdRepository , getAttendeesByTicketIdRepository } from '../Repositories/Attendee.repository.js';
+import { getTotalAttendeesByEventIdRepository , getAttendeesByEventIdRepository } from '../Repositories/Attendee.repository.js';
 import { getTotalScannersByEventIdRepository } from '../Repositories/eventScanners.repository.js';
 import {getEventTicketSalesStatsRepository} from '../Repositories/Ticket.repository.js';
 
@@ -88,13 +88,13 @@ export const getTicketStatsController = async (req, res) => {
   }
 }
 
-export const getAttendeesByTicketIdController = async (req, res) => {
+export const getAttendeesByEventIdController = async (req, res) => {
    const start = process.hrtime.bigint();
   try {
-    const ticketId = req.params.id;
+    const eventId = req.params.id;
     const { limit, page, limitPlusOne, offset } = req.pagination;
 
-    const result = await getAttendeesByTicketIdRepository(ticketId ,  limitPlusOne, offset);
+    const result = await getAttendeesByEventIdRepository(eventId ,  limitPlusOne, offset);
 
              const hasNextPage = result.length > limit;
     const attendees = hasNextPage ? result.slice(0, limit) : result;
