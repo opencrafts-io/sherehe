@@ -1,25 +1,48 @@
-import {  EventScanner } from '../Models/index.js';
+import {  EventScanner , User } from '../Models/index.js';
 import { Op } from "sequelize";
 
-export const createEventScannerRepository = async (eventScanner) =>{
-    try {
-      // check if the scanner already exists
-      const existingScanner = await EventScanner.findOne({
-        where: {
-          event_id: eventScanner.event_id,
-          user_id: eventScanner.user_id,
+export const createEventScannerRepository = async (eventScanner) => {
+  try {
+    // Check if scanner already exists
+    const existingScanner = await EventScanner.findOne({
+      where: {
+        event_id: eventScanner.event_id,
+        user_id: eventScanner.user_id,
+      },
+      include: [
+        {
+          model: User,
+          as: "user",
         },
-      })
+      ],
+    });
 
-      if (existingScanner) {
-        return existingScanner;
+    if (existingScanner) {
+      return existingScanner;
+    }
+
+    // Create new scanner
+    const createdScanner = await EventScanner.create(eventScanner);
+
+    // Re-fetch with User included
+    const scannerWithUser = await EventScanner.findByPk(
+      createdScanner.id,
+      {
+        include: [
+          {
+            model: User,
+            as: "user",
+          },
+        ],
       }
-    const neweventScanner = await EventScanner.create(eventScanner);
-    return neweventScanner;
+    );
+
+    return scannerWithUser;
   } catch (error) {
     throw error;
   }
-}
+};
+
 
 export const getEventScannerByUserIdEventIdRepository = async (userId, eventId) => {
   try {
