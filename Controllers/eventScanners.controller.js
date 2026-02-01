@@ -18,11 +18,11 @@ export const createEventScannerController = async (req, res) => {
       organizer_id,
       event_id
     )
-    if(!orgainizer || orgainizer.role !== "SUPERVISOR") {
-      const duration = Number(process.hrtime.bigint() - start) / 1000;
-      logs(duration, "INFO", req.ip, req.method, "Not Authorized to add a scanner", req.path, 404, req.headers["user-agent"]);
-      return res.status(403).json({ message: "Not Authorized to add a scanner" });
-    }
+    // if(!orgainizer || orgainizer.role !== "SUPERVISOR") {
+    //   const duration = Number(process.hrtime.bigint() - start) / 1000;
+    //   logs(duration, "INFO", req.ip, req.method, "Not Authorized to add a scanner", req.path, 404, req.headers["user-agent"]);
+    //   return res.status(403).json({ message: "Not Authorized to add a scanner" });
+    // }
     const scanner = await createEventScannerRepository(
       {
         event_id,
