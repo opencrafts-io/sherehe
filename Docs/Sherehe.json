@@ -40,12 +40,12 @@ collection:
         | **GET**    | `/api/event/organizer/:id`  | Get all events by organizer
         |
     children:
-      - url: http://localhost:3000/event/
+      - url: https://api.opencrafts.io/qa-sherehe/event/
         name: Create Event
         meta:
           id: req_87853c0415ad45ca912c6eac6e23e688
           created: 1751674151145
-          modified: 1769006974312
+          modified: 1769931983430
           isPrivate: false
           description: |
             🟢 Create Event
@@ -513,12 +513,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/event/organizer/6fdd587f-d1dd-49af-9c17-a709612297eb
+      - url: https://api.opencrafts.io/qa-sherehe/event/organizer/6fdd587f-d1dd-49af-9c17-a709612297ec
         name: Get Event by Organizer Id
         meta:
           id: req_87420373029c4a39a838d9e8f0515324
           created: 1761829290787
-          modified: 1767892982987
+          modified: 1769932610385
           isPrivate: false
           description: >
             Get Events by Organizer
@@ -979,12 +979,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: https://api.opencrafts.io/qa-sherehe/ticket/event/f1801e4e-30e6-4f6d-bc81-92a34ae5ee22
+      - url: https://api.opencrafts.io/qa-sherehe/ticket/event/1595aed2-23b3-4de1-81f3-aa05737aff10
         name: Get Tickets by  Event Id
         meta:
           id: req_a55b7b8c2fe34bac917ad7f91f29ef61
           created: 1751676656627
-          modified: 1768722890723
+          modified: 1769932126222
           isPrivate: false
           description: >
             Get Tickets by Event ID
@@ -1251,12 +1251,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/attendee/event/d7ec8f06-fe1b-4d8b-8869-09f37383ab25?page=1&limit=10
+      - url: http://localhost:3000/attendee/event/f9da12b7-b2fa-407b-8feb-4bab6bc69f3e?page=1&limit=10
         name: Get attendees by Event id
         meta:
           id: req_691182551b6c4af396eaf96d072a894d
           created: 1751677247783
-          modified: 1767713906254
+          modified: 1769935121381
           isPrivate: false
           description: >+
             Get All Attendees for an Event
@@ -1614,12 +1614,12 @@ collection:
       sortKey: -1761825514602
       description: ""
     children:
-      - url: http://localhost:3000/user/
+      - url: https://api.opencrafts.io/qa-sherehe/user/
         name: Create
         meta:
           id: req_4d9b8461558b4d53aea07f5c2345ca82
           created: 1761825526376
-          modified: 1769008361125
+          modified: 1769840048905
           isPrivate: false
           description: >
             User API Documentation
@@ -1831,12 +1831,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/purchase/
+      - url: https://api.opencrafts.io/qa-sherehe/purchase/
         name: Purchase Ticket
         meta:
           id: req_f671a6c5aef7431bbd4f4e2020c06daa
           created: 1768063660618
-          modified: 1768763936619
+          modified: 1769932176684
           isPrivate: false
           description: |
             # Ticket API Documentation
@@ -1880,7 +1880,7 @@ collection:
           text: |-
             {
             	"ticket_quantity": 1,
-            	"ticket_id":"d1b14b66-654a-4b7e-bd24-a444486d24a8",
+            	"ticket_id":"15a53a88-e8d8-402d-9e13-171b30bf2b90",
             	"user_phone": "0741414892"
             }
         headers:
@@ -1910,19 +1910,21 @@ collection:
       modified: 1769007963789
       sortKey: -1751637292699.75
       description: |
-        | Method     | Endpoint                      | Description                     |
-        | ---------- | ----------------------------- | ------------------------------- |
-        | **POST**   | `/eventscanner`               | Create a new event scanner      |
-        | **GET**    | `/eventscanner/:id`           | Get event scanner by ID         |
-        | **GET**    | `/eventscanner/event/:id`     | Get scanners for a specific event |
-        | **DELETE** | `/eventscanner/:id`           | Delete an event scanner         |
+        | Method     | Endpoint                 | Description             |
+        | ---------- | ------------------------ | ----------------------- |
+        | **POST**   | `/api/tickets`           | Create a new ticket     |
+        | **GET**    | `/api/tickets`           | Get all tickets         |
+        | **GET**    | `/api/tickets/:id`       | Get ticket by ID        |
+        | **GET**    | `/api/tickets/event/:id` | Get tickets by event ID |
+        | **PUT**    | `/api/tickets/:id`       | Update ticket details   |
+        | **DELETE** | `/api/tickets/:id`       | Soft delete a ticket    |
     children:
       - url: http://localhost:3000/eventscanner/
         name: Create Event Scanner
         meta:
           id: req_4cf4544c3c4a4ce98138008e97b6a65c
           created: 1769007963792
-          modified: 1769008380714
+          modified: 1769839488333
           isPrivate: false
           description: >
             | Field             | Type      | Required |
@@ -2018,7 +2020,7 @@ collection:
           text: |
             {
               "event_id": "936aeb44-9e2d-400b-a4c8-c9869be15ed6",
-              "user_id": "6fdd587f-d1dd-49af-9c17-a709612297ec"
+              "user_id": "9c6c1e2f-4f4d-4f87-9f4a-3c7a8f1c9b42"
             }
         headers:
           - name: Content-Type
@@ -2164,6 +2166,80 @@ collection:
             send: true
             store: true
           rebuildPath: true
+      - url: http://localhost:3000/eventscanner/user/936aeb44-9e2d-400b-a4c8-c9869be15ed6
+        name: Get Event Scanner by user id
+        meta:
+          id: req_4edb41393a9549c2bf137f0a6295cc32
+          created: 1769938564281
+          modified: 1769938573220
+          isPrivate: false
+          description: >
+            🔵 Get Ticket by ID
+
+
+            `Endpoint: GET /api/tickets/:id
+
+            Description: Retrieves a single ticket by its unique ID.`
+
+
+
+            📥 Example Response (200 OK)
+
+            | Field             | Type     | Example                    |
+            Description                    |
+
+            | ----------------- | -------- | -------------------------- |
+            ------------------------------ |
+
+            | `id`              | integer  | 1                          | Ticket
+            ID                      |
+
+            | `event_id`        | integer  | 12                         | Event
+            ID the ticket belongs to |
+
+            | `ticket_name`     | string   | "VIP Pass"                 | Ticket
+            name/type               |
+
+            | `ticket_price`    | decimal  | 2500                       | Ticket
+            price                   |
+
+            | `ticket_quantity` | integer  | 100                        | Number
+            of available tickets    |
+
+            | `delete_tag`      | boolean  | false                      |
+            Soft-delete status             |
+
+            | `createdAt`       | datetime | "2025-10-30T10:00:00.000Z" | Ticket
+            creation timestamp      |
+
+            | `updatedAt`       | datetime | "2025-10-30T12:00:00.000Z" | Ticket
+            last update timestamp   |
+
+
+            ⚠️ Example Error Statuses
+
+            | **Status Code**             | **Description**               |
+
+            | --------------------------- | ----------------------------- |
+
+            | `400 Bad Request`           | Invalid or missing ticket ID. |
+
+            | `404 Not Found`             | Ticket not found.             |
+
+            | `500 Internal Server Error` | Database or server error.     |
+          sortKey: -1751675515101.5
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
     headers:
       - id: pair_f9d89e6e393b4fbf9793c4ee42d005dd
         name: Authorization
@@ -2294,12 +2370,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/dashboard/attendees/db10f9e4-9753-4116-aaaf-fc0ce09ece0c
-        name: Get attendees according to ticket attendees
+      - url: http://localhost:3000/dashboard/attendees/f9da12b7-b2fa-407b-8feb-4bab6bc69f3e
+        name: Get attendees according to ticket id
         meta:
           id: req_d312fa89dfae489981f00b2d569f953b
           created: 1769687960785
-          modified: 1769688482818
+          modified: 1769935173112
           isPrivate: false
           description: >
             🗑️ Delete Ticket (Soft Delete)
