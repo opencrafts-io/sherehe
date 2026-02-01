@@ -122,3 +122,21 @@ export const deleteEventScannerController = async (req, res) => {
     }
   }
 };
+
+export const getEventScannerByUserIdEventIdController = async (req, res) => {
+        const start = process.hrtime.bigint();
+  try {
+    const { id } = req.params;
+    const result = await getEventScannerByUserIdEventIdRepository(req.user.sub, id);
+    const duration = Number(process.hrtime.bigint() - start) / 1000;
+    logs(duration, "INFO", req.ip, req.method, "Event Scanner fetched successfully", req.path, 200, req.headers["user-agent"]);
+    if(!result) {
+      return res.status(404).json({ message: "Event Scanner not found" });
+    }
+    return res.status(200).json({ message: "Event Scanner" });
+  } catch (error) {
+    const duration = Number(process.hrtime.bigint() - start) / 1000;
+    logs(duration, "ERR", req.ip, req.method, error.message, req.path, 500, req.headers["user-agent"]);
+    res.status(500).json({ error: error.message });
+  }
+}

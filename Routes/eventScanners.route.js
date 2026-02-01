@@ -1,5 +1,5 @@
 import express from "express";
-import { createEventScannerController , getEventScannersByEventIdController , deleteEventScannerController} from "../Controllers/eventScanners.controller.js";
+import { createEventScannerController , getEventScannersByEventIdController , deleteEventScannerController , getEventScannerByUserIdEventIdController} from "../Controllers/eventScanners.controller.js";
 
 const router = express.Router();
 
@@ -9,6 +9,7 @@ import { paginate } from '../Middleware/paginate.js';
 router.use(verifyToken);
 router.post("/", createEventScannerController);
 router.get("/event/:id", paginate, getEventScannersByEventIdController);
+router.get("/user/:id", getEventScannerByUserIdEventIdController);
 router.delete("/:id", deleteEventScannerController);
 
 export default router;
