@@ -67,6 +67,13 @@ export const getEventScannerByEventIdRepository = async (eventId , limitPlusOne,
       where: {
         event_id: eventId,
       },
+      include: [
+        {
+          model: User,
+          as: "user",
+        },
+      ],
+      order: [["created_at", "DESC"]],
       limit: limitPlusOne,
       offset,
     });
