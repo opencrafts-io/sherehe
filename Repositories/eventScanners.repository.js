@@ -1,14 +1,48 @@
-import {  EventScanner } from '../Models/index.js';
+import {  EventScanner , User } from '../Models/index.js';
 import { Op } from "sequelize";
 
-export const createEventScannerRepository = async (eventScanner) =>{
-    try {
-    const neweventScanner = await EventScanner.create(eventScanner);
-    return neweventScanner;
+export const createEventScannerRepository = async (eventScanner) => {
+  try {
+    // Check if scanner already exists
+    const existingScanner = await EventScanner.findOne({
+      where: {
+        event_id: eventScanner.event_id,
+        user_id: eventScanner.user_id,
+      },
+      include: [
+        {
+          model: User,
+          as: "user",
+        },
+      ],
+    });
+
+    if (existingScanner) {
+      return existingScanner;
+    }
+
+    // Create new scanner
+    const createdScanner = await EventScanner.create(eventScanner);
+
+    // Re-fetch with User included
+    const scannerWithUser = await EventScanner.findByPk(
+      createdScanner.id,
+      {
+        include: [
+          {
+            model: User,
+            as: "user",
+          },
+        ],
+      }
+    );
+
+    return scannerWithUser;
   } catch (error) {
     throw error;
   }
-}
+};
+
 
 export const getEventScannerByUserIdEventIdRepository = async (userId, eventId) => {
   try {
@@ -27,12 +61,21 @@ export const getEventScannerByUserIdEventIdRepository = async (userId, eventId) 
   }
 };
 
-export const getEventScannerByEventIdRepository = async (eventId) => {
+export const getEventScannerByEventIdRepository = async (eventId , limitPlusOne, offset) => {
   try {
     const scanner = await EventScanner.findAll({
       where: {
         event_id: eventId,
       },
+      include: [
+        {
+          model: User,
+          as: "user",
+        },
+      ],
+      order: [["created_at", "DESC"]],
+      limit: limitPlusOne,
+      offset,
     });
 
     if (!scanner) return null;
@@ -61,4 +104,17 @@ export const deleteEventScannerRepository = async (
   await scanner.destroy();
   return scanner;
 };
-   
+  
+export const getTotalScannersByEventIdRepository = async (eventId) => {
+  try {
+    const totalScanners = await EventScanner.count({
+      where: {
+        event_id: eventId,
+      },
+    });
+
+    return totalScanners;
+  } catch (error) {
+    throw error;
+  }
+};
