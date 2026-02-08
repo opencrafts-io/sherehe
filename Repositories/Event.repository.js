@@ -1,8 +1,6 @@
 import { Event , EventScanner } from '../Models/index.js';
 import { Op } from "sequelize";
 
-import {updateUserRepository} from '../Repositories/User.repository.js';
-
 export const createEventRepository = async (eventData , options = {}) => {
   try {
     const event = await Event.create(eventData , options);

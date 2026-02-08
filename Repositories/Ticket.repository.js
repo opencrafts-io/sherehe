@@ -1,5 +1,6 @@
 import {Ticket} from '../Models/index.js';
 import {getEventByIdRepository} from './Event.repository.js';
+import { Sequelize } from "sequelize";
 
 export const createTicketRepository = async (data , options = {}) => {
   try {
@@ -74,4 +75,38 @@ export const deleteTicketRepository = async (id , organizer_id) => {
   } catch (error) {
     throw error;
   }
+};
+
+
+export const getEventTicketSalesStatsRepository = async (eventId) => {
+  const tickets = await Ticket.findAll({
+    where: { event_id: eventId },
+
+    attributes: [
+      "id",
+      "ticket_name",
+      "ticket_price",
+      "ticket_quantity", // remaining
+
+      [
+        Sequelize.literal(`(
+          SELECT COALESCE(SUM(a.ticket_quantity), 0)
+          FROM attendees a
+          WHERE a.ticket_id = tickets.id
+        )`),
+        "tickets_sold"
+      ]
+    ],
+
+    order: [["created_at", "ASC"]],
+    raw: true
+  });
+
+  return tickets.map(ticket => ({
+    ticket_id: ticket.id,
+    ticket_name: ticket.ticket_name,
+    ticket_price: ticket.ticket_price,
+    tickets_sold: Number(ticket.tickets_sold),
+    tickets_remaining: ticket.ticket_quantity
+  }));
 };

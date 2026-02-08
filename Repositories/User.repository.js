@@ -1,5 +1,5 @@
 import {User} from "../Models/index.js";
-
+import { Op } from "sequelize";
 
 export const createUserRepository = async (data) => {
   try {
@@ -34,3 +34,23 @@ export const updateUserRepository = async (id, data) => {
     throw error;
   }
 }
+
+export const getUserByUsernameRepository = async (searchQuery) =>
+  {
+      try {
+    const users = await User.findAll({
+      where: {
+        [Op.or]: [
+          { username: { [Op.iLike]: `%${searchQuery}%` } },
+          // { email: { [Op.iLike]: `%${searchQuery}%` } },
+          // { event_location: { [Op.iLike]: `%${searchQuery}%` } },
+        ],
+      },
+      order: [["created_at", "DESC"]],
+    });
+
+    return users;
+  } catch (error) {
+    throw error;
+  }
+  }

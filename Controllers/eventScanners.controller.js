@@ -54,10 +54,13 @@ export const createEventScannerController = async (req, res) => {
 export const getEventScannersByEventIdController = async (req, res) => {
         const start = process.hrtime.bigint();
   try {      
+      const { limit, page, limitPlusOne, offset } = req.pagination;
     const event_id = req.params.id;
-    const scanner = await getEventScannerByEventIdRepository(event_id);
+    const result = await getEventScannerByEventIdRepository(event_id , limitPlusOne, offset);
     const duration = Number(process.hrtime.bigint() - start) / 1000;
 
+        const hasNextPage = result.length > limit;
+    const scanners = hasNextPage ? result.slice(0, limit) : result;
     logs(
       duration,
       "INFO",
@@ -68,7 +71,14 @@ export const getEventScannersByEventIdController = async (req, res) => {
       200,
       req.headers["user-agent"]
     )
-    return res.status(200).json(scanner);
+    return res.status(200).json({
+      status: "success",
+      currentPage: page,
+      nextPage: hasNextPage ? page + 1 : null,
+      previousPage: page > 1 ? page - 1 : null,
+      totalScanners: scanners.length,
+      data: scanners,
+    });
   } catch (error) {
     const duration = Number(process.hrtime.bigint() - start) / 1000;
     logs(duration, "ERR", req.ip, req.method, error.message, req.path, 500, req.headers["user-agent"]);
@@ -112,3 +122,21 @@ export const deleteEventScannerController = async (req, res) => {
     }
   }
 };
+
+export const getEventScannerByUserIdEventIdController = async (req, res) => {
+        const start = process.hrtime.bigint();
+  try {
+    const { id } = req.params;
+    const result = await getEventScannerByUserIdEventIdRepository(req.user.sub, id);
+    const duration = Number(process.hrtime.bigint() - start) / 1000;
+    logs(duration, "INFO", req.ip, req.method, "Event Scanner fetched successfully", req.path, 200, req.headers["user-agent"]);
+    if(!result) {
+      return res.status(404).json({ message: "Event Scanner not found" });
+    }
+    return res.status(200).json({ message: "Event Scanner" });
+  } catch (error) {
+    const duration = Number(process.hrtime.bigint() - start) / 1000;
+    logs(duration, "ERR", req.ip, req.method, error.message, req.path, 500, req.headers["user-agent"]);
+    res.status(500).json({ error: error.message });
+  }
+}
