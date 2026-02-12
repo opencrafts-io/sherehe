@@ -32,24 +32,13 @@ export const getAllEventsRepository = async (params) => {
         offset: offset
       });
 
-return events.map(event => {
-  const {...rest } = event.toJSON();
-
-  let genres = [];
-  if (rest.event_genre) {
-    try {
-      const parsed = JSON.parse(rest.event_genre);
-      if (Array.isArray(parsed)) genres = parsed;
-    } catch (err) {
-      genres = [];
-    }
-  }
-
-  return {
-    ...rest,
-    event_genre: genres,
-  };
-});
+    const formattedEvents = events.map(event => ({
+      ...event.toJSON(),
+      event_genre: Array.isArray(event.event_genre)
+        ? event.event_genre
+        : JSON.parse(event.event_genre || '[]')
+    }));
+    return formattedEvents;
 
 
   } catch (error) {
