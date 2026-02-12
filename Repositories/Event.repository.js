@@ -5,7 +5,7 @@ export const createEventRepository = async (eventData, options = {}) => {
   try {
     const event = await Event.create(eventData, options);
 
-    const { event_visibility, ...rest } = event.toJSON();
+    const { ...rest } = event.toJSON();
 
     const formatted = {
       ...rest,
@@ -22,40 +22,35 @@ export const createEventRepository = async (eventData, options = {}) => {
 
 export const getAllEventsRepository = async (params) => {
   try {
-    const { limitPlusOne = 20, offset = 0, event_visibility = [] } = params;
+    const { limitPlusOne = 20, offset = 0} = params;
 
-    let where = {};
 
-    if (event_visibility.length > 0) {
-      // Looser match: visibility matches OR is NULL OR empty string
-      where = {
-        [Op.or]: [
-          ...event_visibility.map(v => ({
-            event_visibility: { [Op.iLike]: `%${v}%` }
-          })),
-          { event_visibility: '' },
-          { event_visibility: null }
-        ]
-      };
-    }
     const events = await Event
-      .scope('withVisibility')
       .findAll({
-        where,
         order: [["created_at", "DESC"]],
         limit: limitPlusOne,
         offset: offset
       });
 
-    return events.map(event => {
-      const { event_visibility, ...rest } = event.toJSON();
-      return {
-        ...rest,
-        event_genre: Array.isArray(rest.event_genre)
-          ? rest.event_genre
-          : JSON.parse(rest.event_genre || '[]'),
-      };
-    });
+return events.map(event => {
+  const {...rest } = event.toJSON();
+
+  let genres = [];
+  if (rest.event_genre) {
+    try {
+      const parsed = JSON.parse(rest.event_genre);
+      if (Array.isArray(parsed)) genres = parsed;
+    } catch (err) {
+      genres = [];
+    }
+  }
+
+  return {
+    ...rest,
+    event_genre: genres,
+  };
+});
+
 
   } catch (error) {
     throw error;

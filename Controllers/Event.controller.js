@@ -37,7 +37,6 @@ export const createEventController = async (req, res) => {
       account_reference,
       till_number,
       send_money_phone,
-      event_visibility
     } = req.body;
 
     const organizer_id = req.user.sub;
@@ -110,7 +109,7 @@ export const createEventController = async (req, res) => {
           event_poster_image,
           event_banner_image,
           organizer_id,
-          event_visibility
+          
         },
         { transaction }
       );
@@ -241,15 +240,8 @@ export const getAllEventsController = async (req, res) => {
   try {
     const { limit, page, limitPlusOne, offset } = req.pagination;
 
-    let event_visibility = req.query.event_visibility || [];
 
-    if (!event_visibility) {
-  event_visibility = [];
-} else if (!Array.isArray(event_visibility)) {
-  event_visibility = [event_visibility];
-}
-
-    const result = await getAllEventsRepository({ limitPlusOne, offset , event_visibility });
+    const result = await getAllEventsRepository({ limitPlusOne, offset });
 
     const hasNextPage = result.length > limit;
     const events = hasNextPage ? result.slice(0, limit) : result;
