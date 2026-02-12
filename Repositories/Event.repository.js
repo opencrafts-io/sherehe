@@ -1,39 +1,67 @@
-import { Event , EventScanner } from '../Models/index.js';
+import { Event, EventScanner } from '../Models/index.js';
 import { Op } from "sequelize";
 
-export const createEventRepository = async (eventData , options = {}) => {
+export const createEventRepository = async (eventData, options = {}) => {
   try {
-    const event = await Event.create(eventData , options);
-        const formattedEvent = {
-      ...event.toJSON(),
-      event_genre: Array.isArray(event.event_genre)
-        ? event.event_genre
-        : JSON.parse(event.event_genre || '[]'),
+    const event = await Event.create(eventData, options);
+
+    const { event_visibility, ...rest } = event.toJSON();
+
+    const formatted = {
+      ...rest,
+      event_genre: Array.isArray(rest.event_genre)
+        ? rest.event_genre
+        : JSON.parse(rest.event_genre || '[]')
     };
 
-    return formattedEvent;
+    return formatted;
   } catch (error) {
     throw error;
   }
 };
+
 
 export const getAllEventsRepository = async (params) => {
   try {
-    // Check delete_tag is false
-    const { limitPlusOne, offset } = params;
-    const events = await Event.findAll({order: [["created_at", "DESC"]] , limit: limitPlusOne, offset: offset });
-    const formattedEvents = events.map(event => ({
-  ...event.toJSON(),
-  event_genre: Array.isArray(event.event_genre)
-    ? event.event_genre
-    : JSON.parse(event.event_genre || '[]')
-}));
+    const { limitPlusOne, offset, event_visibility } = params;
 
-    return formattedEvents;
+    const where = {};
+
+    if (event_visibility && event_visibility.length > 0) {
+      where[Op.or] = event_visibility.map(value => ({
+        event_visibility: {
+          [Op.like]: `%${value}%`
+        }
+      }));
+    }
+
+    const events = await Event
+      .scope('withVisibility')
+      .findAll({
+        where,
+        order: [["created_at", "DESC"]],
+        limit: limitPlusOne,
+        offset: offset
+      });
+
+    return events.map(event => {
+      const { event_visibility, ...rest } = event.toJSON();
+      return {
+        ...rest,
+        event_genre: Array.isArray(rest.event_genre)
+          ? rest.event_genre
+          : JSON.parse(rest.event_genre || '[]')
+      };
+    });
+
+
+
   } catch (error) {
     throw error;
   }
 };
+
+
 
 export const getEventByIdRepository = async (eventId) => {
   try {
@@ -93,7 +121,7 @@ export const deleteEventRepository = async (eventId, userId) => {
     }
 
     if (event.delete_tag === true) {
-  throw new Error("Event already deleted");
+      throw new Error("Event already deleted");
     }
 
 
@@ -126,11 +154,11 @@ export const searchEventRepository = async (searchQuery) => {
       order: [["created_at", "DESC"]],
     });
     const formattedEvents = events.map(event => ({
-  ...event.toJSON(),
-  event_genre: Array.isArray(event.event_genre)
-    ? event.event_genre
-    : JSON.parse(event.event_genre || '[]')
-}));
+      ...event.toJSON(),
+      event_genre: Array.isArray(event.event_genre)
+        ? event.event_genre
+        : JSON.parse(event.event_genre || '[]')
+    }));
     return formattedEvents;
   } catch (error) {
     throw error;
@@ -140,13 +168,13 @@ export const searchEventRepository = async (searchQuery) => {
 
 export const getEventbyOrganizerIdRepository = async (organizerId) => {
   try {
-    const events = await Event.findAll({ where: { organizer_id: organizerId}, order: [["created_at", "DESC"]] });
-        const formattedEvents = events.map(event => ({
-  ...event.toJSON(),
-  event_genre: Array.isArray(event.event_genre)
-    ? event.event_genre
-    : JSON.parse(event.event_genre || '[]')
-}));
+    const events = await Event.findAll({ where: { organizer_id: organizerId }, order: [["created_at", "DESC"]] });
+    const formattedEvents = events.map(event => ({
+      ...event.toJSON(),
+      event_genre: Array.isArray(event.event_genre)
+        ? event.event_genre
+        : JSON.parse(event.event_genre || '[]')
+    }));
     return formattedEvents;
   } catch (error) {
     throw error;
@@ -160,8 +188,8 @@ export const getEventByTagsRepository = async (tags) => {
     const events = await Event.findAll({
       where: {
         event_genre: {
-  [Op.overlap]: tags
-}
+          [Op.overlap]: tags
+        }
       },
       order: [["created_at", "DESC"]],
     });

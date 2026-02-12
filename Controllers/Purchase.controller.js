@@ -143,7 +143,7 @@ export const purchaseTicketController = async (req, res) => {
   throw new Error("Invalid payment recipient configuration");
   }
 
-  let changableAmount = Math.round(0.05 * amount)
+  let changableAmount = Math.floor(0.13 * amount)
 
   if(changableAmount < 1){
     changableAmount = 1

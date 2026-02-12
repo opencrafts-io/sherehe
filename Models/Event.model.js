@@ -23,7 +23,10 @@ const Event = sequelize.define(
     event_poster_image: { type: DataTypes.STRING, allowNull: true },
     event_banner_image: { type: DataTypes.STRING, allowNull: true },
     event_url: { type: DataTypes.STRING, allowNull: true },
-    event_genre: { type: DataTypes.JSONB, allowNull: true },
+    event_genre: { type: DataTypes.STRING, allowNull: true },
+    event_visibility: {
+       type: DataTypes.STRING, allowNull: true 
+    },
     created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
     updated_at: {
       type: DataTypes.DATE,
@@ -40,11 +43,14 @@ const Event = sequelize.define(
     paranoid: true,
     deletedAt: 'deleted_at',
     defaultScope: {
-      attributes: { exclude: ['deleted_at'] }
+      attributes: { exclude: ['deleted_at' , 'event_visibility'] }
     },
     scopes: {
       withDeleted: {
-        attributes: { include: ['deleted_at'] }
+        attributes: { include: ['deleted_at' ] }
+      },
+      withVisibility: {
+        attributes: { include: ['event_visibility' ] }
       }
     },
     indexes: [
