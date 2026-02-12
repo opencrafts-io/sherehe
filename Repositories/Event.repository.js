@@ -20,21 +20,24 @@ export const createEventRepository = async (eventData, options = {}) => {
   }
 };
 
-
 export const getAllEventsRepository = async (params) => {
   try {
-    const { limitPlusOne, offset, event_visibility } = params;
+    const { limitPlusOne = 20, offset = 0, event_visibility = [] } = params;
 
-    const where = {};
+    let where = {};
 
-    if (event_visibility && event_visibility.length > 0) {
-      where[Op.or] = event_visibility.map(value => ({
-        event_visibility: {
-          [Op.like]: `%${value}%`
-        }
-      }));
+    if (event_visibility.length > 0) {
+      // Looser match: visibility matches OR is NULL OR empty string
+      where = {
+        [Op.or]: [
+          ...event_visibility.map(v => ({
+            event_visibility: { [Op.iLike]: `%${v}%` }
+          })),
+          { event_visibility: '' },
+          { event_visibility: null }
+        ]
+      };
     }
-
     const events = await Event
       .scope('withVisibility')
       .findAll({
@@ -50,16 +53,16 @@ export const getAllEventsRepository = async (params) => {
         ...rest,
         event_genre: Array.isArray(rest.event_genre)
           ? rest.event_genre
-          : JSON.parse(rest.event_genre || '[]')
+          : JSON.parse(rest.event_genre || '[]'),
       };
     });
-
-
 
   } catch (error) {
     throw error;
   }
 };
+
+
 
 
 

@@ -40,12 +40,12 @@ collection:
         | **GET**    | `/api/event/organizer/:id`  | Get all events by organizer
         |
     children:
-      - url: https://api.opencrafts.io/qa-sherehe/event/
+      - url: http://localhost:3000/event/
         name: Create Event
         meta:
           id: req_87853c0415ad45ca912c6eac6e23e688
           created: 1751674151145
-          modified: 1769931983430
+          modified: 1770897947826
           isPrivate: false
           description: |
             🟢 Create Event
@@ -123,38 +123,38 @@ collection:
               description: ""
               disabled: false
               id: pair_beddf5ff39a94fa6ae903cb66f7aac87
-              fileName: /home/ordo-chao/Pictures/Screenshots/Screenshot from 2025-10-02
-                00-19-27.png
+              fileName: /home/ordo-chao/Pictures/Screenshots/Screenshot from 2026-02-11
+                23-41-14.png
               type: file
             - name: event_genre
               value: '["Adult Time"]'
               description: ""
               disabled: false
               id: pair_84d94397758640079d7009150ee41daa
-            - name: organizer_id
-              value: 68c60564-a407-4271-87f2-eb6efbfeb1ea
+            - name: event_visibility
+              value: '["1" , "2"]'
               description: ""
-              disabled: true
+              disabled: false
               id: pair_afa89f68172d43ecaaace3fae46647e6
             - name: event_poster_image
               value: ""
               description: ""
               disabled: false
               id: pair_9496d31d6595497382069bee6403c6a6
-              fileName: /home/ordo-chao/Pictures/Screenshots/Screenshot from 2025-10-28
-                17-58-13.png
+              fileName: /home/ordo-chao/Pictures/Screenshots/Screenshot from 2026-02-11
+                23-41-14.png
               type: file
             - name: event_banner_image
               value: ""
               description: ""
               disabled: false
               id: pair_50ff89ddc2af484f911677e351c71a2d
-              fileName: /home/ordo-chao/Pictures/Screenshots/Screenshot from 2025-10-28
-                04-49-54.png
+              fileName: /home/ordo-chao/Pictures/Screenshots/Screenshot from 2026-02-11
+                23-41-14.png
               type: file
             - name: tickets
               value: '[{"ticket_name": "VIP Ticket",  "ticket_price": 15,  "ticket_quantity":
-                200}]'
+                200, "ticket_visibility": ["1" , "2"]}]'
               description: ""
               disabled: false
               id: pair_c9526f4d655d4bb0841de7a32bb46e87
@@ -244,12 +244,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: https://api.opencrafts.io/qa-sherehe/event?page=1&limit=20
+      - url: http://localhost:3000/event?page=1&limit=20&event_visibility=1&event_visibility=2
         name: Get all Events
         meta:
           id: req_396769ef52ba480a9745f7b33982f1c2
           created: 1751675623663
-          modified: 1768120094802
+          modified: 1770897340796
           isPrivate: false
           description: |+
             Get All Events
@@ -735,7 +735,7 @@ collection:
         meta:
           id: req_10935d13ed974718b76f9af6ef0bed48
           created: 1751676656623
-          modified: 1769593626729
+          modified: 1770897771760
           isPrivate: false
           description: >
             | Field             | Type      | Required |
@@ -833,7 +833,8 @@ collection:
               "event_id": "0dc85081-a9eb-443b-bce1-094ae4322ea5",
               "ticket_name": "VI Ticket",
               "ticket_price": 1500,
-              "ticket_quantity": 200
+              "ticket_quantity": 200,
+            	"ticket_visibility": ["1" , "2"]
             }
         headers:
           - name: Content-Type
@@ -905,12 +906,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/ticket/01309ab6-b6ec-4566-9470-bb88a440019d
+      - url: http://localhost:3000/ticket/5beb1359-f70c-4097-bc9c-82d2316e1f8c
         name: Get by Ticket Id
         meta:
           id: req_08744788b76b4ca38487367868db3804
           created: 1751676656626
-          modified: 1767713829164
+          modified: 1770898154028
           isPrivate: false
           description: >
             🔵 Get Ticket by ID
@@ -979,12 +980,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: https://api.opencrafts.io/qa-sherehe/ticket/event/1595aed2-23b3-4de1-81f3-aa05737aff10
+      - url: http://localhost:3000/ticket/event/a60d69ad-9cef-4f22-ad63-d29c1c46fb95
         name: Get Tickets by  Event Id
         meta:
           id: req_a55b7b8c2fe34bac917ad7f91f29ef61
           created: 1751676656627
-          modified: 1769932126222
+          modified: 1770898111382
           isPrivate: false
           description: >
             Get Tickets by Event ID
@@ -1614,12 +1615,12 @@ collection:
       sortKey: -1761825514602
       description: ""
     children:
-      - url: https://api.opencrafts.io/qa-sherehe/user/
+      - url: http://localhost:3000/user/
         name: Create
         meta:
           id: req_4d9b8461558b4d53aea07f5c2345ca82
           created: 1761825526376
-          modified: 1769840048905
+          modified: 1770895323730
           isPrivate: false
           description: >
             User API Documentation
@@ -1700,11 +1701,11 @@ collection:
           mimeType: application/json
           text: |
             {
-              "id": "6fdd587f-d1dd-49af-9c17-a709612297ec",
-              "username": "eug",
-              "email": "eug.ben@example.com",
-              "name": "Eugen Wachir",
-              "phone": "+254741414893"
+              "id": "6fdd587f-d1dd-49af-9c17-a709612297eb",
+              "username": "ordo-chao",
+              "email": "princeben9312@gmail.com",
+              "name": "Prince Benedict Wachira",
+              "phone": "+254741414892"
             }
         headers:
           - name: Content-Type
