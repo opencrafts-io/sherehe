@@ -14,7 +14,7 @@ export const createTicketController = async (req, res) => {
   const start = process.hrtime.bigint();
 
   try {
-    const { event_id, ticket_name, ticket_price, ticket_quantity } = req.body;
+    const { event_id, ticket_name, ticket_price, ticket_quantity , ticket_visibility } = req.body;
 
     if (!event_id || !ticket_price || !ticket_quantity) {
       const duration = Number(process.hrtime.bigint() - start) / 1000;
@@ -31,6 +31,7 @@ export const createTicketController = async (req, res) => {
       ticket_name,
       ticket_price,
       ticket_quantity,
+      ticket_visibility
     });
 
     const duration = Number(process.hrtime.bigint() - start) / 1000;
