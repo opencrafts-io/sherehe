@@ -30,6 +30,9 @@ const Ticket = sequelize.define(
       allowNull: false,
       defaultValue: DataTypes.NOW
     },
+    ticket_visibility: {
+       type: DataTypes.JSONB, allowNull: true 
+    },
     updated_at: {
      type: DataTypes.DATE,
       allowNull: false,
