@@ -14,12 +14,10 @@ import { createPaymentInfoRepository } from "../Repositories/paymentInfo.reposit
 import { cleanupFiles } from "../Middleware/cleanupFiles.js";
 import { processAndSaveImages } from "../Middleware/upload.js";
 import sequelize from "../Utils/db.js";
-import { randomUUID } from "crypto";
 import { sendNotification } from "../Utils/Notification.js";
 import {createEventScannerRepository} from "../Repositories/eventScanners.repository.js";
 import { logs } from "../Utils/logs.js";
 
-const generateSheId = () => `she_${randomUUID()}`;
 
 export const createEventController = async (req, res) => {
   const start = process.hrtime.bigint();
@@ -27,7 +25,7 @@ export const createEventController = async (req, res) => {
   let transaction;
 
   try {
-    const {
+    let {
       event_name,
       event_description,
       event_location,
@@ -38,7 +36,7 @@ export const createEventController = async (req, res) => {
       paybill_number,
       account_reference,
       till_number,
-      send_money_phone
+      send_money_phone,
     } = req.body;
 
     const organizer_id = req.user.sub;
@@ -111,6 +109,7 @@ export const createEventController = async (req, res) => {
           event_poster_image,
           event_banner_image,
           organizer_id,
+          
         },
         { transaction }
       );
@@ -240,6 +239,7 @@ export const getAllEventsController = async (req, res) => {
 
   try {
     const { limit, page, limitPlusOne, offset } = req.pagination;
+
 
     const result = await getAllEventsRepository({ limitPlusOne, offset });
 

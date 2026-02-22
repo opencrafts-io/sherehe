@@ -1,17 +1,20 @@
-import { Event , EventScanner } from '../Models/index.js';
+import { Event, EventScanner } from '../Models/index.js';
 import { Op } from "sequelize";
 
-export const createEventRepository = async (eventData , options = {}) => {
+export const createEventRepository = async (eventData, options = {}) => {
   try {
-    const event = await Event.create(eventData , options);
-        const formattedEvent = {
-      ...event.toJSON(),
-      event_genre: Array.isArray(event.event_genre)
-        ? event.event_genre
-        : JSON.parse(event.event_genre || '[]'),
+    const event = await Event.create(eventData, options);
+
+    const { ...rest } = event.toJSON();
+
+    const formatted = {
+      ...rest,
+      event_genre: Array.isArray(rest.event_genre)
+        ? rest.event_genre
+        : JSON.parse(rest.event_genre || '[]')
     };
 
-    return formattedEvent;
+    return formatted;
   } catch (error) {
     throw error;
   }
@@ -19,21 +22,33 @@ export const createEventRepository = async (eventData , options = {}) => {
 
 export const getAllEventsRepository = async (params) => {
   try {
-    // Check delete_tag is false
-    const { limitPlusOne, offset } = params;
-    const events = await Event.findAll({order: [["created_at", "DESC"]] , limit: limitPlusOne, offset: offset });
-    const formattedEvents = events.map(event => ({
-  ...event.toJSON(),
-  event_genre: Array.isArray(event.event_genre)
-    ? event.event_genre
-    : JSON.parse(event.event_genre || '[]')
-}));
+    const { limitPlusOne = 20, offset = 0} = params;
 
+
+    const events = await Event
+      .findAll({
+        order: [["created_at", "DESC"]],
+        limit: limitPlusOne,
+        offset: offset
+      });
+
+    const formattedEvents = events.map(event => ({
+      ...event.toJSON(),
+      event_genre: Array.isArray(event.event_genre)
+        ? event.event_genre
+        : JSON.parse(event.event_genre || '[]')
+    }));
     return formattedEvents;
+
+
   } catch (error) {
     throw error;
   }
 };
+
+
+
+
 
 export const getEventByIdRepository = async (eventId) => {
   try {
@@ -93,7 +108,7 @@ export const deleteEventRepository = async (eventId, userId) => {
     }
 
     if (event.delete_tag === true) {
-  throw new Error("Event already deleted");
+      throw new Error("Event already deleted");
     }
 
 
@@ -126,11 +141,11 @@ export const searchEventRepository = async (searchQuery) => {
       order: [["created_at", "DESC"]],
     });
     const formattedEvents = events.map(event => ({
-  ...event.toJSON(),
-  event_genre: Array.isArray(event.event_genre)
-    ? event.event_genre
-    : JSON.parse(event.event_genre || '[]')
-}));
+      ...event.toJSON(),
+      event_genre: Array.isArray(event.event_genre)
+        ? event.event_genre
+        : JSON.parse(event.event_genre || '[]')
+    }));
     return formattedEvents;
   } catch (error) {
     throw error;
@@ -140,13 +155,13 @@ export const searchEventRepository = async (searchQuery) => {
 
 export const getEventbyOrganizerIdRepository = async (organizerId) => {
   try {
-    const events = await Event.findAll({ where: { organizer_id: organizerId}, order: [["created_at", "DESC"]] });
-        const formattedEvents = events.map(event => ({
-  ...event.toJSON(),
-  event_genre: Array.isArray(event.event_genre)
-    ? event.event_genre
-    : JSON.parse(event.event_genre || '[]')
-}));
+    const events = await Event.findAll({ where: { organizer_id: organizerId }, order: [["created_at", "DESC"]] });
+    const formattedEvents = events.map(event => ({
+      ...event.toJSON(),
+      event_genre: Array.isArray(event.event_genre)
+        ? event.event_genre
+        : JSON.parse(event.event_genre || '[]')
+    }));
     return formattedEvents;
   } catch (error) {
     throw error;
@@ -160,8 +175,8 @@ export const getEventByTagsRepository = async (tags) => {
     const events = await Event.findAll({
       where: {
         event_genre: {
-  [Op.overlap]: tags
-}
+          [Op.overlap]: tags
+        }
       },
       order: [["created_at", "DESC"]],
     });
