@@ -25,6 +25,11 @@ const Ticket = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false
     },
+    purchased_tickets: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0
+    },
     created_at: {
       type: DataTypes.DATE,
       allowNull: false,
