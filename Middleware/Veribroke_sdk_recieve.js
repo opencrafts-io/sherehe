@@ -39,8 +39,11 @@ export async function startMpesaSuccessConsumer() {
           const routingKey = msg.fields.routingKey;
           const payload = JSON.parse(msg.content.toString());
 
-          const { request_id, success, message, metadata } = payload;
-const stkCallback = metadata.Body;
+const { request_id, success, message, metadata } = payload;
+const stkCallback = metadata?.Body;
+if (!request_id || !stkCallback) {
+  throw new Error("Invalid MPESA success payload: missing request_id or metadata.Body");
+}
 const { MerchantRequestID, CheckoutRequestID } = stkCallback;
 
 let status;
@@ -57,27 +60,30 @@ if (success) {
 }
 
 // Update transaction first
-const transaction = await updateTransactionRepository(request_id, {
-  checkout_request_id: CheckoutRequestID || null,
-  merchant_request_id: MerchantRequestID || null,
-  status,
-  failure_reason,
-  provider_response: stkCallback || null
-});
+const transaction = await getTransactionByIdRepository(request_id);
 
-const { user_id, event_id, ticket_id, ticket_quantity } = transaction.get({ plain: true });
+if (transaction.status === "PENDING") {
+  // Update transaction
+  await updateTransactionRepository(request_id, { 
+    status,
+    failure_reason,
+    checkout_request_id: CheckoutRequestID || null,
+    merchant_request_id: MerchantRequestID || null,
+    provider_response: stkCallback || null
+  });
 
-try {
-  if (success) {
-    await createAttendeeRepository({ user_id, event_id, ticket_id, ticket_quantity });
-  } else {
-    // Rollback purchased tickets
+  if (!success) {
     await updateTicketRepository(ticket_id, {
-      ticket_quantity: Sequelize.literal(`ticket_quantity + ${ticket_quantity}`)
+      ticket_quantity: Sequelize.literal(`ticket_quantity - ${transaction.ticket_quantity}`)
+    });
+  } else {
+    await createAttendeeRepository({
+      user_id: transaction.user_id,
+      event_id: transaction.event_id,
+      ticket_id: transaction.ticket_id,
+      ticket_quantity: transaction.ticket_quantity
     });
   }
-} catch (err) {
-  console.error("❌ Error processing attendee/rollback:", err);
 }
 
 channel.ack(msg);
