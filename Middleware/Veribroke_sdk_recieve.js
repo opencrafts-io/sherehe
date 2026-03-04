@@ -39,63 +39,48 @@ export async function startMpesaSuccessConsumer() {
           const routingKey = msg.fields.routingKey;
           const payload = JSON.parse(msg.content.toString());
 
-          const { request_id, success, message, metadata, errors } = payload;
-          const stkCallback = metadata.Body;
-          const { MerchantRequestID, CheckoutRequestID } = stkCallback;
+          const { request_id, success, message, metadata } = payload;
+const stkCallback = metadata.Body;
+const { MerchantRequestID, CheckoutRequestID } = stkCallback;
 
-          let status;
+let status;
+let failure_reason = null;
 
-          let failure_reason = null;
+if (success) {
+  status = "SUCCESS";
+} else if (message === "Request Cancelled by user") {
+  status = "CANCELLED";
+  failure_reason = message;
+} else {
+  status = "FAILED";
+  failure_reason = message || "Unknown error";
+}
 
-          if (success) {
-            status = "SUCCESS";
-          } else if (message === "Request Cancelled by user") {
-            status = "CANCELLED";
-          } else {
-            user_id
-            status = "FAILED";
-          }
+// Update transaction first
+const transaction = await updateTransactionRepository(request_id, {
+  checkout_request_id: CheckoutRequestID || null,
+  merchant_request_id: MerchantRequestID || null,
+  status,
+  failure_reason,
+  provider_response: stkCallback || null
+});
 
-          if (!success) {
-            failure_reason = message;
-          }
+const { user_id, event_id, ticket_id, ticket_quantity } = transaction.get({ plain: true });
 
-          const transaction = await updateTransactionRepository(
-            request_id,
-            {
-              checkout_request_id: CheckoutRequestID || null,
-              merchant_request_id: MerchantRequestID || null,
-              status,
-              failure_reason,
-              provider_response: stkCallback || null
-            }
-          );
+try {
+  if (success) {
+    await createAttendeeRepository({ user_id, event_id, ticket_id, ticket_quantity });
+  } else {
+    // Rollback purchased tickets
+    await updateTicketRepository(ticket_id, {
+      ticket_quantity: Sequelize.literal(`ticket_quantity - ${ticket_quantity}`)
+    });
+  }
+} catch (err) {
+  console.error("❌ Error processing attendee/rollback:", err);
+}
 
-          const plainTransaction = transaction.get({ plain: true });
-
-          const { user_id, event_id, ticket_id, ticket_quantity } = plainTransaction;
-
-
-          if (success) {
-            await createAttendeeRepository(
-              {
-                user_id,
-              event_id,
-              ticket_id,
-              ticket_quantity
-            }
-            );
-          }else{
-            await updateTicketRepository(
-    ticket_id,
-    {
-      ticket_quantity: Sequelize.literal(
-        `ticket_quantity + ${ticket_quantity}`
-      )
-    },)
-          }
-
-          channel.ack(msg);
+channel.ack(msg);
 
         } catch (error) {
           if (msg.fields.redelivered) {
