@@ -73,7 +73,7 @@ try {
   } else {
     // Rollback purchased tickets
     await updateTicketRepository(ticket_id, {
-      ticket_quantity: Sequelize.literal(`ticket_quantity - ${ticket_quantity}`)
+      ticket_quantity: Sequelize.literal(`ticket_quantity + ${ticket_quantity}`)
     });
   }
 } catch (err) {
