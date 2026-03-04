@@ -4,7 +4,9 @@ import { Sequelize } from "sequelize";
 
 export const createTicketRepository = async (data , options = {}) => {
   try {
-    const ticket = await Ticket.create(data , options);
+    // add ticket ticket_quantity
+
+    const ticket = await Ticket.create({ ...data , assigned_tickets : data.ticket_quantity} , options);
     return ticket;
   } catch (error) {
     throw error;
@@ -79,34 +81,15 @@ export const deleteTicketRepository = async (id , organizer_id) => {
 
 
 export const getEventTicketSalesStatsRepository = async (eventId) => {
-  const tickets = await Ticket.findAll({
+  const tickets = await Ticket.unscoped().findAll({
     where: { event_id: eventId },
-
-    attributes: [
-      "id",
-      "ticket_name",
-      "ticket_price",
-      "ticket_quantity", // remaining
-
-      [
-        Sequelize.literal(`(
-          SELECT COALESCE(SUM(a.ticket_quantity), 0)
-          FROM attendees a
-          WHERE a.ticket_id = tickets.id
-        )`),
-        "tickets_sold"
-      ]
-    ],
-
-    order: [["created_at", "ASC"]],
-    raw: true
   });
 
   return tickets.map(ticket => ({
     ticket_id: ticket.id,
     ticket_name: ticket.ticket_name,
     ticket_price: ticket.ticket_price,
-    tickets_sold: Number(ticket.tickets_sold),
+    tickets_sold: ticket.assigned_tickets- ticket.ticket_quantity,
     tickets_remaining: ticket.ticket_quantity
   }));
 };

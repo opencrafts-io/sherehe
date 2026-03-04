@@ -7,8 +7,8 @@ import Transaction from './Transactions.model.js';
 import EventScanner from './eventScanners.model.js';
 
 // Define relationships
-// User.hasMany(Event, { foreignKey: 'organizer_id' });
-// Event.belongsTo(User, { foreignKey: 'organizer_id' });
+User.hasMany(Event, { foreignKey: 'organizer_id' });
+Event.belongsTo(User, { foreignKey: 'organizer_id' });
 
 Event.hasMany(Ticket, { foreignKey: 'event_id' });
 Ticket.belongsTo(Event, { foreignKey: 'event_id' });

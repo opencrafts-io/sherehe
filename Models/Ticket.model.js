@@ -25,6 +25,11 @@ const Ticket = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false
     },
+    assigned_tickets:
+    {
+            type: DataTypes.INTEGER,
+      allowNull: false
+    },
     created_at: {
       type: DataTypes.DATE,
       allowNull: false,
@@ -51,7 +56,7 @@ const Ticket = sequelize.define(
     paranoid: true,
     deletedAt: 'deleted_at',
     defaultScope: {
-      attributes: { exclude: ['created_at', 'updated_at', 'deleted_at'] }
+      attributes: { exclude: ['created_at', 'updated_at', 'deleted_at' , 'assigned_tickets'] }
     },
     indexes: [
       {
