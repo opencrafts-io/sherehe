@@ -40,9 +40,7 @@ export const purchaseTicketController = async (req, res) => {
       return res.status(400).json({ message: "Not enough tickets available" });
     }
 
-   await updateTicketRepository(ticket_id, {
-  ticket_quantity: Sequelize.literal(`ticket_quantity - ${ticket_quantity}`)
-});
+
 
 
 
@@ -174,6 +172,10 @@ export const purchaseTicketController = async (req, res) => {
       await sendPaymentRequest(paymentData);
       const duration = Number(process.hrtime.bigint() - start) / 1000;
     logs(duration, "INFO", req.ip, req.method, "Sdk request sent", req.path, 201, req.headers["user-agent"]);
+
+       await updateTicketRepository(ticket_id, {
+  ticket_quantity: Sequelize.literal(`ticket_quantity - ${ticket_quantity}`)
+});
 
     res.status(200).json({
       message: "Sdk request sent successfully",
