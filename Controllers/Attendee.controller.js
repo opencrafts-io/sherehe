@@ -221,7 +221,7 @@ export const getAttendeesByUserIdController = async (req, res) => {
         event_id: eventId,
         attendee_id: attendeeId,
         ticket_id: result.ticket_id,
-        scanner_id: organizer.id,
+        scanner_id: organizer.user_id,
         ticket_quantity: result.ticket_quantity
       })
     }
