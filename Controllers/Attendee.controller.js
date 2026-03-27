@@ -208,7 +208,7 @@ export const getAttendeesByUserIdController = async (req, res) => {
     }
 
     if (today > eventDay) {
-      return res.status(400).json({ status: "EXPIRED" });
+      return res.status(200).json({ status: "EXPIRED" });
     }
 
 
