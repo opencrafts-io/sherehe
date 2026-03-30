@@ -198,8 +198,8 @@ export const getAttendeesByUserIdController = async (req, res) => {
     const eventDate = new Date(eventDateRaw);
     const now = new Date();
 
-    const eventDay = new Date(eventDate).setHours(0, 0, 0, 0);
-    const today = new Date(now).setHours(0, 0, 0, 0);
+    const eventDay = new Date(eventDate).setUTCHours(0, 0, 0, 0);
+    const today = new Date(now).setUTCHours(0, 0, 0, 0);
 
     if (today < eventDay) {
       return res.status(200).json({
