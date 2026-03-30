@@ -53,7 +53,13 @@ const ScannedTickets = sequelize.define(
       withDeleted: {
         attributes: { include: ['deleted_at'] }
       }
-    }
+    },
+    indexes: [
+      {
+        unique: true,
+        fields: ['event_id', 'attendee_id', 'ticket_id']
+      }
+    ]
   }
 );
 
