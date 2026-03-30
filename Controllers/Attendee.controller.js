@@ -10,7 +10,8 @@ import {
 } from "../Repositories/Attendee.repository.js";
 
 import { getEventScannerByUserIdEventIdRepository } from "../Repositories/eventScanners.repository.js";
-import { createscannedTicketRepository, getAllScannedTicketsByAttendeeIdandTicketIdRepository } from "../Repositories/Scanned_tickets.repository.js";
+import { findOrCreateScannedTicketRepository } from "../Repositories/Scanned_tickets.repository.js";
+import { UniqueConstraintError } from "sequelize";
 import { logs } from "../Utils/logs.js";
 
 
@@ -213,19 +214,16 @@ export const getAttendeesByUserIdController = async (req, res) => {
       return res.status(200).json({ status: "EXPIRED" });
     }
 
+    const { created } = await findOrCreateScannedTicketRepository({
+      event_id: eventId,
+      attendee_id: attendeeId,
+      ticket_id: result.ticket_id,
+      scanner_id: organizer.user_id,
+      ticket_quantity: result.ticket_quantity
+    });
 
-    const check = await getAllScannedTicketsByAttendeeIdandTicketIdRepository(attendeeId, result.ticket_id);
-
-    if (check.length > 0) {
+    if (!created) {
       return res.status(200).json({ status: "ALREADY_SCANNED" });
-    } else {
-      await createscannedTicketRepository({
-        event_id: eventId,
-        attendee_id: attendeeId,
-        ticket_id: result.ticket_id,
-        scanner_id: organizer.user_id,
-        ticket_quantity: result.ticket_quantity
-      })
     }
 
 
@@ -240,6 +238,9 @@ export const getAttendeesByUserIdController = async (req, res) => {
     });
   } catch (error) {
     const duration = Number(process.hrtime.bigint() - start) / 1000;
+    if (error instanceof UniqueConstraintError) {
+      return res.status(200).json({ status: "ALREADY_SCANNED" });
+    }
     logs(duration, "ERR", req.ip, req.method, error.message, req.path, 500, req.headers["user-agent"]);
 
     res.status(500).json({ error: error.message });
