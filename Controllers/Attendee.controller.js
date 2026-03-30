@@ -174,7 +174,7 @@ export const getAttendeesByUserIdController = async (req, res) => {
 
     if (!organizer) {
       const duration = Number(process.hrtime.bigint() - start) / 1000;
-      logs(duration, "INFO", req.ip, req.method, "Not Authorized to scan the event", req.path, 404, req.headers["user-agent"]);
+      logs(duration, "INFO", req.ip, req.method, "Not Authorized to scan the event", req.path, 403, req.headers["user-agent"]);
       return res.status(403).json({ message: "Not Authorized to scan the event" });
     }
 
