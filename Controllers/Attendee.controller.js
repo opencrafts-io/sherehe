@@ -192,6 +192,8 @@ export const getAttendeesByUserIdController = async (req, res) => {
     const eventDateRaw = result.event?.event_date;
 
     if (!eventDateRaw) {
+      const duration = Number(process.hrtime.bigint() - start) / 1000;
+      logs(duration, "ERR", req.ip, req.method, "Event date not found", req.path, 500, req.headers["user-agent"]);
       return res.status(500).json({ error: "Event date not found" });
     }
 
