@@ -9,9 +9,12 @@ export const verifyToken = (req, res, next) => {
 
   const token = authHeader.split(' ')[1];
 
-  const decoded = jwt.decode(token);
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-  req.user = decoded;
-  next();
-
+    req.user = decoded;
+    next();
+  } catch (err) {
+    return res.status(403).json('Token is not valid!');
+  }
 };
