@@ -5,6 +5,7 @@ import Attendee from './Attendee.model.js';
 import PaymentInfo from './paymentInfo.model.js';
 import Transaction from './Transactions.model.js';
 import EventScanner from './eventScanners.model.js';
+import ScannedTickets from './Scanned_tickets.model.js';
 
 // Define relationships
 // User.hasMany(Event, { foreignKey: 'organizer_id' });
@@ -48,4 +49,4 @@ EventScanner.belongsTo(User, {
 
 
 
-export { User, Event, Ticket, Attendee , PaymentInfo , Transaction , EventScanner};
+export { User, Event, Ticket, Attendee , PaymentInfo , Transaction , EventScanner , ScannedTickets};
