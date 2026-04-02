@@ -9,12 +9,10 @@ export const verifyToken = (req, res, next) => {
 
   const authHeader = req.headers.authorization;
 
-  // --- 2. Check header existence ---
   if (!authHeader) {
     return res.status(401).json('Authorization header missing');
   }
 
-  // --- 3. Validate Bearer format ---
   if (!authHeader.startsWith('Bearer ')) {
     return res.status(401).json('Invalid authorization format');
   }
@@ -26,25 +24,19 @@ export const verifyToken = (req, res, next) => {
   }
 
   try {
-    // --- 4. Verify token with explicit constraints ---
     const decoded = jwt.verify(token, process.env.JWT_SECRET, {
       algorithms: ['HS256'],          // match how you sign tokens
-      // issuer: 'your-app-name',     // optional but recommended
-      // audience: 'your-users',      // optional but recommended
     });
 
-    // --- 5. Validate token structure ---
     if (!decoded || typeof decoded !== 'object' || !decoded.sub) {
       return res.status(401).json('Invalid token payload');
     }
 
-    // Optional: normalize user object
     req.user = decoded;
 
     next();
 
   } catch (err) {
-    // --- 6. Proper error classification ---
     if (err.name === 'TokenExpiredError') {
       return res.status(401).json('Token expired');
     }
