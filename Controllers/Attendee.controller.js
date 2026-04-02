@@ -10,7 +10,8 @@ import {
 } from "../Repositories/Attendee.repository.js";
 
 import { getEventScannerByUserIdEventIdRepository } from "../Repositories/eventScanners.repository.js";
-import { createscannedTicketRepository, getAllScannedTicketsByAttendeeIdandTicketIdRepository } from "../Repositories/Scanned_tickets.repository.js";
+import { findOrCreateScannedTicketRepository } from "../Repositories/Scanned_tickets.repository.js";
+import { UniqueConstraintError } from "sequelize";
 import { logs } from "../Utils/logs.js";
 
 
@@ -174,7 +175,7 @@ export const getAttendeesByUserIdController = async (req, res) => {
 
     if (!organizer) {
       const duration = Number(process.hrtime.bigint() - start) / 1000;
-      logs(duration, "INFO", req.ip, req.method, "Not Authorized to scan the event", req.path, 404, req.headers["user-agent"]);
+      logs(duration, "INFO", req.ip, req.method, "Not Authorized to scan the event", req.path, 403, req.headers["user-agent"]);
       return res.status(403).json({ message: "Not Authorized to scan the event" });
     }
 
@@ -192,14 +193,16 @@ export const getAttendeesByUserIdController = async (req, res) => {
     const eventDateRaw = result.event?.event_date;
 
     if (!eventDateRaw) {
+      const duration = Number(process.hrtime.bigint() - start) / 1000;
+      logs(duration, "ERR", req.ip, req.method, "Event date not found", req.path, 500, req.headers["user-agent"]);
       return res.status(500).json({ error: "Event date not found" });
     }
 
     const eventDate = new Date(eventDateRaw);
     const now = new Date();
 
-    const eventDay = new Date(eventDate).setHours(0, 0, 0, 0);
-    const today = new Date(now).setHours(0, 0, 0, 0);
+    const eventDay = new Date(eventDate).setUTCHours(0, 0, 0, 0);
+    const today = new Date(now).setUTCHours(0, 0, 0, 0);
 
     if (today < eventDay) {
       return res.status(200).json({
@@ -208,22 +211,19 @@ export const getAttendeesByUserIdController = async (req, res) => {
     }
 
     if (today > eventDay) {
-      return res.status(400).json({ status: "EXPIRED" });
+      return res.status(200).json({ status: "EXPIRED" });
     }
 
+    const { created } = await findOrCreateScannedTicketRepository({
+      event_id: eventId,
+      attendee_id: attendeeId,
+      ticket_id: result.ticket_id,
+      scanner_id: organizer.user_id,
+      ticket_quantity: result.ticket_quantity
+    });
 
-    const check = await getAllScannedTicketsByAttendeeIdandTicketIdRepository(attendeeId, result.ticket_id);
-
-    if (check.length > 0) {
+    if (!created) {
       return res.status(200).json({ status: "ALREADY_SCANNED" });
-    } else {
-      await createscannedTicketRepository({
-        event_id: eventId,
-        attendee_id: attendeeId,
-        ticket_id: result.ticket_id,
-        scanner_id: organizer.id,
-        ticket_quantity: result.ticket_quantity
-      })
     }
 
 
@@ -238,6 +238,9 @@ export const getAttendeesByUserIdController = async (req, res) => {
     });
   } catch (error) {
     const duration = Number(process.hrtime.bigint() - start) / 1000;
+    if (error instanceof UniqueConstraintError) {
+      return res.status(200).json({ status: "ALREADY_SCANNED" });
+    }
     logs(duration, "ERR", req.ip, req.method, error.message, req.path, 500, req.headers["user-agent"]);
 
     res.status(500).json({ error: error.message });

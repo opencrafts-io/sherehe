@@ -24,23 +24,29 @@ export const getAllScannedTicketsByScannerIdRepository = async (id) => {
   }
 }
 
-export const getAllScannedTicketsByAttendeeIdandTicketIdRepository = async (id , ticket_id) => {
+export const createScannedTicketRepository = async (data) => {
   try {
-    return await ScannedTickets.findAll({
-    where: {
-      attendee_id: id,
-      ticket_id: ticket_id
-    }
-  });
+    const scannedTicket = await ScannedTickets.create(data);
+    return scannedTicket;
   } catch (error) {
     throw error;
   }
 }
 
-export const createscannedTicketRepository = async (data) => {
+export const findOrCreateScannedTicketRepository = async ({ event_id, attendee_id, ticket_id, scanner_id, ticket_quantity }) => {
   try {
-    const scannedTicket = await ScannedTickets.create(data);
-    return scannedTicket;
+    const [scannedTicket, created] = await ScannedTickets.findOrCreate({
+      where: {
+        event_id,
+        attendee_id,
+        ticket_id
+      },
+      defaults: {
+        scanner_id,
+        ticket_quantity
+      }
+    });
+    return { scannedTicket, created };
   } catch (error) {
     throw error;
   }
