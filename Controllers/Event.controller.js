@@ -15,8 +15,9 @@ import { cleanupFiles } from "../Middleware/cleanupFiles.js";
 import { processAndSaveImages } from "../Middleware/upload.js";
 import sequelize from "../Utils/db.js";
 import { sendNotification } from "../Utils/Notification.js";
-import {createEventScannerRepository} from "../Repositories/eventScanners.repository.js";
+import { createEventScannerRepository } from "../Repositories/eventScanners.repository.js";
 import { logs } from "../Utils/logs.js";
+import {createEventInstitutionRepository} from "../Repositories/event_institution.repository.js";
 
 
 export const createEventController = async (req, res) => {
@@ -37,6 +38,8 @@ export const createEventController = async (req, res) => {
       account_reference,
       till_number,
       send_money_phone,
+      scope,
+      institutions
     } = req.body;
 
     const organizer_id = req.user.sub;
@@ -67,7 +70,7 @@ export const createEventController = async (req, res) => {
     // IMAGE PROCESSING
     // -------------------------
     const resized = await processAndSaveImages(req);
-        const { event_card_image, event_poster_image, event_banner_image } = req.images;
+    const { event_card_image, event_poster_image, event_banner_image } = req.images;
     // -------------------------
     // TICKETS PARSING
     // -------------------------
@@ -109,7 +112,7 @@ export const createEventController = async (req, res) => {
           event_poster_image,
           event_banner_image,
           organizer_id,
-          
+          scope
         },
         { transaction }
       );
@@ -120,6 +123,17 @@ export const createEventController = async (req, res) => {
           { transaction }
         );
       }
+
+      if (scope === "institution") {
+        for (const institution of institutions) {
+          await createEventInstitutionRepository({
+            event_id:event.id,
+            institution_id: institution
+          })
+        }
+      }
+
+
 
       await transaction.commit();
     } catch (error) {
@@ -196,14 +210,14 @@ export const createEventController = async (req, res) => {
 
     const eventOrganizer =
     {
-        event_id: event.id,
-        user_id: organizer_id,
-        role: "SUPERVISOR"
+      event_id: event.id,
+      user_id: organizer_id,
+      role: "SUPERVISOR"
     }
 
     await createEventScannerRepository(eventOrganizer)
 
-      return res.status(201).json({
+    return res.status(201).json({
       message: "Event created successfully",
       data: {
         event,
