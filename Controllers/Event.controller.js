@@ -18,6 +18,8 @@ import { sendNotification } from "../Utils/Notification.js";
 import { createEventScannerRepository } from "../Repositories/eventScanners.repository.js";
 import { logs } from "../Utils/logs.js";
 import { createEventInstitutionRepository } from "../Repositories/event_institution.repository.js";
+import {createEventInviteRepository} from '../Repositories/event_invite.repository.js';
+import crypto from "crypto";
 
 
 export const createEventController = async (req, res) => {
@@ -134,6 +136,39 @@ export const createEventController = async (req, res) => {
           }, { transaction })
         }
       }
+      const token = crypto.randomBytes(32).toString("hex");
+      if(scope === "private"){
+        await createEventInviteRepository({
+          event_id: event.id,
+          token,
+          expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000)
+        } , { transaction })
+      }
+
+          if (!(payment_type === null || payment_type === undefined)) {
+      const savepayment = await createPaymentInfoRepository({
+        event_id: event.id,
+        payment_type,
+        paybill_number,
+        paybill_account_number: account_reference,
+        till_number,
+        phone_number: send_money_phone
+      } , { transaction });
+                if (!savepayment) {
+        return res.status(500).json({
+          error: "Event created but payment info failed to save",
+        });
+      }
+    }
+
+        const eventOrganizer =
+    {
+      event_id: event.id,
+      user_id: organizer_id,
+      role: "SUPERVISOR"
+    }
+
+    await createEventScannerRepository(eventOrganizer , { transaction })
 
 
 
@@ -150,22 +185,10 @@ export const createEventController = async (req, res) => {
     // ✅ POST-COMMIT OPERATIONS (NO ROLLBACK HERE)
     // =====================================================
 
-    if (!(payment_type === null || payment_type === undefined)) {
-      const savepayment = await createPaymentInfoRepository({
-        event_id: event.id,
-        payment_type,
-        paybill_number,
-        paybill_account_number: account_reference,
-        till_number,
-        phone_number: send_money_phone
-      });
 
-      if (!savepayment) {
-        return res.status(500).json({
-          error: "Event created but payment info failed to save",
-        });
-      }
-    }
+
+
+    
 
     // -------------------------
     // NOTIFICATION (SAFE)
@@ -210,14 +233,6 @@ export const createEventController = async (req, res) => {
       req.headers["user-agent"]
     );
 
-    const eventOrganizer =
-    {
-      event_id: event.id,
-      user_id: organizer_id,
-      role: "SUPERVISOR"
-    }
-
-    await createEventScannerRepository(eventOrganizer)
 
     return res.status(201).json({
       message: "Event created successfully",
