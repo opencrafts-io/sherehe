@@ -1,5 +1,5 @@
 import { Event, EventScanner, EventInstitution } from '../Models/index.js';
-import { Op , literal } from "sequelize";
+import { Op, literal } from "sequelize";
 
 export const createEventRepository = async (eventData, options = {}) => {
   try {
@@ -28,29 +28,29 @@ export const getAllEventsRepository = async (
     const { limitPlusOne = 20, offset = 0 } = params;
 
     const events = await Event.findAll({
-  where: {
-    [Op.or]: [
-      { scope: "public" },
-      {
-        [Op.and]: [
-          { scope: "institution" },
-          { '$event_institutions.institution_id$': institution_id }
+      where: {
+        [Op.or]: [
+          { scope: "public" },
+          {
+            [Op.and]: [
+              { scope: "institution" },
+              { '$event_institutions.institution_id$': institution_id }
+            ]
+          }
         ]
-      }
-    ]
-  },
+      },
 
-  include: [
-    {
-      model: EventInstitution,
-      as: "event_institutions",
-      attributes: [],
-      required: false
-    }
-  ],
-  order: [
-    [
-      literal(`
+      include: [
+        {
+          model: EventInstitution,
+          as: "event_institutions",
+          attributes: [],
+          required: false
+        }
+      ],
+      order: [
+        [
+          literal(`
         CASE 
           WHEN "events"."scope" = 'institution' 
                AND "event_institutions"."institution_id" = '${institution_id}'
@@ -58,14 +58,14 @@ export const getAllEventsRepository = async (
           ELSE 1
         END
       `),
-      "ASC"
-    ],
-    ["created_at", "DESC"]
-  ],
-  limit: limitPlusOne,
-  offset,
-  subQuery: false
-});
+          "ASC"
+        ],
+        ["created_at", "DESC"]
+      ],
+      limit: limitPlusOne,
+      offset,
+      subQuery: false
+    });
 
     const formattedEvents = events.map(event => ({
       ...event.toJSON(),

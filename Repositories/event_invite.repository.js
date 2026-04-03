@@ -1,4 +1,4 @@
-import {EventInvite } from '../Models/index.js';
+import {EventInvite , Event } from '../Models/index.js';
 import { Op } from "sequelize";
 
 export const createEventInviteRepository = async (eventInvite , options={}) => {
@@ -11,7 +11,16 @@ export const createEventInviteRepository = async (eventInvite , options={}) => {
 };
 
 export const validateInviteRepository = async (token) => {
-  const invite = await EventInvite.findOne({ where: { token } });
+  // Find the invite including the event
+  const invite = await EventInvite.findOne({ 
+    where: { token },
+    include: [
+      {
+        model: Event,
+        as: "event"
+      },
+    ],
+  });
 
   if (!invite) throw new Error("Invalid invite");
 
@@ -22,10 +31,22 @@ export const validateInviteRepository = async (token) => {
   if (invite.used_count >= invite.max_uses) {
     throw new Error("Invite limit reached");
   }
+  
 
+  // Increment used count
   invite.used_count += 1;
   await invite.save();
 
-  return invite.event_id;
+  // Return the associated Event instead of the invite
+  console.log(invite.event);
+
+        const formattedEvent = {
+      ...invite.event.toJSON(),
+      event_genre: Array.isArray(invite.event.event_genre)
+        ? invite.event.event_genre
+        : JSON.parse(invite.event.event_genre || '[]'),
+    };
+
+    return formattedEvent;
 };
 
