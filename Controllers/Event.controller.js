@@ -17,7 +17,7 @@ import sequelize from "../Utils/db.js";
 import { sendNotification } from "../Utils/Notification.js";
 import { createEventScannerRepository } from "../Repositories/eventScanners.repository.js";
 import { logs } from "../Utils/logs.js";
-import {createEventInstitutionRepository} from "../Repositories/event_institution.repository.js";
+import { createEventInstitutionRepository } from "../Repositories/event_institution.repository.js";
 
 
 export const createEventController = async (req, res) => {
@@ -123,13 +123,15 @@ export const createEventController = async (req, res) => {
           { transaction }
         );
       }
-
+      if (typeof institutions === "string") {
+        institutions = JSON.parse(institutions);
+      }
       if (scope === "institution") {
         for (const institution of institutions) {
           await createEventInstitutionRepository({
-            event_id:event.id,
+            event_id: event.id,
             institution_id: institution
-          })
+          }, { transaction })
         }
       }
 
