@@ -30,9 +30,10 @@ const Ticket = sequelize.define(
       allowNull: false,
       defaultValue: DataTypes.NOW
     },
-    ticket_visibility: {
-       type: DataTypes.JSONB, allowNull: true 
-    },
+    scope: {
+    type: DataTypes.ENUM("public", "institution", "private"),
+    defaultValue: "public",
+  },
     updated_at: {
      type: DataTypes.DATE,
       allowNull: false,
@@ -51,7 +52,7 @@ const Ticket = sequelize.define(
     paranoid: true,
     deletedAt: 'deleted_at',
     defaultScope: {
-      attributes: { exclude: ['created_at', 'updated_at', 'deleted_at'] }
+      attributes: { exclude: ['created_at', 'updated_at', 'deleted_at' , 'scope'] }
     },
     indexes: [
       {

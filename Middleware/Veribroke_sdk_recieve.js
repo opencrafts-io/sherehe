@@ -41,12 +41,11 @@ export async function startMpesaSuccessConsumer() {
         try {
           const routingKey = msg.fields.routingKey;
           const payload = JSON.parse(msg.content.toString());
-          console.log(payload)
           const { request_id, success, message, metadata, errors } = payload;
           const stkCallback = metadata?.Body?.stkCallback;
 
-const MerchantRequestID = stkCallback?.MerchantRequestID;
-const CheckoutRequestID = stkCallback?.CheckoutRequestID;
+          const MerchantRequestID = stkCallback?.MerchantRequestID;
+          const CheckoutRequestID = stkCallback?.CheckoutRequestID;
 
           let status;
 
@@ -83,7 +82,6 @@ const CheckoutRequestID = stkCallback?.CheckoutRequestID;
 
 
           if (success) {
-            console.log("here")
             for (let i = 0; i < ticket_quantity; i++) {
               await createAttendeeRepository(
                 { user_id, event_id, ticket_id, ticket_quantity: 1 },

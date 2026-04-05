@@ -124,6 +124,7 @@ export const createEventController = async (req, res) => {
           { ...ticket, event_id: event.id },
           { transaction }
         );
+
       }
       if (typeof institutions === "string") {
         institutions = JSON.parse(institutions);

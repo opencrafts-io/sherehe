@@ -1,10 +1,10 @@
 import { 
   validateInviteRepository, 
-  } from "../Repositories/event_invite.repository.js";
+  } from "../Repositories/ticket_invite.repository.js";
 
 import { logs } from "../Utils/logs.js"; 
 
-export const validateInviteController = async (req, res) => {
+export const validateTicketInviteController = async (req, res) => {
   const start = process.hrtime.bigint();
 
   try {
@@ -13,17 +13,17 @@ export const validateInviteController = async (req, res) => {
     if (!token) {
       const duration = Number(process.hrtime.bigint() - start) / 1000;
       logs(duration, "WARN", req.ip, req.method, "Missing token", req.path, 400, req.headers["user-agent"]);
-      return res.status(400).json({ error: "Wrong Event Invite" });
+      return res.status(400).json({ error: "Wrong Ticket Invite" });
     }
 
-    const Event = await validateInviteRepository(token);
+    const Ticket = await validateInviteRepository(token);
 
     const duration = Number(process.hrtime.bigint() - start) / 1000;
-    logs(duration, "INFO", req.ip, req.method, "Event invite validated", req.path, 201, req.headers["user-agent"]);
+    logs(duration, "INFO", req.ip, req.method, "Ticket invite validated", req.path, 201, req.headers["user-agent"]);
 
     res.status(201).json({
-      message: "Event invite validated successfully",
-      Event,
+      message: "Ticket invite validated successfully",
+      Ticket,
     });
   } catch (error) {
     const duration = Number(process.hrtime.bigint() - start) / 1000;
