@@ -13,12 +13,11 @@ export const verifyToken = (req, res, next) => {
     return res.status(401).json('Authorization header missing');
   }
 
-  if (!authHeader.startsWith('Bearer ')) {
+  const [scheme, token] = authHeader.trim().split(/\s+/, 2);
+
+  if (!scheme || scheme.toLowerCase() !== 'bearer') {
     return res.status(401).json('Invalid authorization format');
   }
-
-  const token = authHeader.split(' ')[1];
-
   if (!token) {
     return res.status(401).json('Token missing');
   }
