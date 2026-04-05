@@ -12,7 +12,7 @@ const SHEREHE_ROUTING_KEY = process.env.SHEREHE_ROUTING_KEY || "NDOVUKUU";
 
 export const purchaseTicketController = async (req, res) => {
   const start = process.hrtime.bigint();
-    let dbTransaction = await sequelize.transaction();
+  let dbTransaction = await sequelize.transaction();
   try {
     const user_id = req.user?.sub;
     const ticket_quantity = req.body.ticket_quantity;
@@ -45,7 +45,7 @@ export const purchaseTicketController = async (req, res) => {
 
     await updateTicketRepository(ticket_id, {
       ticket_quantity: Sequelize.literal(`ticket_quantity - ${ticket_quantity}`)
-    } ,{ transaction: dbTransaction });
+    }, { transaction: dbTransaction });
 
 
 
@@ -62,19 +62,19 @@ export const purchaseTicketController = async (req, res) => {
     }
 
     if (ticket.ticket_price === 0) {
-     for (let i = 0; i < ticket_quantity; i++) {
-  await createAttendeeRepository(
-    { user_id, event_id, ticket_id, ticket_quantity: 1 },
-    { transaction: dbTransaction }
-  );
-}
-      
+      for (let i = 0; i < ticket_quantity; i++) {
+        await createAttendeeRepository(
+          { user_id, event_id, ticket_id, ticket_quantity: 1 },
+          { transaction: dbTransaction }
+        );
+      }
+
       const duration = Number(process.hrtime.bigint() - start) / 1000;
       logs(duration, "INFO", req.ip, req.method, "Successfully registered for event", req.path, 201, req.headers["user-agent"]);
       await dbTransaction.commit();
-      return res.status(201).json({ message: "Successfully registered for event"});
+      return res.status(201).json({ message: "Successfully registered for event" });
     } else if (!user) {
-            if (!dbTransaction.finished) {
+      if (!dbTransaction.finished) {
         await dbTransaction.rollback();
       }
       const duration = Number(process.hrtime.bigint() - start) / 1000;
@@ -86,7 +86,7 @@ export const purchaseTicketController = async (req, res) => {
 
     // 2️⃣ If still missing, reject
     if (!phoneNumber) {
-            if (!dbTransaction.finished) {
+      if (!dbTransaction.finished) {
         await dbTransaction.rollback();
       }
       const duration = Number(process.hrtime.bigint() - start) / 1000;
@@ -118,14 +118,14 @@ export const purchaseTicketController = async (req, res) => {
       ticket_quantity,
       payment_method: 'MPESA',
       phone_number: phoneNumber,
-    } , { transaction: dbTransaction });
+    }, { transaction: dbTransaction });
 
     //! Check on this
     const paymentInfo = await getPaymentInfoByEventIdRepository(event_id)
     if (!paymentInfo) {
       const duration = Number(process.hrtime.bigint() - start) / 1000;
       logs(duration, "WARN", req.ip, req.method, "Payment info not found", req.path, 404, req.headers["user-agent"]);
-            if (!dbTransaction.finished) {
+      if (!dbTransaction.finished) {
         await dbTransaction.rollback();
       }
       return res.status(404).json({ message: "Payment info not found" });
@@ -199,7 +199,7 @@ export const purchaseTicketController = async (req, res) => {
         trans_id: transaction.id
       });
     } catch (error) {
-            if (!dbTransaction.finished) {
+      if (!dbTransaction.finished) {
         await dbTransaction.rollback();
       }
       const duration = Number(process.hrtime.bigint() - start) / 1000;
@@ -210,9 +210,9 @@ export const purchaseTicketController = async (req, res) => {
   } catch (error) {
     const duration = Number(process.hrtime.bigint() - start) / 1000;
     logs(duration, "ERR", req.ip, req.method, error.message, req.path, 500, req.headers["user-agent"]);
-                if (!dbTransaction.finished) {
-        await dbTransaction.rollback();
-      }
+    if (!dbTransaction.finished) {
+      await dbTransaction.rollback();
+    }
     res.status(500).json({ message: error.message });
   }
 };

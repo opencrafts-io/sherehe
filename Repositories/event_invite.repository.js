@@ -37,9 +37,6 @@ export const validateInviteRepository = async (token) => {
   invite.used_count += 1;
   await invite.save();
 
-  // Return the associated Event instead of the invite
-  console.log(invite.event);
-
         const formattedEvent = {
       ...invite.event.toJSON(),
       event_genre: Array.isArray(invite.event.event_genre)

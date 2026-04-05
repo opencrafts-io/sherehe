@@ -1,9 +1,9 @@
 import { TicketInvite, Ticket } from '../Models/index.js';
 import { Op } from "sequelize";
 
-export const createTicketInviteRepository = async (TicketInvite, options = {}) => {
+export const createTicketInviteRepository = async (ticketInvite, options = {}) => {
   try {
-    const newTicketInvite = await TicketInvite.create(TicketInvite, options);
+    const newTicketInvite = await TicketInvite.create(ticketInvite, options);
     return newTicketInvite;
   } catch (error) {
     throw error;
@@ -17,7 +17,7 @@ export const validateInviteRepository = async (token) => {
     include: [
       {
         model: Ticket,
-        as: "Ticket"
+        as: "ticket",
       },
     ],
   });
@@ -36,7 +36,8 @@ export const validateInviteRepository = async (token) => {
   // Increment used count
   invite.used_count += 1;
   await invite.save();
+  console.log(invite);
 
-  return invite.Ticket;
+  return invite.ticket;
 };
 

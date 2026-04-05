@@ -65,7 +65,7 @@ EventInstitution.belongsTo(Event, {
   foreignKey: "event_id",
 });
 
-Event.hasMany(TicketInvite, {
+Ticket.hasMany(TicketInvite, {
   foreignKey: "ticket_id",
 });
 
