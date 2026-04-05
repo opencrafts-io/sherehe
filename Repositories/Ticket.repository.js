@@ -39,9 +39,9 @@ export const getTicketbyEventIdRepository = async (eventId) => {
   }
 };
 
-export const updateTicketRepository = async (id, data) => {
+export const updateTicketRepository = async (id, data , options={}) => {
   try {
-    const ticket = await Ticket.findByPk(id);
+    const ticket = await Ticket.findByPk(id , options);
     if (!ticket) {
       throw new Error('Ticket not found');
     }

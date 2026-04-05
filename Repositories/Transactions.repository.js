@@ -1,8 +1,8 @@
 import { Transaction } from "../Models/index.js";
 
-export const createTransactionRepository = async (data) => {
+export const createTransactionRepository = async (data , options = {}) => {
   try {
-    const transaction = await Transaction.create(data);
+    const transaction = await Transaction.create(data , options);
     return transaction;
   } catch (error) {
     console.error('❌ Error creating transaction:', error);
@@ -40,13 +40,13 @@ export const getTransactionByIdRepository = async (id) => {
   }
 };
 
-export const updateTransactionRepository = async (id, data) => {
+export const updateTransactionRepository = async (id, data , options = {}) => {
   try {
-    const transaction = await Transaction.findByPk(id);
+    const transaction = await Transaction.findByPk(id , options);
     if (!transaction) {
       throw new Error('Transaction not found');
     }
-    await transaction.update(data);
+    await transaction.update(data , options);
     return transaction;
   } catch (error) {
     console.error('❌ Error updating transaction:', error);
