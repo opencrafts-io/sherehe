@@ -41,7 +41,8 @@ export const verifyToken = (req, res, next) => {
     }
 
     if (err.name === 'JsonWebTokenError') {
-      return res.status(403).json('Invalid token');
+      res.set('WWW-Authenticate', 'Bearer');
+      return res.status(401).json('Invalid token');
     }
 
     console.error('JWT verification error:', err);
