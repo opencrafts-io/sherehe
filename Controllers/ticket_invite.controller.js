@@ -19,9 +19,9 @@ export const validateTicketInviteController = async (req, res) => {
     const Ticket = await validateInviteRepository(token);
 
     const duration = Number(process.hrtime.bigint() - start) / 1000;
-    logs(duration, "INFO", req.ip, req.method, "Ticket invite validated", req.path, 201, req.headers["user-agent"]);
+    logs(duration, "INFO", req.ip, req.method, "Ticket invite validated", req.path, 200, req.headers["user-agent"]);
 
-    res.status(201).json({
+    res.status(200).json({
       message: "Ticket invite validated successfully",
       Ticket,
     });
