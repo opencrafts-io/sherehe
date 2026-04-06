@@ -10,7 +10,7 @@ const Event = sequelize.define(
       defaultValue: DataTypes.UUIDV4
     },
     event_name: { type: DataTypes.STRING, allowNull: false },
-    event_description: { type: DataTypes.STRING, allowNull: false },
+    event_description: { type: DataTypes.TEXT, allowNull: false },
     event_location: { type: DataTypes.STRING, allowNull: false },
     start_date: { type: DataTypes.DATE, allowNull: false },
     end_date: { type: DataTypes.DATE, allowNull: false },

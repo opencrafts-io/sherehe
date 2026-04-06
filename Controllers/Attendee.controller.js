@@ -1,4 +1,4 @@
-import { 
+import {
   createAttendeeRepository,
   getAllAttendeesByEventIdRepository,
   deleteAttendeeRepository,
@@ -6,11 +6,13 @@ import {
   getAttendeeByEventAndIdRepository,
   getUserAttendedEventsRepository,
   searchAttendeesByEventNameTicketNameRepository,
-  getAllUserAttendedSpecificEventRepository
+  getAllUserAttendedSpecificEventRepository,
 } from "../Repositories/Attendee.repository.js";
 
-import {getEventScannerByUserIdEventIdRepository} from "../Repositories/eventScanners.repository.js";
-import { logs } from "../Utils/logs.js"; 
+import { getEventScannerByUserIdEventIdRepository } from "../Repositories/eventScanners.repository.js";
+import { findOrCreateScannedTicketRepository } from "../Repositories/Scanned_tickets.repository.js";
+import { UniqueConstraintError } from "sequelize";
+import { logs } from "../Utils/logs.js";
 
 
 
@@ -84,7 +86,7 @@ export const getAllAttendeesByEventIdController = async (req, res) => {
 
   try {
     const eventId = req.params.id;
-     const { limit, page, limitPlusOne, offset } = req.pagination;
+    const { limit, page, limitPlusOne, offset } = req.pagination;
 
     if (!eventId) {
       const duration = Number(process.hrtime.bigint() - start) / 1000;
@@ -92,16 +94,16 @@ export const getAllAttendeesByEventIdController = async (req, res) => {
       return res.status(400).json({ error: "Event ID is required" });
     }
 
-    const result = await getAllAttendeesByEventIdRepository(eventId , limitPlusOne, offset);
+    const result = await getAllAttendeesByEventIdRepository(eventId, limitPlusOne, offset);
 
-         const hasNextPage = result.length > limit;
+    const hasNextPage = result.length > limit;
     const attendees = hasNextPage ? result.slice(0, limit) : result;
 
 
     const duration = Number(process.hrtime.bigint() - start) / 1000;
     logs(duration, "INFO", req.ip, req.method, "Attendees retrieved", req.path, 200, req.headers["user-agent"]);
 
-      return res.status(200).json({
+    return res.status(200).json({
       status: "success",
       currentPage: page,
       nextPage: hasNextPage ? page + 1 : null,
@@ -156,7 +158,7 @@ export const getAttendeesByUserIdController = async (req, res) => {
   const start = process.hrtime.bigint();
 
   try {
-    const {eventId , attendeeId} = req.body;
+    const { eventId, attendeeId } = req.body;
     const { limit, page, limitPlusOne, offset } = req.pagination;
     const userId = req.user.sub;
 
@@ -167,36 +169,64 @@ export const getAttendeesByUserIdController = async (req, res) => {
     }
 
 
-    const organizer = await getEventScannerByUserIdEventIdRepository(userId , eventId);
 
-    if(!organizer) {
+
+    const organizer = await getEventScannerByUserIdEventIdRepository(userId, eventId);
+
+    if (!organizer) {
       const duration = Number(process.hrtime.bigint() - start) / 1000;
-      logs(duration, "INFO", req.ip, req.method, "Not Authorized to scan the event", req.path, 404, req.headers["user-agent"]);
+      logs(duration, "INFO", req.ip, req.method, "Not Authorized to scan the event", req.path, 403, req.headers["user-agent"]);
       return res.status(403).json({ message: "Not Authorized to scan the event" });
     }
 
-    const result = await getAttendeeByEventAndIdRepository(eventId , attendeeId);
+
+    const result = await getAttendeeByEventAndIdRepository(eventId, attendeeId);
 
 
     if (!result) {
       const duration = Number(process.hrtime.bigint() - start) / 1000;
       logs(duration, "INFO", req.ip, req.method, "No attendees found", req.path, 404, req.headers["user-agent"]);
-               return res.status(200).json({
-      status: "WRONG_EVENT",
-    });
+      return res.status(200).json({
+        status: "WRONG_EVENT",
+      });
     }
        const eventDate = result.event?.end_date;
 
-    if (!eventDate) {
+    if (!eventDateRaw) {
+      const duration = Number(process.hrtime.bigint() - start) / 1000;
+      logs(duration, "ERR", req.ip, req.method, "Event date not found", req.path, 500, req.headers["user-agent"]);
       return res.status(500).json({ error: "Event date not found" });
     }
 
-    const eventTimestamp = new Date(eventDate).getTime();
-    const now = Date.now();
-    
-    if(eventTimestamp < now) {
+    const eventDate = new Date(eventDateRaw);
+    const now = new Date();
+
+    const eventDay = new Date(eventDate).setUTCHours(0, 0, 0, 0);
+    const today = new Date(now).setUTCHours(0, 0, 0, 0);
+
+    if (today < eventDay) {
+      return res.status(200).json({
+        status: "TOO_EARLY",
+      });
+    }
+
+    if (today > eventDay) {
       return res.status(200).json({ status: "EXPIRED" });
     }
+
+    const { created } = await findOrCreateScannedTicketRepository({
+      event_id: eventId,
+      attendee_id: attendeeId,
+      ticket_id: result.ticket_id,
+      scanner_id: organizer.user_id,
+      ticket_quantity: result.ticket_quantity
+    });
+
+    if (!created) {
+      return res.status(200).json({ status: "ALREADY_SCANNED" });
+    }
+
+
 
     const duration = Number(process.hrtime.bigint() - start) / 1000;
     logs(duration, "INFO", req.ip, req.method, "Attendees retrieved", req.path, 200, req.headers["user-agent"]);
@@ -208,6 +238,9 @@ export const getAttendeesByUserIdController = async (req, res) => {
     });
   } catch (error) {
     const duration = Number(process.hrtime.bigint() - start) / 1000;
+    if (error instanceof UniqueConstraintError) {
+      return res.status(200).json({ status: "ALREADY_SCANNED" });
+    }
     logs(duration, "ERR", req.ip, req.method, error.message, req.path, 500, req.headers["user-agent"]);
 
     res.status(500).json({ error: error.message });
@@ -264,18 +297,18 @@ export const searchAttendeesByEventNameTicketNameController = async (req, res) =
   const start = process.hrtime.bigint();
 
   try {
-      const { q } = req.query;
+    const { q } = req.query;
     const searchQuery = q?.trim() || "";
-     const userId = req.user.sub;
+    const userId = req.user.sub;
     // const { limit, page, limitPlusOne, offset } = req.pagination;
 
-    const result = await searchAttendeesByEventNameTicketNameRepository(userId , searchQuery);
+    const result = await searchAttendeesByEventNameTicketNameRepository(userId, searchQuery);
 
     if (!result || result.length === 0) {
       const duration = Number(process.hrtime.bigint() - start) / 1000;
       logs(duration, "INFO", req.ip, req.method, "No attendees found", req.path, 404, req.headers["user-agent"]);
       return res.status(200).json(
-       []
+        []
       );
     }
 
@@ -303,7 +336,7 @@ export const getAllUserAttendedSpecificEventsController = async (req, res) => {
     const userId = req.user.sub;
     const eventId = req.params.id;
 
-    const result = await getAllUserAttendedSpecificEventRepository( eventId,userId, limitPlusOne, offset);
+    const result = await getAllUserAttendedSpecificEventRepository(eventId, userId, limitPlusOne, offset);
 
     const hasNextPage = result.length > limit;
     const events = hasNextPage ? result.slice(0, limit) : result;
