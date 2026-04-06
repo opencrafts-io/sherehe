@@ -32,7 +32,8 @@ export const createEventController = async (req, res) => {
       event_name,
       event_description,
       event_location,
-      event_date,
+      start_date,
+      end_date,
       event_url,
       event_genre,
       payment_type,
@@ -62,7 +63,7 @@ export const createEventController = async (req, res) => {
       return res.status(400).json({ error: "Send money phone number is required" });
     }
 
-    if (!event_name || !event_date || !event_location || !organizer_id) {
+    if (!event_name || !start_date || !end_date || !event_location || !organizer_id) {
       return res.status(422).json({
         message: "Missing required event details",
       });
@@ -107,7 +108,8 @@ export const createEventController = async (req, res) => {
           event_name,
           event_description,
           event_location,
-          event_date,
+          start_date,
+          end_date,
           event_url,
           event_genre,
           event_card_image,
@@ -194,7 +196,7 @@ export const createEventController = async (req, res) => {
     // -------------------------
     // NOTIFICATION (SAFE)
     // -------------------------
-    const formattedEventDate = new Date(event.event_date).toLocaleDateString(
+    const formattedEventDate = new Date(event.start_date).toLocaleDateString(
       "en-GB",
       {
         weekday: "long",

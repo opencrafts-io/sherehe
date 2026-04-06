@@ -12,7 +12,8 @@ const Event = sequelize.define(
     event_name: { type: DataTypes.STRING, allowNull: false },
     event_description: { type: DataTypes.STRING, allowNull: false },
     event_location: { type: DataTypes.STRING, allowNull: false },
-    event_date: { type: DataTypes.DATE, allowNull: false },
+    start_date: { type: DataTypes.DATE, allowNull: false },
+    end_date: { type: DataTypes.DATE, allowNull: false },
     attendee_count: {
       type: DataTypes.INTEGER,
       allowNull: false,

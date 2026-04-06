@@ -61,6 +61,7 @@ export const purchaseTicketController = async (req, res) => {
       return res.status(404).json({ message: "Event not found" });
     }
 
+
     if (ticket.ticket_price === 0) {
       for (let i = 0; i < ticket_quantity; i++) {
         await createAttendeeRepository(

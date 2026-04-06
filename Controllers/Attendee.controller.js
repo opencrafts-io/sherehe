@@ -185,7 +185,7 @@ export const getAttendeesByUserIdController = async (req, res) => {
       status: "WRONG_EVENT",
     });
     }
-       const eventDate = result.event?.event_date;
+       const eventDate = result.event?.end_date;
 
     if (!eventDate) {
       return res.status(500).json({ error: "Event date not found" });
