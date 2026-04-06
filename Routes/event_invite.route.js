@@ -6,7 +6,6 @@ import { validateTicketInviteController } from "../Controllers/ticket_invite.con
 const router = express.Router();
 
 import {verifyToken} from "../Middleware/jwt_token_verification.js";
-import { paginate } from '../Middleware/paginate.js';
 
 router.use(verifyToken);
 
