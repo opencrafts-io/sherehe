@@ -1,4 +1,4 @@
-import { Event, EventScanner, EventInstitution } from '../Models/index.js';
+import { Event, EventInstitution } from '../Models/index.js';
 import { Op, literal } from "sequelize";
 
 export const createEventRepository = async (eventData, options = {}) => {
