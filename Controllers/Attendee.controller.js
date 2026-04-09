@@ -190,7 +190,7 @@ export const getAttendeesByUserIdController = async (req, res) => {
         status: "WRONG_EVENT",
       });
     }
-       const eventDate = result.event?.end_date;
+       const eventDateRaw = result.event?.end_date;
 
     if (!eventDateRaw) {
       const duration = Number(process.hrtime.bigint() - start) / 1000;
