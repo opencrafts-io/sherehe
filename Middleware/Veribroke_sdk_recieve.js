@@ -1,8 +1,8 @@
 import amqp from "amqplib";
-import { updateTransactionRepository } from "../Repositories/Transactions.repository.js";
+import { updateTransactionRepository, getTransactionByIdRepository } from "../Repositories/Transactions.repository.js";
 import { createAttendeeRepository } from "../Repositories/Attendee.repository.js";
 import { updateTicketRepository } from "../Repositories/Ticket.repository.js";
-import { Op , Sequelize } from "sequelize";
+import { Op, Sequelize } from "sequelize";
 
 const RABBITMQ_HOST = process.env.RABBITMQ_HOST
 const RABBITMQ_PASSWORD = process.env.RABBITMQ_PASSWORD
@@ -39,67 +39,62 @@ export async function startMpesaSuccessConsumer() {
           const routingKey = msg.fields.routingKey;
           const payload = JSON.parse(msg.content.toString());
 
-          const { request_id, success, message, metadata, errors } = payload;
-          const stkCallback = metadata.Body;
+          const { request_id, success, message, metadata } = payload;
+          const stkCallback = metadata?.Body;
+          if (!request_id || !stkCallback) {
+            throw new Error("Invalid MPESA success payload: missing request_id or metadata.Body");
+          }
           const { MerchantRequestID, CheckoutRequestID } = stkCallback;
 
           let status;
-
           let failure_reason = null;
 
           if (success) {
             status = "SUCCESS";
           } else if (message === "Request Cancelled by user") {
             status = "CANCELLED";
-          } else {
-            user_id
-            status = "FAILED";
-          }
-
-          if (!success) {
             failure_reason = message;
+          } else {
+            status = "FAILED";
+            failure_reason = message || "Unknown error";
           }
 
-          const transaction = await updateTransactionRepository(
-            request_id,
-            {
-              checkout_request_id: CheckoutRequestID || null,
-              merchant_request_id: MerchantRequestID || null,
+          const transaction = await getTransactionByIdRepository(request_id);
+
+          if (transaction && transaction.status === "PENDING") {
+
+            await updateTransactionRepository(request_id, {
               status,
               failure_reason,
+              checkout_request_id: CheckoutRequestID || null,
+              merchant_request_id: MerchantRequestID || null,
               provider_response: stkCallback || null
+            });
+
+            if (!success) {
+
+              await updateTicketRepository(transaction.ticket_id, {
+                ticket_quantity: Sequelize.literal(
+                  `ticket_quantity + ${Number(transaction.ticket_quantity)}`
+                )
+              });
+
+            } else {
+
+              await createAttendeeRepository({
+                user_id: transaction.user_id,
+                event_id: transaction.event_id,
+                ticket_id: transaction.ticket_id,
+                ticket_quantity: transaction.ticket_quantity
+              });
+
             }
-          );
-
-          const plainTransaction = transaction.get({ plain: true });
-
-          const { user_id, event_id, ticket_id, ticket_quantity } = plainTransaction;
-
-
-          if (success) {
-            await createAttendeeRepository(
-              {
-                user_id,
-              event_id,
-              ticket_id,
-              ticket_quantity
-            }
-            );
-          }else{
-            await updateTicketRepository(
-    ticket_id,
-    {
-      ticket_quantity: Sequelize.literal(
-        `ticket_quantity + ${ticket_quantity}`
-      )
-    },)
           }
-
           channel.ack(msg);
 
         } catch (error) {
           if (msg.fields.redelivered) {
-            channel.ack(msg); // prevent infinite loop
+            channel.ack(msg);
           } else {
             channel.nack(msg, false, true);
           }
