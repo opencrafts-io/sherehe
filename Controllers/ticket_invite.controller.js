@@ -66,7 +66,7 @@ export const createTicketInviteController = async (req, res) => {
 
     return res.status(201).json({
       message: "Ticket invite created successfully",
-      url: `${req.protocol}://${req.get("host")}/invite/event/${token}`,
+      url: `${req.protocol}://${req.get("host")}/invite/ticket/${token}`,
     });
   } catch (error) {
     const duration = Number(process.hrtime.bigint() - start) / 1000;

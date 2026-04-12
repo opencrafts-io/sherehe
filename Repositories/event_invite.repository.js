@@ -47,3 +47,31 @@ export const validateInviteRepository = async (token) => {
     return formattedEvent;
 };
 
+export const deleteeventInviteRepository = async (id) => {
+  try {
+    const eventInvite = await EventInvite.findByPk(id);
+    if (!eventInvite) {
+      throw new Error("event invite not found");
+    }
+    await eventInvite.destroy();
+   return { message: "Event invite deleted successfully" };
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getalleventInviteRepository = async (event_id) => {
+  try {
+    const eventInvites = await EventInvite.findAll(
+      {
+        where: {
+          event_id: event_id,
+        },
+      }
+    );
+    return eventInvites;
+  } catch (error) {
+    throw error;
+  }
+};
+
