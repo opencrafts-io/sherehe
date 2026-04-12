@@ -1,7 +1,8 @@
 import { 
   validateInviteRepository, 
   createTicketInviteRepository,
-  deleteTicketInviteRepository
+  deleteTicketInviteRepository,
+  getallTicketInviteRepository
   } from "../Repositories/ticket_invite.repository.js";
 
 import { logs } from "../Utils/logs.js"; 
@@ -114,5 +115,29 @@ export const deleteTicketInviteController = async (req, res) => {
     }
 
     return res.status(500).json({ error: "Internal server error" });
+  }
+}
+
+export const getallTicketInviteController = async (req, res) => {
+  const start = process.hrtime.bigint();
+
+  try {
+    const ticket_id = req.params.id;
+    const invites = await getallTicketInviteRepository(ticket_id);
+
+    if (!invites) {
+      const duration = Number(process.hrtime.bigint() - start) / 1000;
+      logs(duration, "WARN", req.ip, req.method, "No invites found", req.path, 404, req.headers["user-agent"]);
+      return res.status(404).json({ error: "No invites found" });
+    }
+
+    const duration = Number(process.hrtime.bigint() - start) / 1000;
+    logs(duration, "INFO", req.ip, req.method, "Invites retrieved successfully", req.path, 200, req.headers["user-agent"]);
+
+    return res.status(200).json(invites);
+  } catch (error) {
+    const duration = Number(process.hrtime.bigint() - start) / 1000;
+    logs(duration, "ERR", req.ip, req.method, error.message, req.path, 500, req.headers["user-agent"]);
+    return res.status(500).json({ error: error.message });
   }
 }

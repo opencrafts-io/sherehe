@@ -54,3 +54,18 @@ export const deleteTicketInviteRepository = async (id) => {
   }
 };
 
+export const getallTicketInviteRepository = async (ticket_id) => {
+  try {
+    const ticketInvites = await TicketInvite.findAll(
+      {
+        where: {
+          ticket_id: ticket_id,
+        },
+      }
+    );
+    return ticketInvites;
+  } catch (error) {
+    throw error;
+  }
+};
+
