@@ -1,7 +1,7 @@
 import amqp from "amqplib";
 import { updateTransactionRepository } from "../Repositories/Transactions.repository.js";
 import { createAttendeeRepository } from "../Repositories/Attendee.repository.js";
-import { updateTicketRepository } from "../Repositories/Ticket.repository.js";
+import { updateTicketRepository , getTicketByIdRepository } from "../Repositories/Ticket.repository.js";
 import { Op, Sequelize } from "sequelize";
 import sequelize from "../Utils/db.js";
 
@@ -80,14 +80,23 @@ export async function startMpesaSuccessConsumer() {
 
           const { user_id, event_id, ticket_id, ticket_quantity } = plainTransaction;
 
+          const ticket = await getTicketByIdRepository(ticket_id);
+
 
           if (success) {
-            for (let i = 0; i < ticket_quantity; i++) {
-              await createAttendeeRepository(
-                { user_id, event_id, ticket_id, ticket_quantity: 1 },
-                { transaction: dbTransaction }
-              );
-            }
+            const attendeesToCreate = ticket_quantity * ticket.ticket_for;
+
+for (let i = 0; i < attendeesToCreate; i++) {
+  await createAttendeeRepository(
+    { 
+      user_id, 
+      event_id, 
+      ticket_id, 
+      ticket_quantity: 1
+    },
+    { transaction: dbTransaction }
+  );
+}
           } else {
             await updateTicketRepository(
               ticket_id,

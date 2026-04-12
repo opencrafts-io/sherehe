@@ -21,6 +21,11 @@ const Ticket = sequelize.define(
       type: DataTypes.FLOAT,
       allowNull: false
     },
+    ticket_for:{
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 1
+    },
     ticket_quantity: {
       type: DataTypes.INTEGER,
       allowNull: false

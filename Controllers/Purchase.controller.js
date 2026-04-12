@@ -63,13 +63,19 @@ export const purchaseTicketController = async (req, res) => {
 
 
     if (ticket.ticket_price === 0) {
-      for (let i = 0; i < ticket_quantity; i++) {
-        await createAttendeeRepository(
-          { user_id, event_id, ticket_id, ticket_quantity: 1 },
-          { transaction: dbTransaction }
-        );
-      }
+    const attendeesToCreate = ticket_quantity * ticket.ticket_for;
 
+for (let i = 0; i < attendeesToCreate; i++) {
+  await createAttendeeRepository(
+    { 
+      user_id, 
+      event_id, 
+      ticket_id, 
+      ticket_quantity: 1
+    },
+    { transaction: dbTransaction }
+  );
+}
       const duration = Number(process.hrtime.bigint() - start) / 1000;
       logs(duration, "INFO", req.ip, req.method, "Successfully registered for event", req.path, 201, req.headers["user-agent"]);
       await dbTransaction.commit();
