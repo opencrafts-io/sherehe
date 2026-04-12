@@ -41,3 +41,16 @@ export const validateInviteRepository = async (token) => {
   return invite.ticket;
 };
 
+export const deleteTicketInviteRepository = async (id) => {
+  try {
+    const ticketInvite = await TicketInvite.findByPk(id);
+    if (!ticketInvite) {
+      throw new Error("Ticket invite not found");
+    }
+    await ticketInvite.destroy();
+   return { message: "Ticket invite deleted successfully" };
+  } catch (error) {
+    throw error;
+  }
+};
+
