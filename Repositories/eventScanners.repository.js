@@ -1,7 +1,7 @@
 import {  EventScanner , User } from '../Models/index.js';
 import { Op } from "sequelize";
 
-export const createEventScannerRepository = async (eventScanner) => {
+export const createEventScannerRepository = async (eventScanner , options={}) => {
   try {
     // Check if scanner already exists
     const existingScanner = await EventScanner.findOne({
@@ -15,14 +15,14 @@ export const createEventScannerRepository = async (eventScanner) => {
           as: "user",
         },
       ],
-    });
+    } , options);
 
     if (existingScanner) {
       return existingScanner;
     }
 
     // Create new scanner
-    const createdScanner = await EventScanner.create(eventScanner);
+    const createdScanner = await EventScanner.create(eventScanner , options);
 
     // Re-fetch with User included
     const scannerWithUser = await EventScanner.findByPk(
@@ -34,7 +34,7 @@ export const createEventScannerRepository = async (eventScanner) => {
             as: "user",
           },
         ],
-      }
+      }, options
     );
 
     return scannerWithUser;

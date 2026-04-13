@@ -1,9 +1,9 @@
 import { Attendee , User , Ticket , Event } from "../Models/index.js";
 import { Op , Sequelize } from "sequelize";
 
-export const createAttendeeRepository = async (attendee) => {
+export const createAttendeeRepository = async (attendee , options = {}) => {
   try {
-    const newAttendee = await Attendee.create(attendee);
+    const newAttendee = await Attendee.create(attendee , options);
     return newAttendee;
   } catch (error) {
     throw error;

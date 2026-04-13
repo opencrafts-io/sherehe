@@ -1,10 +1,35 @@
-import {Ticket} from '../Models/index.js';
-import {getEventByIdRepository} from './Event.repository.js';
+import { Ticket } from '../Models/index.js';
+import { getEventByIdRepository } from './Event.repository.js';
 import { Sequelize } from "sequelize";
-
-export const createTicketRepository = async (data , options = {}) => {
+import { createTicketInstitutionRepository } from "./ticket_institution.repository.js";
+import {createTicketInviteRepository} from "./ticket_invite.repository.js";
+import crypto from "crypto";
+export const createTicketRepository = async (data, options = {}) => {
   try {
-    const ticket = await Ticket.create(data , options);
+    const ticket = await Ticket.create(data, {
+  transaction: options.transaction
+});
+    let institutions = data.institutions;
+
+
+    if (data.scope === "institution") {
+      if (typeof data.institutions === "string") {
+        institutions = JSON.parse(data.institutions);
+      }
+      for (const institution of institutions) {
+        await createTicketInstitutionRepository({
+          ticket_id: ticket.id,
+          institution_id: institution
+        }, { transaction: options.transaction });
+      }
+    } else if (data.scope === "private") {
+      const token = crypto.randomBytes(32).toString("hex");
+      await createTicketInviteRepository({
+        ticket_id: ticket.id,
+        token,
+        expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000)
+      }, { transaction: options.transaction })
+    }
     return ticket;
   } catch (error) {
     throw error;
@@ -32,16 +57,16 @@ export const getTicketByIdRepository = async (id) => {
 
 export const getTicketbyEventIdRepository = async (eventId) => {
   try {
-    const tickets = await Ticket.findAll({ where: { event_id: eventId } , order: [["created_at", "DESC"]] });
+    const tickets = await Ticket.findAll({ where: { event_id: eventId }, order: [["created_at", "DESC"]] });
     return tickets;
   } catch (error) {
     throw error;
   }
 };
 
-export const updateTicketRepository = async (id, data) => {
+export const updateTicketRepository = async (id, data, options = {}) => {
   try {
-    const ticket = await Ticket.findByPk(id);
+    const ticket = await Ticket.findByPk(id, options);
     if (!ticket) {
       throw new Error('Ticket not found');
     }
@@ -52,12 +77,12 @@ export const updateTicketRepository = async (id, data) => {
   }
 };
 
-export const deleteTicketRepository = async (id , organizer_id) => {
+export const deleteTicketRepository = async (id, organizer_id) => {
   try {
     const ticket = await Ticket.findByPk(id);
 
     if (!ticket) {
-      return null; 
+      return null;
     }
 
     // Get organizer is

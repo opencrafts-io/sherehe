@@ -1,5 +1,5 @@
-import { Event, EventScanner } from '../Models/index.js';
-import { Op } from "sequelize";
+import { Event, EventInstitution } from '../Models/index.js';
+import { Op, literal } from "sequelize";
 
 export const createEventRepository = async (eventData, options = {}) => {
   try {
@@ -20,17 +20,52 @@ export const createEventRepository = async (eventData, options = {}) => {
   }
 };
 
-export const getAllEventsRepository = async (params) => {
+export const getAllEventsRepository = async (
+  params,
+  institution_id = '478a2ee4-a721-4d35-a4e8-5cc6aca56faa'
+) => {
   try {
-    const { limitPlusOne = 20, offset = 0} = params;
+    const { limitPlusOne = 20, offset = 0 } = params;
 
+    const events = await Event.findAll({
+      where: {
+        [Op.or]: [
+          { scope: "public" },
+          {
+            [Op.and]: [
+              { scope: "institution" },
+              { '$event_institutions.institution_id$': institution_id }
+            ]
+          }
+        ]
+      },
 
-    const events = await Event
-      .findAll({
-        order: [["created_at", "DESC"]],
-        limit: limitPlusOne,
-        offset: offset
-      });
+      include: [
+        {
+          model: EventInstitution,
+          as: "event_institutions",
+          attributes: [],
+          required: false
+        }
+      ],
+      order: [
+        [
+          literal(`
+        CASE 
+          WHEN "events"."scope" = 'institution' 
+               AND "event_institutions"."institution_id" = '${institution_id}'
+          THEN 0
+          ELSE 1
+        END
+      `),
+          "ASC"
+        ],
+        ["created_at", "DESC"]
+      ],
+      limit: limitPlusOne,
+      offset,
+      subQuery: false
+    });
 
     const formattedEvents = events.map(event => ({
       ...event.toJSON(),
@@ -38,10 +73,11 @@ export const getAllEventsRepository = async (params) => {
         ? event.event_genre
         : JSON.parse(event.event_genre || '[]')
     }));
+
     return formattedEvents;
 
-
   } catch (error) {
+    console.log(error)
     throw error;
   }
 };
