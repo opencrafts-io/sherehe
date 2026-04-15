@@ -83,9 +83,6 @@ export const getAllEventsRepository = async (
 };
 
 
-
-
-
 export const getEventByIdRepository = async (eventId) => {
   try {
     const event = await Event.findByPk(eventId);
@@ -191,6 +188,7 @@ export const searchEventRepository = async (searchQuery) => {
 
 export const getEventbyOrganizerIdRepository = async (organizerId) => {
   try {
+    console.log(organizerId)
     const events = await Event.findAll({ where: { organizer_id: organizerId }, order: [["created_at", "DESC"]] });
     const formattedEvents = events.map(event => ({
       ...event.toJSON(),
@@ -225,4 +223,3 @@ export const getEventByTagsRepository = async (tags) => {
     throw error;
   }
 };
-

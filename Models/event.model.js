@@ -44,15 +44,12 @@ const Event = sequelize.define(
     paranoid: true,
     deletedAt: 'deleted_at',
     defaultScope: {
-      attributes: { exclude: ['deleted_at' , 'scope'] }
+      attributes: { exclude: ['deleted_at'] }
     },
     scopes: {
       withDeleted: {
         attributes: { include: ['deleted_at' ] }
       },
-      withScope: {
-        attributes: { include: ['scope' ] }
-      }
     },
     indexes: [
       {
