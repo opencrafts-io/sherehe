@@ -21,6 +21,7 @@ const User = sequelize.define(
     },
     name: DataTypes.STRING,
     phone: DataTypes.STRING,
+    institution_id: {type: DataTypes.INTEGER , allowNull: true},
     created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
     updated_at: { type: DataTypes.DATE, allowNull: true },
     deleted_at: { type: DataTypes.DATE, allowNull: true }
