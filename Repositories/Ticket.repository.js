@@ -1,6 +1,6 @@
-import { Ticket } from '../Models/index.js';
+import { Ticket , TicketInstitution } from '../Models/index.js';
 import { getEventByIdRepository } from './Event.repository.js';
-import { Sequelize } from "sequelize";
+import { Sequelize , Op , literal } from "sequelize";
 import { createTicketInstitutionRepository } from "./ticket_institution.repository.js";
 import {createTicketInviteRepository} from "./ticket_invite.repository.js";
 import crypto from "crypto";
@@ -55,11 +55,57 @@ export const getTicketByIdRepository = async (id) => {
   }
 };
 
-export const getTicketbyEventIdRepository = async (eventId) => {
+export const getTicketbyEventIdRepository = async (eventId, institution_id) => {
   try {
-    const tickets = await Ticket.findAll({ where: { event_id: eventId }, order: [["created_at", "DESC"]] });
+    const tickets = await Ticket.findAll({
+      where: {
+        // 1. First, strictly filter by the specific event
+        event_id: eventId,
+        
+        // 2. Then, ensure the user only sees tickets they are allowed to see
+        [Op.and]: [
+          {
+            [Op.or]: [
+              { scope: "public" },
+              {
+                [Op.and]: [
+                  { scope: "institution" },
+                  { '$ticket_institutions.institution_id$': institution_id }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      include: [
+        {
+          model: TicketInstitution,
+          as: "ticket_institutions",
+          attributes: [],
+          required: false // Essential for 'public' tickets to show up
+        }
+      ],
+      order: [
+        [
+          // Using Number() and avoiding single quotes for the raw SQL CASE
+          literal(`
+            CASE 
+              WHEN "tickets"."scope" = 'institution' 
+                   AND "ticket_institutions"."institution_id" = ${institution_id ? Number(institution_id) : 'NULL'}
+              THEN 0
+              ELSE 1
+            END
+          `),
+          "ASC"
+        ],
+        ["created_at", "DESC"]
+      ],
+      subQuery: false
+    });
+
     return tickets;
   } catch (error) {
+    console.error("Error in getTicketbyEventIdRepository:", error);
     throw error;
   }
 };
