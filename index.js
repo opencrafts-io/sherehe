@@ -26,6 +26,7 @@ import userRouter from './Routes/User.route.js'
 import purchaseTicket from './Routes/Purchase.route.js'
 import eventScanners from './Routes/eventScanners.route.js'
 import organizerDashboard from './Routes/OrganizerDashboard.route.js'
+import eventInviteRouter from './Routes/event_invite.route.js'
 
 app.use('/event', eventRouter)
 app.use('/ticket', ticketRouter)
@@ -34,6 +35,7 @@ app.use('/user', userRouter)
 app.use('/purchase', purchaseTicket)
 app.use('/eventscanner', eventScanners)
 app.use('/dashboard', organizerDashboard)
+app.use('/invite' , eventInviteRouter)
 
 
 app.listen(PORT, async () => {

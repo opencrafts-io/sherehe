@@ -12,7 +12,8 @@ const Event = sequelize.define(
     event_name: { type: DataTypes.STRING, allowNull: false },
     event_description: { type: DataTypes.TEXT, allowNull: false },
     event_location: { type: DataTypes.STRING, allowNull: false },
-    event_date: { type: DataTypes.DATE, allowNull: false },
+    start_date: { type: DataTypes.DATE, allowNull: true },
+    end_date: { type: DataTypes.DATE, allowNull: true },
     attendee_count: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -22,7 +23,10 @@ const Event = sequelize.define(
     event_card_image: { type: DataTypes.STRING, allowNull: true },
     event_poster_image: { type: DataTypes.STRING, allowNull: true },
     event_banner_image: { type: DataTypes.STRING, allowNull: true },
-    event_url: { type: DataTypes.STRING, allowNull: true },
+    scope: {
+    type: DataTypes.ENUM("public", "institution", "private"),
+    defaultValue: "public",
+  },
     event_genre: { type: DataTypes.JSONB, allowNull: true },
     created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
     updated_at: {
@@ -40,15 +44,12 @@ const Event = sequelize.define(
     paranoid: true,
     deletedAt: 'deleted_at',
     defaultScope: {
-      attributes: { exclude: ['deleted_at' , 'event_visibility'] }
+      attributes: { exclude: ['deleted_at'] }
     },
     scopes: {
       withDeleted: {
         attributes: { include: ['deleted_at' ] }
       },
-      withVisibility: {
-        attributes: { include: ['event_visibility' ] }
-      }
     },
     indexes: [
       {

@@ -1,4 +1,4 @@
-import { getTicketByIdRepository , updateTicketRepository } from '../Repositories/Ticket.repository.js';
+import { getTicketByIdRepository, updateTicketRepository } from '../Repositories/Ticket.repository.js';
 import { getEventByIdRepository } from '../Repositories/Event.repository.js';
 import { logs } from '../Utils/logs.js';
 import { getUserByIdRepository } from '../Repositories/User.repository.js';
@@ -6,12 +6,13 @@ import { sendPaymentRequest } from '../Middleware/Veribroke_sdk_push.js';
 import { createTransactionRepository, getTransactionByIdRepository } from '../Repositories/Transactions.repository.js';
 import { getPaymentInfoByEventIdRepository } from '../Repositories/paymentInfo.repository.js';
 import { createAttendeeRepository } from '../Repositories/Attendee.repository.js';
-import { Op , Sequelize } from "sequelize";
+import { Op, Sequelize } from "sequelize";
+import sequelize from "../Utils/db.js";
 const SHEREHE_ROUTING_KEY = process.env.SHEREHE_ROUTING_KEY || "NDOVUKUU";
 
 export const purchaseTicketController = async (req, res) => {
   const start = process.hrtime.bigint();
-
+  let dbTransaction = await sequelize.transaction();
   try {
     const user_id = req.user?.sub;
     const ticket_quantity = req.body.ticket_quantity;
@@ -27,6 +28,8 @@ export const purchaseTicketController = async (req, res) => {
 
     const ticket = await getTicketByIdRepository(ticket_id);
 
+
+
     if (!ticket) {
       const duration = Number(process.hrtime.bigint() - start) / 1000;
       logs(duration, "WARN", req.ip, req.method, "Ticket not found", req.path, 404, req.headers["user-agent"]);
@@ -40,7 +43,9 @@ export const purchaseTicketController = async (req, res) => {
       return res.status(400).json({ message: "Not enough tickets available" });
     }
 
-
+    await updateTicketRepository(ticket_id, {
+      ticket_quantity: Sequelize.literal(`ticket_quantity - ${ticket_quantity}`)
+    }, { transaction: dbTransaction });
 
 
 
@@ -56,12 +61,29 @@ export const purchaseTicketController = async (req, res) => {
       return res.status(404).json({ message: "Event not found" });
     }
 
+
     if (ticket.ticket_price === 0) {
-     const attendee = await createAttendeeRepository({ user_id, event_id, ticket_id, ticket_quantity });
+    const attendeesToCreate = ticket_quantity * ticket.ticket_for;
+
+for (let i = 0; i < attendeesToCreate; i++) {
+  await createAttendeeRepository(
+    { 
+      user_id, 
+      event_id, 
+      ticket_id, 
+      ticket_quantity: 1
+    },
+    { transaction: dbTransaction }
+  );
+}
       const duration = Number(process.hrtime.bigint() - start) / 1000;
       logs(duration, "INFO", req.ip, req.method, "Successfully registered for event", req.path, 201, req.headers["user-agent"]);
-      return res.status(201).json({ message: "Successfully registered for event", attendee_id : attendee.id });
-    }else if (!user) {
+      await dbTransaction.commit();
+      return res.status(201).json({ message: "Successfully registered for event" });
+    } else if (!user) {
+      if (!dbTransaction.finished) {
+        await dbTransaction.rollback();
+      }
       const duration = Number(process.hrtime.bigint() - start) / 1000;
       logs(duration, "WARN", req.ip, req.method, "User not found", req.path, 404, req.headers["user-agent"]);
       return res.status(404).json({ message: "User not found" });
@@ -71,6 +93,9 @@ export const purchaseTicketController = async (req, res) => {
 
     // 2️⃣ If still missing, reject
     if (!phoneNumber) {
+      if (!dbTransaction.finished) {
+        await dbTransaction.rollback();
+      }
       const duration = Number(process.hrtime.bigint() - start) / 1000;
       logs(
         duration,
@@ -100,13 +125,16 @@ export const purchaseTicketController = async (req, res) => {
       ticket_quantity,
       payment_method: 'MPESA',
       phone_number: phoneNumber,
-    });
+    }, { transaction: dbTransaction });
 
     //! Check on this
     const paymentInfo = await getPaymentInfoByEventIdRepository(event_id)
     if (!paymentInfo) {
       const duration = Number(process.hrtime.bigint() - start) / 1000;
       logs(duration, "WARN", req.ip, req.method, "Payment info not found", req.path, 404, req.headers["user-agent"]);
+      if (!dbTransaction.finished) {
+        await dbTransaction.rollback();
+      }
       return res.status(404).json({ message: "Payment info not found" });
     }
 
@@ -124,11 +152,11 @@ export const purchaseTicketController = async (req, res) => {
     } else if (paymentInfo.payment_type === "MPESA_TILL") {
       type = "till"
       recipient = paymentInfo.till_number
-       if (recipient.startsWith("0")) {
-      recipient = "254" + recipient.slice(1);
-    } else if (recipient.startsWith("+")) {
-      recipient = recipient.slice(1);
-    }
+      if (recipient.startsWith("0")) {
+        recipient = "254" + recipient.slice(1);
+      } else if (recipient.startsWith("+")) {
+        recipient = recipient.slice(1);
+      }
     } else if (paymentInfo.payment_type === "MPESA_SEND_MONEY") {
       type = "personal"
       recipient = paymentInfo.phone_number
@@ -138,14 +166,14 @@ export const purchaseTicketController = async (req, res) => {
     }
 
     if (!recipient) {
-  throw new Error("Invalid payment recipient configuration");
-  }
+      throw new Error("Invalid payment recipient configuration");
+    }
 
-  let changableAmount = Math.floor(0.13 * amount)
+    let changableAmount = Math.floor(0.13 * amount)
 
-  if(changableAmount < 1){
-    changableAmount = 1
-  }
+    if (changableAmount < 1) {
+      changableAmount = 1
+    }
 
 
     const paymentData = {
@@ -160,7 +188,7 @@ export const purchaseTicketController = async (req, res) => {
         "originator": "MPESA",
         "extras": {
           "type": type,
-          "amount":changableAmount ,
+          "amount": changableAmount,
           "recipient": recipient,
           "account_reference": account_reference,
           "occassion": "Service fee split"
@@ -171,26 +199,27 @@ export const purchaseTicketController = async (req, res) => {
     try {
       await sendPaymentRequest(paymentData);
       const duration = Number(process.hrtime.bigint() - start) / 1000;
-    logs(duration, "INFO", req.ip, req.method, "Sdk request sent", req.path, 201, req.headers["user-agent"]);
-
-       await updateTicketRepository(ticket_id, {
-  ticket_quantity: Sequelize.literal(`ticket_quantity - ${ticket_quantity}`)
-});
-
-    res.status(200).json({
-      message: "Sdk request sent successfully",
-      trans_id: transaction.id
-    });
+      logs(duration, "INFO", req.ip, req.method, "Sdk request sent", req.path, 201, req.headers["user-agent"]);
+      await dbTransaction.commit();
+      res.status(200).json({
+        message: "Sdk request sent successfully",
+        trans_id: transaction.id
+      });
     } catch (error) {
+      if (!dbTransaction.finished) {
+        await dbTransaction.rollback();
+      }
       const duration = Number(process.hrtime.bigint() - start) / 1000;
       logs(duration, "ERR", req.ip, req.method, error.message, req.path, 500, req.headers["user-agent"]);
       return res.status(500).json({ message: error.message });
     }
-    
+
   } catch (error) {
     const duration = Number(process.hrtime.bigint() - start) / 1000;
     logs(duration, "ERR", req.ip, req.method, error.message, req.path, 500, req.headers["user-agent"]);
-
+    if (!dbTransaction.finished) {
+      await dbTransaction.rollback();
+    }
     res.status(500).json({ message: error.message });
   }
 };

@@ -15,8 +15,11 @@ import { cleanupFiles } from "../Middleware/cleanupFiles.js";
 import { processAndSaveImages } from "../Middleware/upload.js";
 import sequelize from "../Utils/db.js";
 import { sendNotification } from "../Utils/Notification.js";
-import {createEventScannerRepository} from "../Repositories/eventScanners.repository.js";
+import { createEventScannerRepository } from "../Repositories/eventScanners.repository.js";
 import { logs } from "../Utils/logs.js";
+import { createEventInstitutionRepository } from "../Repositories/event_institution.repository.js";
+import {createEventInviteRepository} from '../Repositories/event_invite.repository.js';
+import crypto from "crypto";
 
 
 export const createEventController = async (req, res) => {
@@ -29,7 +32,8 @@ export const createEventController = async (req, res) => {
       event_name,
       event_description,
       event_location,
-      event_date,
+      start_date,
+      end_date,
       event_url,
       event_genre,
       payment_type,
@@ -37,6 +41,8 @@ export const createEventController = async (req, res) => {
       account_reference,
       till_number,
       send_money_phone,
+      scope,
+      institutions
     } = req.body;
 
     const organizer_id = req.user.sub;
@@ -57,7 +63,7 @@ export const createEventController = async (req, res) => {
       return res.status(400).json({ error: "Send money phone number is required" });
     }
 
-    if (!event_name || !event_date || !event_location || !organizer_id) {
+    if (!event_name || !start_date || !end_date || !event_location || !organizer_id) {
       return res.status(422).json({
         message: "Missing required event details",
       });
@@ -67,7 +73,7 @@ export const createEventController = async (req, res) => {
     // IMAGE PROCESSING
     // -------------------------
     const resized = await processAndSaveImages(req);
-        const { event_card_image, event_poster_image, event_banner_image } = req.images;
+    const { event_card_image, event_poster_image, event_banner_image } = req.images;
     // -------------------------
     // TICKETS PARSING
     // -------------------------
@@ -102,14 +108,15 @@ export const createEventController = async (req, res) => {
           event_name,
           event_description,
           event_location,
-          event_date,
+          start_date,
+          end_date,
           event_url,
           event_genre,
           event_card_image,
           event_poster_image,
           event_banner_image,
           organizer_id,
-          
+          scope
         },
         { transaction }
       );
@@ -119,7 +126,54 @@ export const createEventController = async (req, res) => {
           { ...ticket, event_id: event.id },
           { transaction }
         );
+
       }
+      if (typeof institutions === "string") {
+        institutions = JSON.parse(institutions);
+      }
+      if (scope === "institution") {
+        for (const institution of institutions) {
+          await createEventInstitutionRepository({
+            event_id: event.id,
+            institution_id: institution
+          }, { transaction })
+        }
+      }
+      const token = crypto.randomBytes(32).toString("hex");
+      if(scope === "private"){
+        await createEventInviteRepository({
+          event_id: event.id,
+          token,
+          expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000)
+        } , { transaction })
+      }
+
+          if (!(payment_type === null || payment_type === undefined)) {
+      const savepayment = await createPaymentInfoRepository({
+        event_id: event.id,
+        payment_type,
+        paybill_number,
+        paybill_account_number: account_reference,
+        till_number,
+        phone_number: send_money_phone
+      } , { transaction });
+                if (!savepayment) {
+        return res.status(500).json({
+          error: "Event created but payment info failed to save",
+        });
+      }
+    }
+
+        const eventOrganizer =
+    {
+      event_id: event.id,
+      user_id: organizer_id,
+      role: "SUPERVISOR"
+    }
+
+    await createEventScannerRepository(eventOrganizer , { transaction })
+
+
 
       await transaction.commit();
     } catch (error) {
@@ -134,27 +188,15 @@ export const createEventController = async (req, res) => {
     // ✅ POST-COMMIT OPERATIONS (NO ROLLBACK HERE)
     // =====================================================
 
-    if (!(payment_type === null || payment_type === undefined)) {
-      const savepayment = await createPaymentInfoRepository({
-        event_id: event.id,
-        payment_type,
-        paybill_number,
-        paybill_account_number: account_reference,
-        till_number,
-        phone_number: send_money_phone
-      });
 
-      if (!savepayment) {
-        return res.status(500).json({
-          error: "Event created but payment info failed to save",
-        });
-      }
-    }
+
+
+    
 
     // -------------------------
     // NOTIFICATION (SAFE)
     // -------------------------
-    const formattedEventDate = new Date(event.event_date).toLocaleDateString(
+    const formattedEventDate = new Date(event.start_date).toLocaleDateString(
       "en-GB",
       {
         weekday: "long",
@@ -194,16 +236,8 @@ export const createEventController = async (req, res) => {
       req.headers["user-agent"]
     );
 
-    const eventOrganizer =
-    {
-        event_id: event.id,
-        user_id: organizer_id,
-        role: "SUPERVISOR"
-    }
 
-    await createEventScannerRepository(eventOrganizer)
-
-      return res.status(201).json({
+    return res.status(201).json({
       message: "Event created successfully",
       data: {
         event,

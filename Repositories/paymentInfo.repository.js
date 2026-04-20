@@ -1,9 +1,9 @@
 import {PaymentInfo} from "../Models/index.js";
 
 
-export const createPaymentInfoRepository = async (data) => {
+export const createPaymentInfoRepository = async (data , options={}) => {
   try {
-    const paymentInfo = await PaymentInfo.create(data);
+    const paymentInfo = await PaymentInfo.create(data , options);
     // remove event_id from response
     const { event_id, ...response } = paymentInfo.toJSON();
 

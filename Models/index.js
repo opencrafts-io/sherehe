@@ -1,12 +1,15 @@
-import User from './User.model.js';
-import Event from './Event.model.js';
-import Ticket from './Ticket.model.js';
-import Attendee from './Attendee.model.js';
-import PaymentInfo from './paymentInfo.model.js';
-import Transaction from './Transactions.model.js';
-import EventScanner from './eventScanners.model.js';
+import User from './user.model.js';
+import Event from './event.model.js';
+import Ticket from './ticket.model.js';
+import Attendee from './attendee.model.js';
+import PaymentInfo from './payment_info.model.js';
+import Transaction from './transactions.model.js';
+import EventScanner from './event_scanners.model.js';
+import EventInvite from './event_invite.model.js';
+import EventInstitution from './event_institution.model.js';
+import  TicketInvite from './ticket_invite.model.js';
+import TicketInstitution from './ticket_institution.model.js';
 import ScannedTickets from './Scanned_tickets.model.js';
-
 // Define relationships
 // User.hasMany(Event, { foreignKey: 'organizer_id' });
 // Event.belongsTo(User, { foreignKey: 'organizer_id' });
@@ -31,6 +34,7 @@ Transaction.belongsTo(Ticket, { foreignKey: 'ticket_id' });
 Transaction.belongsTo(Event, { foreignKey: 'event_id' });
 
 
+
 Event.hasMany(EventScanner, {
   foreignKey: "event_id",
 });
@@ -47,6 +51,36 @@ EventScanner.belongsTo(User, {
   foreignKey: "user_id",
 });
 
+Event.hasMany(EventInvite, {
+  foreignKey: "event_id",
+});
 
+EventInvite.belongsTo(Event, {
+  foreignKey: "event_id",
+});
 
-export { User, Event, Ticket, Attendee , PaymentInfo , Transaction , EventScanner , ScannedTickets};
+Event.hasMany(EventInstitution, {
+  foreignKey: "event_id",
+});
+
+EventInstitution.belongsTo(Event, {
+  foreignKey: "event_id",
+});
+
+Ticket.hasMany(TicketInvite, {
+  foreignKey: "ticket_id",
+});
+
+TicketInvite.belongsTo(Ticket, {
+  foreignKey: "ticket_id",
+});
+
+TicketInstitution.belongsTo(Ticket, {
+  foreignKey: "ticket_id",
+})
+
+Ticket.hasMany(TicketInstitution, {
+  foreignKey: "ticket_id",
+});
+
+export { User, Event, Ticket, Attendee , PaymentInfo , Transaction , EventScanner , EventInvite , EventInstitution , TicketInvite , TicketInstitution , ScannedTickets};
