@@ -22,7 +22,7 @@ export const createEventRepository = async (eventData, options = {}) => {
 
 export const getAllEventsRepository = async (
   params,
-  institution_id = '478a2ee4-a721-4d35-a4e8-5cc6aca56faa'
+  institution_id
 ) => {
   try {
     const { limitPlusOne = 20, offset = 0 } = params;
@@ -53,7 +53,7 @@ export const getAllEventsRepository = async (
           literal(`
         CASE 
           WHEN "events"."scope" = 'institution' 
-               AND "event_institutions"."institution_id" = '${institution_id}'
+               AND "event_institutions"."institution_id" = '${Number(institution_id)}'
           THEN 0
           ELSE 1
         END

@@ -14,7 +14,7 @@ const TicketInstitution = sequelize.define("ticket_institutions", {
   },
 
   institution_id: {
-    type: DataTypes.STRING,
+    type: DataTypes.INTEGER,
     allowNull: false,
   }
 },

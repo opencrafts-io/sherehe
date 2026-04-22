@@ -20,6 +20,7 @@ import { logs } from "../Utils/logs.js";
 import { createEventInstitutionRepository } from "../Repositories/event_institution.repository.js";
 import {createEventInviteRepository} from '../Repositories/event_invite.repository.js';
 import crypto from "crypto";
+import {getUserByIdRepository} from '../Repositories/User.repository.js';
 
 
 export const createEventController = async (req, res) => {
@@ -273,9 +274,11 @@ export const getAllEventsController = async (req, res) => {
 
   try {
     const { limit, page, limitPlusOne, offset } = req.pagination;
+    const organizer_id = req.user.sub;
+    const user = await getUserByIdRepository(organizer_id);
 
 
-    const result = await getAllEventsRepository({ limitPlusOne, offset });
+    const result = await getAllEventsRepository({ limitPlusOne, offset } , user.institution_id);
 
     const hasNextPage = result.length > limit;
     const events = hasNextPage ? result.slice(0, limit) : result;
