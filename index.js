@@ -43,7 +43,7 @@ app.listen(PORT, async () => {
   try {
     await sequelize.authenticate();
 
-    await sequelize.sync({ force: true });
+    await sequelize.sync({ alter: true });
     console.log("✅ Models synced...");
     // startVerisafeListener();
     await startMpesaSuccessConsumer();
