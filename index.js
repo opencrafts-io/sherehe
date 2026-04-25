@@ -7,6 +7,7 @@ const PORT = process.env.PORT || 3001;
 import './Models/index.js';
 import { startVerisafeListener } from './Services/verisafe.js';
 import {startMpesaSuccessConsumer} from './Middleware/Veribroke_sdk_recieve.js';
+import {consumeInstitutionEvents} from './Middleware/institution_connection.js'
 
 dotenv.config();
 const app = express();
@@ -26,6 +27,7 @@ import userRouter from './Routes/User.route.js'
 import purchaseTicket from './Routes/Purchase.route.js'
 import eventScanners from './Routes/eventScanners.route.js'
 import organizerDashboard from './Routes/OrganizerDashboard.route.js'
+import eventInviteRouter from './Routes/event_invite.route.js'
 
 app.use('/event', eventRouter)
 app.use('/ticket', ticketRouter)
@@ -34,6 +36,7 @@ app.use('/user', userRouter)
 app.use('/purchase', purchaseTicket)
 app.use('/eventscanner', eventScanners)
 app.use('/dashboard', organizerDashboard)
+app.use('/invite' , eventInviteRouter)
 
 
 app.listen(PORT, async () => {
@@ -46,6 +49,7 @@ app.listen(PORT, async () => {
     await startMpesaSuccessConsumer();
     // Start Verisafe
     await startVerisafeListener();
+    await consumeInstitutionEvents()
     console.log(`🚀 Server running on port ${PORT}`);
   } catch (error) {
     console.error("❌ Database error:", error);
