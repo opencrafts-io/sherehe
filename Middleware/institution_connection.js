@@ -17,7 +17,7 @@ export async function consumeInstitutionEvents() {
   try {
     // 1. Connection Configuration
     const EXCHANGE_NAME = 'verisafe.events.topic';
-    const ROUTING_KEY_PATTERN = 'verisafe.institution.connection.*';
+    const ROUTING_KEY_PATTERN = 'user.institution.*';
     const RABBITMQ_URL = `amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@${RABBITMQ_HOST}:${RABBITMQ_PORT}${RABBITMQ_VHOST || '/'}`; // Update with your credentials
 
     const connection = await amqp.connect(RABBITMQ_URL);
