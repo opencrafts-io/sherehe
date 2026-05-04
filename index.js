@@ -6,8 +6,8 @@ import path from 'path';
 const PORT = process.env.PORT || 3001;
 import './Models/index.js';
 import { startVerisafeListener } from './Services/verisafe.js';
-import {startMpesaSuccessConsumer} from './Middleware/Veribroke_sdk_recieve.js';
-import {consumeInstitutionEvents} from './Middleware/institution_connection.js'
+import {startMpesaSuccessConsumer} from './Services/Veribroke_sdk_recieve.js';
+import {consumeInstitutionEvents} from './Services/institution_connection.js'
 
 dotenv.config();
 const app = express();

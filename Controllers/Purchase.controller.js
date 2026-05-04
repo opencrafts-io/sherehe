@@ -2,7 +2,7 @@ import { getTicketByIdRepository, updateTicketRepository } from '../Repositories
 import { getEventByIdRepository } from '../Repositories/Event.repository.js';
 import { logs } from '../Utils/logs.js';
 import { getUserByIdRepository } from '../Repositories/User.repository.js';
-import { sendPaymentRequest } from '../Middleware/Veribroke_sdk_push.js';
+import { sendPaymentRequest } from '../Services/Veribroke_sdk_push.js';
 import { createTransactionRepository, getTransactionByIdRepository } from '../Repositories/Transactions.repository.js';
 import { getPaymentInfoByEventIdRepository } from '../Repositories/paymentInfo.repository.js';
 import { createAttendeeRepository } from '../Repositories/Attendee.repository.js';
