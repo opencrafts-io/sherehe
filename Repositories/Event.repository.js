@@ -20,51 +20,64 @@ export const createEventRepository = async (eventData, options = {}) => {
   }
 };
 
-export const getAllEventsRepository = async (
-  params,
-  institution_id
-) => {
+export const getAllEventsRepository = async (params, institutionIds = []) => {
   try {
     const { limitPlusOne = 20, offset = 0 } = params;
 
-    const events = await Event.findAll({
-      where: {
-        [Op.or]: [
-          { scope: "public" },
-          {
-            [Op.and]: [
-              { scope: "institution" },
-              { '$event_institutions.institution_id$': institution_id }
-            ]
-          }
-        ]
-      },
+    // If no institutionIds provided, return only public events
+    const whereCondition = institutionIds.length > 0 ? {
+      [Op.or]: [
+        { scope: "public" },
+        {
+          [Op.and]: [
+            { scope: "institution" },
+            { '$event_institutions.institution_id$': { [Op.in]: institutionIds } }
+          ]
+        }
+      ]
+    } : {
+      scope: "public" // Only public events if user has no institutions
+    };
 
+    // Build order array conditionally
+    let orderArray = [["created_at", "DESC"]];
+    
+    if (institutionIds.length > 0) {
+      const institutionIdList = institutionIds.map(id => Number(id)).join(',');
+      orderArray = [
+        [
+          literal(`
+            CASE 
+              WHEN "events"."scope" = 'institution' 
+                   AND "event_institutions"."institution_id" IN (${institutionIdList})
+              THEN 0
+              ELSE 1
+            END
+          `),
+          "ASC"
+        ],
+        ["created_at", "DESC"]
+      ];
+    }
+
+    const events = await Event.findAll({
+      where: whereCondition,
       include: [
         {
           model: EventInstitution,
           as: "event_institutions",
           attributes: [],
-          required: false
+          required: false,
+          where: institutionIds.length > 0 ? {
+            institution_id: { [Op.in]: institutionIds }
+          } : undefined
         }
       ],
-      order: [
-        [
-          literal(`
-        CASE 
-          WHEN "events"."scope" = 'institution' 
-               AND "event_institutions"."institution_id" = '${Number(institution_id)}'
-          THEN 0
-          ELSE 1
-        END
-      `),
-          "ASC"
-        ],
-        ["created_at", "DESC"]
-      ],
+      order: orderArray,
       limit: limitPlusOne,
       offset,
-      subQuery: false
+      subQuery: false,
+      distinct: true
     });
 
     const formattedEvents = events.map(event => ({
@@ -77,7 +90,7 @@ export const getAllEventsRepository = async (
     return formattedEvents;
 
   } catch (error) {
-    console.log(error)
+    console.log(error);
     throw error;
   }
 };

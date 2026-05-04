@@ -55,43 +55,36 @@ export const getTicketByIdRepository = async (id) => {
   }
 };
 
-export const getTicketbyEventIdRepository = async (eventId, institution_id) => {
+export const getTicketbyEventIdRepository = async (eventId, institutionIds = []) => {
   try {
-    const tickets = await Ticket.findAll({
-      where: {
-        // 1. First, strictly filter by the specific event
-        event_id: eventId,
-        
-        // 2. Then, ensure the user only sees tickets they are allowed to see
-        [Op.and]: [
-          {
-            [Op.or]: [
-              { scope: "public" },
-              {
-                [Op.and]: [
-                  { scope: "institution" },
-                  { '$ticket_institutions.institution_id$': institution_id }
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      include: [
+    // If no institutionIds provided, return only public tickets for this event
+    const whereCondition = institutionIds.length > 0 ? {
+      event_id: eventId,
+      [Op.or]: [
+        { scope: "public" },
         {
-          model: TicketInstitution,
-          as: "ticket_institutions",
-          attributes: [],
-          required: false // Essential for 'public' tickets to show up
+          [Op.and]: [
+            { scope: "institution" },
+            { '$ticket_institutions.institution_id$': { [Op.in]: institutionIds } }
+          ]
         }
-      ],
-      order: [
+      ]
+    } : {
+      event_id: eventId,
+      scope: "public" // Only public tickets if user has no institutions
+    };
+
+    // Build order array conditionally
+    let orderArray = [["created_at", "DESC"]];
+    
+    if (institutionIds.length > 0) {
+      const institutionIdList = institutionIds.map(id => Number(id)).join(',');
+      orderArray = [
         [
-          // Using Number() and avoiding single quotes for the raw SQL CASE
           literal(`
             CASE 
               WHEN "tickets"."scope" = 'institution' 
-                   AND "ticket_institutions"."institution_id" = ${institution_id ? Number(institution_id) : 'NULL'}
+                   AND "ticket_institutions"."institution_id" IN (${institutionIdList})
               THEN 0
               ELSE 1
             END
@@ -99,8 +92,25 @@ export const getTicketbyEventIdRepository = async (eventId, institution_id) => {
           "ASC"
         ],
         ["created_at", "DESC"]
+      ];
+    }
+
+    const tickets = await Ticket.findAll({
+      where: whereCondition,
+      include: [
+        {
+          model: TicketInstitution,
+          as: "ticket_institutions",
+          attributes: [],
+          required: false,
+          where: institutionIds.length > 0 ? {
+            institution_id: { [Op.in]: institutionIds }
+          } : undefined
+        }
       ],
-      subQuery: false
+      order: orderArray,
+      subQuery: false,
+      distinct: true
     });
 
     return tickets;
