@@ -33,17 +33,14 @@ export const createScannedTicketRepository = async (data) => {
   }
 }
 
-export const findOrCreateScannedTicketRepository = async ({ event_id, attendee_id, ticket_id, scanner_id, ticket_quantity }) => {
+export const findOrCreateScannedTicketRepository = async ({ attendee_id, scanner_id }) => {
   try {
     const [scannedTicket, created] = await ScannedTickets.findOrCreate({
       where: {
-        event_id,
         attendee_id,
-        ticket_id
       },
       defaults: {
         scanner_id,
-        ticket_quantity
       }
     });
     return { scannedTicket, created };

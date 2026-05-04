@@ -215,11 +215,8 @@ export const getAttendeesByUserIdController = async (req, res) => {
     }
 
     const { created } = await findOrCreateScannedTicketRepository({
-      event_id: eventId,
       attendee_id: attendeeId,
-      ticket_id: result.ticket_id,
       scanner_id: organizer.user_id,
-      ticket_quantity: result.ticket_quantity
     });
 
     if (!created) {
