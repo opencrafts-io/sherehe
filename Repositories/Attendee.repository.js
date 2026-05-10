@@ -130,7 +130,7 @@ export const getAttendeeByEventAndIdRepository = async (
         {
           model: Event,
           as: "event",
-          attributes: ["id", "event_date"]
+          attributes: ["id", "end_date"]
         }
       ]
     });
