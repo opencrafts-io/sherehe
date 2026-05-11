@@ -4,17 +4,18 @@ import { Op } from "sequelize";
 export const createUserInstitutionRepository = async (userInstitution, options = {}) => {
   try {
 
-    const existing = await UserInstitution.findOne({
+    const existing = await UserInstitution.unscoped().findOne({
       where: {
         user_id: userInstitution.user_id,
         institution_id: userInstitution.institution_id
       },
-      paranoid: false
+      paranoid: false,
+      transaction: options.transaction
     });
     
     if (existing) {
       if (existing.deleted_at !== null) {
-        await existing.restore();
+        await existing.restore({ transaction: options.transaction });
         return existing;
       }
       
