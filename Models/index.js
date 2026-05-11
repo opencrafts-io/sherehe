@@ -10,7 +10,7 @@ import EventInstitution from './event_institution.model.js';
 import  TicketInvite from './ticket_invite.model.js';
 import TicketInstitution from './ticket_institution.model.js';
 import ScannedTickets from './Scanned_tickets.model.js';
-import UserInstitution from './tuser_institution.model.js';
+import UserInstitution from './user_institution.model.js';
 // Define relationships
 // User.hasMany(Event, { foreignKey: 'organizer_id' });
 // Event.belongsTo(User, { foreignKey: 'organizer_id' });
