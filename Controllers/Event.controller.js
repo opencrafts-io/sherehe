@@ -19,7 +19,7 @@ import { createEventScannerRepository } from "../Repositories/eventScanners.repo
 import { logs } from "../Utils/logs.js";
 import { createEventInstitutionRepository } from "../Repositories/event_institution.repository.js";
 import {createEventInviteRepository} from '../Repositories/event_invite.repository.js';
-import crypto from "crypto";;
+import crypto from "crypto";
 import {getAllUserInstitutionRepository} from '../Repositories/user_institution.repository.js';
 
 
