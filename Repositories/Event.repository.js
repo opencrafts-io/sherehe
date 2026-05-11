@@ -20,26 +20,38 @@ export const createEventRepository = async (eventData, options = {}) => {
   }
 };
 
-export const getAllEventsRepository = async (params, institutionIds = []) => {
+export const getAllEventsRepository = async (params, institutionIds = [], user_id) => {
   try {
     const { limitPlusOne = 20, offset = 0 } = params;
 
-    // If no institutionIds provided, return only public events
-    const whereCondition = institutionIds.length > 0 ? {
-      [Op.or]: [
-        { scope: "public" },
-        {
-          [Op.and]: [
-            { scope: "institution" },
-            { '$event_institutions.institution_id$': { [Op.in]: institutionIds } }
-          ]
-        }
-      ]
-    } : {
-      scope: "public" // Only public events if user has no institutions
-    };
+    // 1. Build the OR conditions for visibility
+    const orConditions = [
+      { scope: "public" } // Anyone can see public events
+    ];
 
-    // Build order array conditionally
+    // 2. If user has institutions, allow them to see institutional events for those IDs
+    if (institutionIds.length > 0) {
+      orConditions.push({
+        [Op.and]: [
+          { scope: "institution" },
+          { '$event_institutions.institution_id$': { [Op.in]: institutionIds } }
+        ]
+      });
+    }
+
+    // 3. Allow the organizer to see their own private events
+    if (user_id) {
+      orConditions.push({
+        [Op.and]: [
+          { scope: "private" },
+          { organizer_id: user_id }
+        ]
+      });
+    }
+
+    const whereCondition = { [Op.or]: orConditions };
+
+    // Build order array (keeping your existing logic for prioritizing institutions)
     let orderArray = [["created_at", "DESC"]];
     
     if (institutionIds.length > 0) {
@@ -67,7 +79,7 @@ export const getAllEventsRepository = async (params, institutionIds = []) => {
           model: EventInstitution,
           as: "event_institutions",
           attributes: [],
-          required: false,
+          required: false, // Left Join is necessary here so we don't exclude public/private events
           where: institutionIds.length > 0 ? {
             institution_id: { [Op.in]: institutionIds }
           } : undefined
@@ -90,7 +102,7 @@ export const getAllEventsRepository = async (params, institutionIds = []) => {
     return formattedEvents;
 
   } catch (error) {
-    console.log(error);
+    console.error(error);
     throw error;
   }
 };

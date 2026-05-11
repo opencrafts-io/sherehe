@@ -278,7 +278,7 @@ export const getAllEventsController = async (req, res) => {
     const {institutionIds} = await getAllUserInstitutionRepository(user_id);
 
 
-    const result = await getAllEventsRepository({ limitPlusOne, offset } , institutionIds);
+    const result = await getAllEventsRepository({ limitPlusOne, offset } , institutionIds , user_id);
 
     const hasNextPage = result.length > limit;
     const events = hasNextPage ? result.slice(0, limit) : result;
