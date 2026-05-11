@@ -41,7 +41,7 @@ const ScannedTickets = sequelize.define(
     indexes: [
       {
         unique: true,
-        fields: ['attendee_id' , 'created_at']
+        fields: ['attendee_id']
       }
     ]
   }
