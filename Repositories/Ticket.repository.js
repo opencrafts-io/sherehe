@@ -1,4 +1,4 @@
-import { Ticket , TicketInstitution } from '../Models/index.js';
+import { Ticket , TicketInstitution , Event } from '../Models/index.js';
 import { getEventByIdRepository } from './Event.repository.js';
 import { Sequelize , Op , literal } from "sequelize";
 import { createTicketInstitutionRepository } from "./ticket_institution.repository.js";
@@ -55,48 +55,37 @@ export const getTicketByIdRepository = async (id) => {
   }
 };
 
-export const getTicketbyEventIdRepository = async (eventId, institutionIds = []) => {
+export const getTicketbyEventIdRepository = async (eventId, institutionIds = [], user_id) => {
   try {
-    // If no institutionIds provided, return only public tickets for this event
-    const whereCondition = institutionIds.length > 0 ? {
-      event_id: eventId,
-      [Op.or]: [
-        { scope: "public" },
-        {
-          [Op.and]: [
-            { scope: "institution" },
-            { '$ticket_institutions.institution_id$': { [Op.in]: institutionIds } }
-          ]
-        }
-      ]
-    } : {
-      event_id: eventId,
-      scope: "public" // Only public tickets if user has no institutions
-    };
+    // 1. Define visibility conditions
+    const orConditions = [
+      { scope: "public" } // Anyone sees public tickets
+    ];
 
-    // Build order array conditionally
-    let orderArray = [["created_at", "DESC"]];
-    
     if (institutionIds.length > 0) {
-      const institutionIdList = institutionIds.map(id => Number(id)).join(',');
-      orderArray = [
-        [
-          literal(`
-            CASE 
-              WHEN "tickets"."scope" = 'institution' 
-                   AND "ticket_institutions"."institution_id" IN (${institutionIdList})
-              THEN 0
-              ELSE 1
-            END
-          `),
-          "ASC"
-        ],
-        ["created_at", "DESC"]
-      ];
+      orConditions.push({
+        [Op.and]: [
+          { scope: "institution" },
+          { '$ticket_institutions.institution_id$': { [Op.in]: institutionIds } }
+        ]
+      });
+    }
+
+    // Check ownership via the Event table instead of the Ticket table
+    if (user_id) {
+      orConditions.push({
+        [Op.and]: [
+          { scope: "private" },
+          { '$event.organizer_id$': user_id } // Reaching into the joined Event model
+        ]
+      });
     }
 
     const tickets = await Ticket.findAll({
-      where: whereCondition,
+      where: {
+        event_id: eventId,
+        [Op.or]: orConditions
+      },
       include: [
         {
           model: TicketInstitution,
@@ -106,9 +95,29 @@ export const getTicketbyEventIdRepository = async (eventId, institutionIds = [])
           where: institutionIds.length > 0 ? {
             institution_id: { [Op.in]: institutionIds }
           } : undefined
+        },
+        {
+          // We must include the Event to access its organizer_id
+          model: Event,
+          as: "event", 
+          attributes: [], // We don't need the event data, just the join for the WHERE clause
+          required: true  // A ticket must have an event
         }
       ],
-      order: orderArray,
+      order: institutionIds.length > 0 ? [
+        [
+          literal(`
+            CASE 
+              WHEN "tickets"."scope" = 'institution' 
+                   AND "ticket_institutions"."institution_id" IN (${institutionIds.map(id => Number(id)).join(',')})
+              THEN 0
+              ELSE 1
+            END
+          `),
+          "ASC"
+        ],
+        ["created_at", "DESC"]
+      ] : [["created_at", "DESC"]],
       subQuery: false,
       distinct: true
     });

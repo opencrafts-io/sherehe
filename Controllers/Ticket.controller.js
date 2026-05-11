@@ -256,7 +256,7 @@ export const getTicketByEventIdController = async (req, res) => {
       return res.status(400).json({ error: "Event ID is required" });
     }
 
-    const tickets = await getTicketbyEventIdRepository(eventId ,institutionIds);
+    const tickets = await getTicketbyEventIdRepository(eventId ,institutionIds , user_id);
 
     if (!tickets || tickets.length === 0) {
       const duration = Number(process.hrtime.bigint() - start) / 1000;
