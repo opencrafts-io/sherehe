@@ -125,7 +125,7 @@ export const getAttendeeByEventAndIdRepository = async (
         {
           model: Ticket,
           as: "ticket",
-          attributes: ["id", "ticket_name", "ticket_price", "ticket_quantity"]
+          attributes: ["id", "ticket_name", "ticket_price", "ticket_quantity" ,"start_date" , "end_date" ]
         },
         {
           model: Event,

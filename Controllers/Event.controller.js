@@ -122,7 +122,30 @@ export const createEventController = async (req, res) => {
         { transaction }
       );
 
+      const eventStart = new Date(event.start_date);
+const eventEnd = new Date(event.end_date);
+
+if (eventStart >= eventEnd) {
+  throw new Error(`Event "${event.event_name}" must start before it ends.`);
+}
+
       for (const ticket of tickets) {
+        const ticketStart = ticket.start_date ? new Date(ticket.start_date) : null;
+    const ticketEnd = ticket.end_date ? new Date(ticket.end_date) : null;
+    const eventStart = new Date(event.start_date);
+    const eventEnd = new Date(event.end_date);
+
+    if (ticketStart && ticketStart < eventStart) {
+      throw new Error(`Ticket "${ticket.ticket_name}" starts before the event starts.`);
+    }
+
+    if (ticketEnd && ticketEnd > eventEnd) {
+      throw new Error(`Ticket "${ticket.ticket_name}" ends after the event ends.`);
+    }
+
+    if (ticketStart && ticketEnd && ticketStart >= ticketEnd) {
+      throw new Error(`Ticket "${ticket.ticket_name}" start date must be before its end date.`);
+    }
         await createTicketRepository(
           { ...ticket, event_id: event.id },
           { transaction }

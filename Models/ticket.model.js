@@ -35,6 +35,8 @@ const Ticket = sequelize.define(
       allowNull: false,
       defaultValue: DataTypes.NOW
     },
+        start_date: { type: DataTypes.DATE, allowNull: true },
+    end_date: { type: DataTypes.DATE, allowNull: true },
     scope: {
     type: DataTypes.ENUM("public", "institution", "private"),
     defaultValue: "public",

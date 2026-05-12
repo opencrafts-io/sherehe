@@ -183,35 +183,29 @@ export const getAttendeesByUserIdController = async (req, res) => {
     const result = await getAttendeeByEventAndIdRepository(eventId, attendeeId);
 
 
-    if (!result) {
-      const duration = Number(process.hrtime.bigint() - start) / 1000;
-      logs(duration, "INFO", req.ip, req.method, "No attendees found", req.path, 404, req.headers["user-agent"]);
-      return res.status(200).json({
-        status: "WRONG_EVENT",
-      });
-    }
-       const eventDateRaw = result.event?.end_date;
+   const ticket = result.ticket;
 
-    if (!eventDateRaw) {
+    if (!ticket) {
       const duration = Number(process.hrtime.bigint() - start) / 1000;
-      logs(duration, "ERR", req.ip, req.method, "Event date not found", req.path, 500, req.headers["user-agent"]);
-      return res.status(500).json({ error: "Event date not found" });
+      logs(duration, "ERR", req.ip, req.method, "Ticket info not found for attendee", req.path, 500, req.headers["user-agent"]);
+      return res.status(500).json({ error: "Ticket information missing" });
     }
 
-    const eventDate = new Date(eventDateRaw);
     const now = new Date();
+    const ticketStartDate = ticket.start_date ? new Date(ticket.start_date) : null;
+    const ticketEndDate = ticket.end_date ? new Date(ticket.end_date) : null;
 
-    const eventDay = new Date(eventDate).setUTCHours(0, 0, 0, 0);
-    const today = new Date(now).setUTCHours(0, 0, 0, 0);
 
-    if (today < eventDay) {
+    if (ticketStartDate && now < ticketStartDate) {
       return res.status(200).json({
         status: "TOO_EARLY",
       });
     }
 
-    if (today > eventDay) {
-      return res.status(200).json({ status: "EXPIRED" });
+    if (ticketEndDate && now > ticketEndDate) {
+      return res.status(200).json({
+        status: "EXPIRED",
+      });
     }
 
     const { created } = await findOrCreateScannedTicketRepository({
