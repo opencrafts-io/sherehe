@@ -61,6 +61,13 @@ export const getallTicketInviteRepository = async (ticket_id) => {
         where: {
           ticket_id: ticket_id,
         },
+        include: [
+          {
+            model: Ticket,
+            as: "ticket",
+            attributes: ["id", "ticket_name", "ticket_price", "ticket_quantity"]
+          },
+        ],
       }
     );
     return ticketInvites;

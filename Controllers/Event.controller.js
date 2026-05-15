@@ -19,8 +19,8 @@ import { createEventScannerRepository } from "../Repositories/eventScanners.repo
 import { logs } from "../Utils/logs.js";
 import { createEventInstitutionRepository } from "../Repositories/event_institution.repository.js";
 import {createEventInviteRepository} from '../Repositories/event_invite.repository.js';
-import crypto from "crypto";
-import {getUserByIdRepository} from '../Repositories/User.repository.js';
+import crypto from "crypto";;
+import {getAllUserInstitutionRepository} from '../Repositories/user_institution.repository.js';
 
 
 export const createEventController = async (req, res) => {
@@ -122,7 +122,30 @@ export const createEventController = async (req, res) => {
         { transaction }
       );
 
+      const eventStart = new Date(event.start_date);
+const eventEnd = new Date(event.end_date);
+
+if (eventStart >= eventEnd) {
+  throw new Error(`Event "${event.event_name}" must start before it ends.`);
+}
+
       for (const ticket of tickets) {
+        const ticketStart = ticket.start_date ? new Date(ticket.start_date) : null;
+    const ticketEnd = ticket.end_date ? new Date(ticket.end_date) : null;
+    const eventStart = new Date(event.start_date);
+    const eventEnd = new Date(event.end_date);
+
+    if (ticketStart && ticketStart < eventStart) {
+      throw new Error(`Ticket "${ticket.ticket_name}" starts before the event starts.`);
+    }
+
+    if (ticketEnd && ticketEnd > eventEnd) {
+      throw new Error(`Ticket "${ticket.ticket_name}" ends after the event ends.`);
+    }
+
+    if (ticketStart && ticketEnd && ticketStart >= ticketEnd) {
+      throw new Error(`Ticket "${ticket.ticket_name}" start date must be before its end date.`);
+    }
         await createTicketRepository(
           { ...ticket, event_id: event.id },
           { transaction }
@@ -274,11 +297,11 @@ export const getAllEventsController = async (req, res) => {
 
   try {
     const { limit, page, limitPlusOne, offset } = req.pagination;
-    const organizer_id = req.user.sub;
-    const user = await getUserByIdRepository(organizer_id);
+    const user_id = req.user.sub;
+    const {institutionIds} = await getAllUserInstitutionRepository(user_id);
 
 
-    const result = await getAllEventsRepository({ limitPlusOne, offset } , user.institution_id);
+    const result = await getAllEventsRepository({ limitPlusOne, offset } , institutionIds , user_id);
 
     const hasNextPage = result.length > limit;
     const events = hasNextPage ? result.slice(0, limit) : result;

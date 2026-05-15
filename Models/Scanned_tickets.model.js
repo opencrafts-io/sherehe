@@ -13,26 +13,10 @@ const ScannedTickets = sequelize.define(
       type: DataTypes.UUID,
       allowNull: false
     },
-    scanner_id: {
-      type: DataTypes.UUID,
-      allowNull: false
-    },
-    event_id: {
-      type: DataTypes.UUID,
-      allowNull: false
-    },
     created_at: {
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW
-    },
-    ticket_id: {
-      type: DataTypes.UUID,
-      allowNull: false
-    },
-    ticket_quantity: {
-      type: DataTypes.INTEGER,
-      allowNull: false
     },
     updated_at: { type: DataTypes.DATE,
       allowNull: false,
@@ -57,7 +41,7 @@ const ScannedTickets = sequelize.define(
     indexes: [
       {
         unique: true,
-        fields: ['event_id', 'attendee_id', 'ticket_id']
+        fields: ['attendee_id' , 'created_at']
       }
     ]
   }

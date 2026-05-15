@@ -10,6 +10,7 @@ import EventInstitution from './event_institution.model.js';
 import  TicketInvite from './ticket_invite.model.js';
 import TicketInstitution from './ticket_institution.model.js';
 import ScannedTickets from './Scanned_tickets.model.js';
+import UserInstitution from './user_institution.model.js';
 // Define relationships
 // User.hasMany(Event, { foreignKey: 'organizer_id' });
 // Event.belongsTo(User, { foreignKey: 'organizer_id' });
@@ -83,4 +84,12 @@ Ticket.hasMany(TicketInstitution, {
   foreignKey: "ticket_id",
 });
 
-export { User, Event, Ticket, Attendee , PaymentInfo , Transaction , EventScanner , EventInvite , EventInstitution , TicketInvite , TicketInstitution , ScannedTickets};
+User.hasMany(UserInstitution, {
+  foreignKey: "user_id",
+});
+
+UserInstitution.belongsTo(User, {
+  foreignKey: "user_id",
+});
+
+export { User, Event, Ticket, Attendee , PaymentInfo , Transaction , EventScanner , EventInvite , EventInstitution , TicketInvite , TicketInstitution , ScannedTickets , UserInstitution};

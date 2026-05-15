@@ -8,7 +8,7 @@ import {
 } from '../Repositories/Ticket.repository.js';
 
 import { logs } from '../Utils/logs.js';
-import {getUserByIdRepository} from '../Repositories/User.repository.js';
+import {getAllUserInstitutionRepository} from '../Repositories/user_institution.repository.js';
 
 export const createTicketController = async (req, res) => {
   const start = process.hrtime.bigint();
@@ -246,8 +246,8 @@ export const getTicketByEventIdController = async (req, res) => {
 
   try {
     const eventId = req.params.id;
-        const organizer_id = req.user.sub;
-    const user = await getUserByIdRepository(organizer_id);
+        const user_id = req.user.sub;
+    const {institutionIds} = await getAllUserInstitutionRepository(user_id);
     if (!eventId) {
       const duration = Number(process.hrtime.bigint() - start) / 1000;
       logs(duration, "WARN", req.ip, req.method,
@@ -256,7 +256,7 @@ export const getTicketByEventIdController = async (req, res) => {
       return res.status(400).json({ error: "Event ID is required" });
     }
 
-    const tickets = await getTicketbyEventIdRepository(eventId , user.institution_id);
+    const tickets = await getTicketbyEventIdRepository(eventId ,institutionIds , user_id);
 
     if (!tickets || tickets.length === 0) {
       const duration = Number(process.hrtime.bigint() - start) / 1000;

@@ -67,6 +67,13 @@ export const getalleventInviteRepository = async (event_id) => {
         where: {
           event_id: event_id,
         },
+        include: [
+          {
+            model: Event,
+            as: "event",
+            attributes: ["id", "event_name"],
+          },
+        ],
       }
     );
     return eventInvites;
