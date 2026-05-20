@@ -1,6 +1,6 @@
 import express from "express";
-import { validateInviteController , createeventInviteController , deleteeventInviteController , getalleventInviteController } from "../Controllers/event_invite.controller.js";
-import { validateTicketInviteController , createTicketInviteController , deleteTicketInviteController , getallTicketInviteController } from "../Controllers/ticket_invite.controller.js";
+import { validateInviteController , createeventInviteController , deleteeventInviteController , getalleventInviteController , updateeventInviteController } from "../Controllers/event_invite.controller.js";
+import { validateTicketInviteController , createTicketInviteController , deleteTicketInviteController , getallTicketInviteController , updateTicketInviteController } from "../Controllers/ticket_invite.controller.js";
 
 
 const router = express.Router();
@@ -17,7 +17,8 @@ router.get("/event/:token", validateInviteController);
 router.get("/ticket/:token", validateTicketInviteController);
 router.post("/ticket", createTicketInviteController);
 router.delete("/ticket/:id", deleteTicketInviteController);
-
+router.put("/event/:id", updateeventInviteController);
+router.put("/ticket/:id", updateTicketInviteController);
 
 
 export default router;
