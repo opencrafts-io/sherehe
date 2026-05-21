@@ -177,6 +177,7 @@ export const getEventTicketSalesStatsRepository = async (eventId) => {
       "ticket_name",
       "ticket_price",
       "ticket_quantity", // remaining
+      "scope",
 
       [
         Sequelize.literal(`(

@@ -45,7 +45,7 @@ collection:
         meta:
           id: req_87853c0415ad45ca912c6eac6e23e688
           created: 1751674151145
-          modified: 1778595783236
+          modified: 1779004847819
           isPrivate: false
           description: |
             # 🆕 Create an event
@@ -227,15 +227,11 @@ collection:
             - name: tickets
               value: '[  {    "ticket_name": "VIP Ticket",    "ticket_price":
                 15,    "ticket_for": 5,    "ticket_quantity": 200,    "scope":
-                "public",    "start_date":
-                "2026-05-10T00:00:00.000Z",    "end_date":
-                "2026-05-11T00:00:00.000Z",    "institutions":
+                "public",    "institutions":
                 ["478a2ee4-a721-4d35-a4e8-5cc6aca56faa"]  },  {    "ticket_name":
                 "Private",    "ticket_price": 15,    "ticket_for":
                 5,    "ticket_quantity": 200,    "scope":
-                "private",    "start_date":
-                "2026-05-10T00:00:00.000Z",    "end_date":
-                "2026-05-11T00:00:00.000Z",    "institutions":
+                "private",    "institutions":
                 ["478a2ee4-a721-4d35-a4e8-5cc6aca56faa"]  },  {    "ticket_name":
                 "Institution1",    "ticket_price": 15,    "ticket_for":
                 5,    "ticket_quantity": 200,    "scope":
@@ -990,12 +986,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: "{{local}}/invite/event/all/68d1da51-9a07-4c05-98b5-23ec53f28e3b"
+      - url: "{{local}}/invite/event/all/f3d606a4-ed0d-4a86-bd98-219139ab7963"
         name: Get all event invites by event id
         meta:
           id: req_c45abae15a61447ca8ff373229675487
           created: 1776000148612
-          modified: 1778600051030
+          modified: 1779294347611
           isPrivate: false
           description: >
             # 🆕 Get event by event invite link
@@ -1173,6 +1169,36 @@ collection:
             value: insomnia/11.2.0
         authentication:
           type: bearer
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{local}}/invite/event/e87ca55a-cc01-4eaa-a458-1e429f5f1ee3"
+        name: Update Event invite by invite id
+        meta:
+          id: req_df58625c65a74a3b9f5d007be3cc67f3
+          created: 1779294045613
+          modified: 1779294622387
+          isPrivate: false
+          description: ""
+          sortKey: -1779294045613
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"max_uses": 1,
+            	"expires_at": "2026-07-12T14:21:02.260Z"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.2
         settings:
           renderRequestBody: true
           encodeUrl: true
@@ -1921,6 +1947,36 @@ collection:
             value: insomnia/11.2.0
         authentication:
           type: bearer
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{local}}/invite/ticket/f6206060-eace-4e47-91a4-a90c939765bd"
+        name: Update Ticket invite by invite id
+        meta:
+          id: req_8fb0894db265455aad2a565e4981dd78
+          created: 1779294420669
+          modified: 1779294612949
+          isPrivate: false
+          description: ""
+          sortKey: -1779294420669
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"max_uses": 1,
+            	"expires_at": "2026-07-12T14:21:02.260Z"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.2
         settings:
           renderRequestBody: true
           encodeUrl: true
