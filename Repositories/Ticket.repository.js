@@ -198,6 +198,7 @@ export const getEventTicketSalesStatsRepository = async (eventId) => {
     ticket_name: ticket.ticket_name,
     ticket_price: ticket.ticket_price,
     tickets_sold: Number(ticket.tickets_sold),
-    tickets_remaining: ticket.ticket_quantity
+    tickets_remaining: ticket.ticket_quantity,
+    scope : ticket.scope
   }));
 };
