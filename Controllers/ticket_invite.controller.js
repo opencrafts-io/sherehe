@@ -2,7 +2,8 @@ import {
   validateInviteRepository, 
   createTicketInviteRepository,
   deleteTicketInviteRepository,
-  getallTicketInviteRepository
+  getallTicketInviteRepository,
+  updateTicketInviteRepository
   } from "../Repositories/ticket_invite.repository.js";
 
 import { logs } from "../Utils/logs.js"; 
@@ -139,5 +140,52 @@ export const getallTicketInviteController = async (req, res) => {
     const duration = Number(process.hrtime.bigint() - start) / 1000;
     logs(duration, "ERR", req.ip, req.method, error.message, req.path, 500, req.headers["user-agent"]);
     return res.status(500).json({ error: error.message });
+  }
+}
+
+export const updateTicketInviteController = async (req, res) => {
+  const start = process.hrtime.bigint();
+
+  try {
+    const id = req.params.id;
+    const { max_uses , expires_at } = req.body;
+
+    if (!id || !max_uses) {
+      const duration = Number(process.hrtime.bigint() - start) / 1000;
+      logs(duration, "WARN", req.ip, req.method, "Missing id or max_uses", req.path, 400, req.headers["user-agent"]);
+      return res.status(400).json({ error: "Missing id or max_uses" });
+    }
+
+      const currentDate = new Date();
+    if (expires_at && new Date(expires_at) < currentDate) {
+      const duration = Number(process.hrtime.bigint() - start) / 1000;
+      logs(duration, "WARN", req.ip, req.method, "expires_at must be in the future", req.path, 400, req.headers["user-agent"]);
+      return res.status(400).json({ error: "expires_at must be in the future" });
+    }
+
+    const updated = await updateTicketInviteRepository(id, { max_uses , expires_at });
+
+    if (!updated) {
+      const duration = Number(process.hrtime.bigint() - start) / 1000;
+      logs(duration, "WARN", req.ip, req.method, "Ticket invite not found", req.path, 404, req.headers["user-agent"]);
+      return res.status(404).json({ error: "Ticket invite not found" });
+    }
+
+    const duration = Number(process.hrtime.bigint() - start) / 1000;
+    logs(duration, "INFO", req.ip, req.method, "Ticket invite updated successfully", req.path, 200, req.headers["user-agent"]);
+
+    return res.status(200).json(updated);
+  } catch (error) {
+    const duration = Number(process.hrtime.bigint() - start) / 1000;
+    logs(duration, "ERR", req.ip, req.method, error.message, req.path, 500, req.headers["user-agent"]);
+   if (error.message === "Ticket invite not found") {
+      return res.status(404).json({ error: error.message });
+    }
+
+    if (error.message === "Event already deleted") {
+      return res.status(409).json({ error: error.message });
+    } else {
+      return res.status(500).json({ error: "Internal server error" });
+    }
   }
 }
