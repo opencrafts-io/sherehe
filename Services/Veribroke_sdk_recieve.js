@@ -113,7 +113,7 @@ export async function startMpesaSuccessConsumer() {
           await dbTransaction.commit();
 
           const event = await getEventByIdRepository(event_id);
-          const user_email = await getUserByIdRepository(event.user_id);
+          const user_email = await getUserByIdRepository(user_id);
 
           const notificationPayload = {
             to_addresses: [user_email.email],
