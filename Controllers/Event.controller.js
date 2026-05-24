@@ -234,7 +234,7 @@ if (eventStart >= eventEnd) {
     const organizer_email = await getUserByIdRepository(organizer_id);
 
     const notificationPayload = {
-      to_addresses: organizer_email.email,
+      to_addresses: [organizer_email.email],
       subject: `New Event: ${event.event_name}`,
       template_id: "sherehe-event-confirmed",
       template_vars: {
