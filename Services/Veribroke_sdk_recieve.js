@@ -112,15 +112,16 @@ export async function startMpesaSuccessConsumer() {
 
           await dbTransaction.commit();
 
-          const event = await getEventByIdRepository(event_id);
-          const user_email = await getUserByIdRepository(user_id);
+          if (success) {
+            const event = await getEventByIdRepository(event_id);
+            const user_email = await getUserByIdRepository(user_id);
 
-          const notificationPayload = {
-            to_addresses: [user_email.email],
-            subject: `Your ticket for ${event.event_name} has been confirmed`,
-            template_id: "sherehe-ticket-confirmation",
-            template_vars: {
-              "created_at": `${new Date().toLocaleString('en-US', { 
+            const notificationPayload = {
+              to_addresses: [user_email.email],
+              subject: `Your ticket for ${event.event_name} has been confirmed`,
+              template_id: "sherehe-ticket-confirmation",
+              template_vars: {
+                "created_at": `${new Date().toLocaleString('en-US', { 
   weekday: 'long', 
   month: 'long', 
   day: 'numeric', 
