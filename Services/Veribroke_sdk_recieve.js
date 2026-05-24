@@ -85,7 +85,11 @@ export async function startMpesaSuccessConsumer() {
 
           const ticket = await getTicketByIdRepository(ticket_id);
 
-            const attendeesToCreate = ticket_quantity * ticket.ticket_for;
+          if (!ticket) {
+            throw new Error(`Ticket not found for ticket_id: ${ticket_id}`);
+          }
+
+          const attendeesToCreate = ticket_quantity * ticket.ticket_for;
           if (success) {
             
 
