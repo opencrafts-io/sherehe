@@ -21,7 +21,8 @@ import { createEventInstitutionRepository } from "../Repositories/event_institut
 import {createEventInviteRepository} from '../Repositories/event_invite.repository.js';
 import crypto from "crypto";;
 import {getAllUserInstitutionRepository} from '../Repositories/user_institution.repository.js';
-
+import {sendTemplatedEmail} from '../Services/gossip_monger_email.js';
+import {getUserByIdRepository} from '../Repositories/User.repository.js';
 
 export const createEventController = async (req, res) => {
   const start = process.hrtime.bigint();
@@ -230,20 +231,22 @@ if (eventStart >= eventEnd) {
       }
     );
 
+    const organizer_email = await getUserByIdRepository(organizer_id);
+
     const notificationPayload = {
-      notification: {
-        app_id: "88ca0bb7-c0d7-4e36-b9e6-ea0e29213593",
-        headings: { en: "Event Created Successfully!" },
-        contents: {
-          en: `Hello,\n\nYour event "${event.event_name}" has been successfully created and is scheduled on ${formattedEventDate}.`,
-        },
-        target_user_id: organizer_id,
-        big_picture: event_banner_image,
-        large_icon: event_card_image,
-        small_icon: event_poster_image,
-        url: event_url || "https://opencrafts.io/dashboard",
-      },
+      to_addresses: organizer_email.email,
+      subject: `New Event: ${event.event_name}`,
+      template_id: "sherehe-event-confirmed",
+      template_vars: {
+          "created_at": event.created_at,
+  "event_location": event.event_location,
+  "event_name": event.event_name,
+  "scope": event.scope,
+  "start_date": `${formattedEventDate} at ${new Date(event.start_date).toLocaleTimeString()}`,
+      }
     };
+
+    await sendTemplatedEmail(notificationPayload , "io.opencrafts.sherehe");
 
     // sendNotification(notificationPayload);
 
