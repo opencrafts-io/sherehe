@@ -246,7 +246,20 @@ if (eventStart >= eventEnd) {
       }
     };
 
-    await sendTemplatedEmail(notificationPayload , "io.opencrafts.sherehe");
+    try {
+      await sendTemplatedEmail(notificationPayload , "io.opencrafts.sherehe");
+    } catch (emailError) {
+      logs(
+        Number(process.hrtime.bigint() - start),
+        "ERROR",
+        req.ip,
+        req.method,
+        `Event created successfully but failed to send confirmation email: ${emailError.message}`,
+        req.originalUrl,
+        201,
+        req.headers["user-agent"]
+      );
+    }
 
     // sendNotification(notificationPayload);
 
