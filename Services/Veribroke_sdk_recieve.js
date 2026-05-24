@@ -135,8 +135,13 @@ export async function startMpesaSuccessConsumer() {
             }
           };
 
-          await sendTemplatedEmail(notificationPayload, "io.opencrafts.sherehe");
           channel.ack(msg);
+
+          try {
+            await sendTemplatedEmail(notificationPayload, "io.opencrafts.sherehe");
+          } catch (emailError) {
+            console.error("❌ Failed to send Mpesa success email:", emailError);
+          }
 
         } catch (error) {
           if (!dbTransaction.finished) {
