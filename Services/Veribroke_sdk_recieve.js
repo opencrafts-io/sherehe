@@ -116,7 +116,7 @@ export async function startMpesaSuccessConsumer() {
           const user_email = await getUserByIdRepository(event.user_id);
 
           const notificationPayload = {
-            to_addresses: user_email.email,
+            to_addresses: [user_email.email],
             subject: `Your ticket for ${event.event_name} has been confirmed`,
             template_id: "sherehe-ticket-confirmation",
             template_vars: {
