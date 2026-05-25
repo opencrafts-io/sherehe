@@ -1,9 +1,12 @@
 import amqp from "amqplib";
 import { updateTransactionRepository } from "../Repositories/Transactions.repository.js";
 import { createAttendeeRepository } from "../Repositories/Attendee.repository.js";
-import { updateTicketRepository , getTicketByIdRepository } from "../Repositories/Ticket.repository.js";
+import { updateTicketRepository, getTicketByIdRepository } from "../Repositories/Ticket.repository.js";
 import { Op, Sequelize } from "sequelize";
 import sequelize from "../Utils/db.js";
+import { sendTemplatedEmail } from '../Services/gossip_monger_email.js';
+import {getEventByIdRepository} from "../Repositories/Event.repository.js";
+import {getUserByIdRepository} from "../Repositories/User.repository.js";
 
 const RABBITMQ_HOST = process.env.RABBITMQ_HOST
 const RABBITMQ_PASSWORD = process.env.RABBITMQ_PASSWORD
@@ -82,21 +85,25 @@ export async function startMpesaSuccessConsumer() {
 
           const ticket = await getTicketByIdRepository(ticket_id);
 
+          if (!ticket) {
+            throw new Error(`Ticket not found for ticket_id: ${ticket_id}`);
+          }
 
+          const attendeesToCreate = ticket_quantity * ticket.ticket_for;
           if (success) {
-            const attendeesToCreate = ticket_quantity * ticket.ticket_for;
+            
 
-for (let i = 0; i < attendeesToCreate; i++) {
-  await createAttendeeRepository(
-    { 
-      user_id, 
-      event_id, 
-      ticket_id, 
-      ticket_quantity: 1
-    },
-    { transaction: dbTransaction }
-  );
-}
+            for (let i = 0; i < attendeesToCreate; i++) {
+              await createAttendeeRepository(
+                {
+                  user_id,
+                  event_id,
+                  ticket_id,
+                  ticket_quantity: 1
+                },
+                { transaction: dbTransaction }
+              );
+            }
           } else {
             await updateTicketRepository(
               ticket_id,
@@ -108,6 +115,39 @@ for (let i = 0; i < attendeesToCreate; i++) {
           }
 
           await dbTransaction.commit();
+
+          if (success) {
+            const event = await getEventByIdRepository(event_id);
+            const user_email = await getUserByIdRepository(user_id);
+
+            const notificationPayload = {
+              to_addresses: [user_email.email],
+              subject: `Your ticket for ${event.event_name} has been confirmed`,
+              template_id: "sherehe-ticket-confirmation",
+              template_vars: {
+                "created_at": `${new Date().toLocaleString('en-US', { 
+  weekday: 'long', 
+  month: 'long', 
+  day: 'numeric', 
+  year: 'numeric' 
+})}`,
+              "event_name": `${event.event_name}`,
+              "id": `${ticket_id}`,
+              "ticket_for": `${ticket.ticket_for}`,
+              "ticket_name": `${ticket.ticket_name}`,
+              "ticket_price": `${ticket.ticket_price}`,
+              "ticket_quantity": `${attendeesToCreate}`,
+            }
+          };
+
+          try {
+            await sendTemplatedEmail(notificationPayload, "io.opencrafts.sherehe");
+          } catch (emailError) {
+            console.error("❌ Failed to send Mpesa success email:", emailError);
+          }
+
+          }
+
           channel.ack(msg);
 
         } catch (error) {
