@@ -20,7 +20,7 @@ export const createTicketController = async (req, res) => {
   };
 
   try {
-    const { event_id, ticket_name, ticket_price, ticket_quantity, ticket_for, start_date, end_date, scope } = req.body;
+    const { event_id, ticket_name, ticket_price, ticket_quantity, ticket_for, start_date, end_date, scope , institutions } = req.body;
 
 
     if (!event_id || ticket_price === undefined || ticket_quantity === undefined || !ticket_for || !start_date || !end_date || !scope) {
@@ -67,7 +67,8 @@ export const createTicketController = async (req, res) => {
       ticket_for,
       start_date,
       end_date,
-      scope
+      scope,
+      institutions
     });
 
     logRequest("INFO", "Ticket created successfully", 201);
