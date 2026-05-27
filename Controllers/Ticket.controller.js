@@ -40,9 +40,16 @@ export const createTicketController = async (req, res) => {
 
     const ticketStart = new Date(start_date);
     const ticketEnd = new Date(end_date);
+
+    if (isNaN(ticketStart.getTime()) || isNaN(ticketEnd.getTime())) {
+      logRequest("WARN", "Invalid ticket start_date or end_date", 400);
+      return res.status(400).json({
+        error: "start_date and end_date must be valid ISO 8601 timestamps.",
+      });
+    }
+
     const eventStart = new Date(event.start_date);
     const eventEnd = new Date(event.end_date);
-
     if (ticketStart < eventStart) {
       logRequest("WARN", "Ticket starts before event starts", 400);
       return res.status(400).json({ error: `Ticket "${ticket_name}" cannot start before the event starts.` });
