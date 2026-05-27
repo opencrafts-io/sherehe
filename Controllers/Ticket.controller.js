@@ -177,8 +177,8 @@ export const updateTicketController = async (req, res) => {
   const start = process.hrtime.bigint();
 
   const logRequest = (level, message, status) => {
-    const duration = Number(process.hrtime.bigint() - start) / 1e6;
-    logs(duration, level, req.ip, req.method, message, req.path, status, req.headers["user-agent"]);
+    const durationMicroseconds = Number(process.hrtime.bigint() - start) / 1000;
+    logs(durationMicroseconds, level, req.ip, req.method, message, req.path, status, req.headers["user-agent"]);
   };
 
   try {
