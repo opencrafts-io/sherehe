@@ -242,12 +242,16 @@ export const createEventController = async (req, res) => {
         "event_location": event.event_location,
         "event_name": event.event_name,
         "scope": event.scope,
-       "start_date": `${formattedEventDate} at ${new Date(event.start_date).toLocaleTimeString('en-KE', {
-  timeZone: 'Africa/Nairobi',
-  hour: '2-digit',
-  minute: '2-digit',
-  hour12: true
-})}`,
+        "start_date": new Date(event.start_date).toLocaleString("en-KE", {
+          timeZone: "Africa/Nairobi",
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        }),
       }
     };
 
