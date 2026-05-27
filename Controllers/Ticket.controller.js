@@ -15,8 +15,8 @@ export const createTicketController = async (req, res) => {
   const start = process.hrtime.bigint();
 
   const logRequest = (level, message, status) => {
-    const duration = Number(process.hrtime.bigint() - start) / 1e6; // Converted to milliseconds for standard precision
-    logs(duration, level, req.ip, req.method, message, req.path, status, req.headers["user-agent"]);
+    const durationMicroseconds = Number(process.hrtime.bigint() - start) / 1000;
+    logs(durationMicroseconds, level, req.ip, req.method, message, req.path, status, req.headers["user-agent"]);
   };
 
   try {
