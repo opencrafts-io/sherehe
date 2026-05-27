@@ -5,8 +5,9 @@ import { updateTicketRepository, getTicketByIdRepository } from "../Repositories
 import { Op, Sequelize } from "sequelize";
 import sequelize from "../Utils/db.js";
 import { sendTemplatedEmail } from '../Services/gossip_monger_email.js';
-import {getEventByIdRepository} from "../Repositories/Event.repository.js";
-import {getUserByIdRepository} from "../Repositories/User.repository.js";
+import { getEventByIdRepository } from "../Repositories/Event.repository.js";
+import { getUserByIdRepository } from "../Repositories/User.repository.js";
+import { sendUserPushNotification } from '../Services/gossip_monger_push_notification.js'
 
 const RABBITMQ_HOST = process.env.RABBITMQ_HOST
 const RABBITMQ_PASSWORD = process.env.RABBITMQ_PASSWORD
@@ -91,7 +92,7 @@ export async function startMpesaSuccessConsumer() {
 
           const attendeesToCreate = ticket_quantity * ticket.ticket_for;
           if (success) {
-            
+
 
             for (let i = 0; i < attendeesToCreate; i++) {
               await createAttendeeRepository(
@@ -125,26 +126,52 @@ export async function startMpesaSuccessConsumer() {
               subject: `Your ticket for ${event.event_name} has been confirmed`,
               template_id: "sherehe-ticket-confirmation",
               template_vars: {
-                "created_at": `${new Date().toLocaleString('en-US', { 
-  weekday: 'long', 
-  month: 'long', 
-  day: 'numeric', 
-  year: 'numeric' 
-})}`,
-              "event_name": `${event.event_name}`,
-              "id": `${ticket_id}`,
-              "ticket_for": `${ticket.ticket_for}`,
-              "ticket_name": `${ticket.ticket_name}`,
-              "ticket_price": `${ticket.ticket_price}`,
-              "ticket_quantity": `${attendeesToCreate}`,
-            }
-          };
+                "created_at": new Date().toLocaleString('en-KE', {
+                  timeZone: 'Africa/Nairobi',
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: true
+                }),
+                "event_name": `${event.event_name}`,
+                "id": `${ticket_id}`,
+                "ticket_for": `${ticket.ticket_for}`,
+                "ticket_name": `${ticket.ticket_name}`,
+                "ticket_price": `${ticket.ticket_price}`,
+                "ticket_quantity": `${attendeesToCreate}`,
+              }
+            };
 
-          try {
-            await sendTemplatedEmail(notificationPayload, "io.opencrafts.sherehe");
-          } catch (emailError) {
-            console.error("❌ Failed to send Mpesa success email:", emailError);
-          }
+            try {
+              await sendTemplatedEmail(notificationPayload, "io.opencrafts.sherehe");
+            } catch (emailError) {
+              console.error("❌ Failed to send Mpesa success email:", emailError);
+            }
+
+
+            const pushNotificationPayload = {
+              headings: `Your ticket for ${event.event_name} has been confirmed`,
+              contents: `A confirmation email has been sent to ${user_email.email}`,
+              target_user_id: user_id,
+            }
+
+            try {
+              await sendUserPushNotification(pushNotificationPayload, "io.opencrafts.sherehe");
+            } catch (error) {
+              logs(
+                Number(process.hrtime.bigint() - start),
+                "ERROR",
+                req.ip,
+                req.method,
+                `Event created successfully but failed to send push notification: ${error.message}`,
+                req.originalUrl,
+                201,
+                req.headers["user-agent"]
+              );
+            }
 
           }
 
@@ -155,7 +182,7 @@ export async function startMpesaSuccessConsumer() {
             await dbTransaction.rollback();
           }
           if (msg.fields.redelivered) {
-            channel.ack(msg); // prevent infinite loop
+            channel.ack(msg);
           } else {
             channel.nack(msg, false, true);
           }
