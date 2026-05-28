@@ -161,7 +161,7 @@ for (let i = 0; i < attendeesToCreate; i++) {
       type = "personal"
       recipient = paymentInfo.phone_number
     } else if (paymentInfo.payment_type === "POSHI_LA_BIASHARA") {
-      type = "poshi"
+      type = "pochi"
       recipient = paymentInfo.phone_number
     }
 
