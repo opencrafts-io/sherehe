@@ -173,7 +173,7 @@ export async function startMpesaSuccessConsumer() {
           console.error("Error processing queue message:", error.message);
           
           // Only rollback if it hasn't been committed yet
-          if (!transactionCommitted) {
+          if (!transactionCommitted && dbTransaction) {
             try {
               await dbTransaction.rollback();
             } catch (rollbackError) {
