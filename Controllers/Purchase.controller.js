@@ -5,7 +5,7 @@ import { getUserByIdRepository } from '../Repositories/User.repository.js';
 import { sendPaymentRequest } from '../Services/Veribroke_sdk_push.js';
 import { createTransactionRepository, getTransactionByIdRepository } from '../Repositories/Transactions.repository.js';
 import { getPaymentInfoByEventIdRepository } from '../Repositories/paymentInfo.repository.js';
-import { createAttendeeRepository } from '../Repositories/Attendee.repository.js';
+import { createAttendeeRepository , getUserPurchasedTicketRepository } from '../Repositories/Attendee.repository.js';
 import { Op, Sequelize } from "sequelize";
 import sequelize from "../Utils/db.js";
 const SHEREHE_ROUTING_KEY = process.env.SHEREHE_ROUTING_KEY || "NDOVUKUU";
@@ -161,7 +161,7 @@ for (let i = 0; i < attendeesToCreate; i++) {
       type = "personal"
       recipient = paymentInfo.phone_number
     } else if (paymentInfo.payment_type === "POSHI_LA_BIASHARA") {
-      type = "poshi"
+      type = "pochi"
       recipient = paymentInfo.phone_number
     }
 
@@ -278,6 +278,16 @@ export const verifyPaymentController = async (req, res) => {
       200,
       req.headers["user-agent"]
     );
+
+    if(transaction.status === "SUCCESS"){
+     const attendee = await getUserPurchasedTicketRepository(user_id, transaction.event_id)
+     return res.status(200).json({
+      status: transaction.status,
+      attendee
+    });
+    }
+
+
 
     return res.status(200).json({
       status: transaction.status,

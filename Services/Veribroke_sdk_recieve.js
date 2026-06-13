@@ -21,7 +21,6 @@ const QUEUE = "sherehe_mpesa_success_queue";
 const RABBIT_URL = `amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@${RABBITMQ_HOST}:${RABBITMQ_PORT}${RABBITMQ_VHOST || '/'}`;
 
 export async function startMpesaSuccessConsumer() {
-
   try {
     const connection = await amqp.connect(RABBIT_URL);
     const channel = await connection.createChannel();
@@ -32,27 +31,28 @@ export async function startMpesaSuccessConsumer() {
       durable: true,
     });
 
-    await channel.bindQueue(q.queue, "io.opencrafts.veribroke-notifications", "NDOVUKUU");
+    await channel.bindQueue(q.queue, EXCHANGE_NAME, SHEREHE_ROUTING_KEY);
 
-    console.log("👂");
+    console.log("👂 Monitoring M-Pesa queues successfully...");
 
     channel.consume(
       q.queue,
       async (msg) => {
         if (!msg) return;
+        
+        // Dynamic tracking variable to safely control rollbacks
+        let transactionCommitted = false;
         let dbTransaction = await sequelize.transaction();
 
         try {
-          const routingKey = msg.fields.routingKey;
           const payload = JSON.parse(msg.content.toString());
-          const { request_id, success, message, metadata, errors } = payload;
+          const { request_id, success, message, metadata } = payload;
           const stkCallback = metadata?.Body?.stkCallback;
 
           const MerchantRequestID = stkCallback?.MerchantRequestID;
           const CheckoutRequestID = stkCallback?.CheckoutRequestID;
 
           let status;
-
           let failure_reason = null;
 
           if (success) {
@@ -60,7 +60,6 @@ export async function startMpesaSuccessConsumer() {
           } else if (message === "Request Cancelled by user") {
             status = "CANCELLED";
           } else {
-            user_id
             status = "FAILED";
           }
 
@@ -81,19 +80,16 @@ export async function startMpesaSuccessConsumer() {
           );
 
           const plainTransaction = transaction.get({ plain: true });
-
           const { user_id, event_id, ticket_id, ticket_quantity } = plainTransaction;
 
           const ticket = await getTicketByIdRepository(ticket_id);
-
           if (!ticket) {
             throw new Error(`Ticket not found for ticket_id: ${ticket_id}`);
           }
 
           const attendeesToCreate = ticket_quantity * ticket.ticket_for;
+          
           if (success) {
-
-
             for (let i = 0; i < attendeesToCreate; i++) {
               await createAttendeeRepository(
                 {
@@ -112,11 +108,16 @@ export async function startMpesaSuccessConsumer() {
                 ticket_quantity: Sequelize.literal(
                   `ticket_quantity + ${ticket_quantity}`
                 )
-              }, { transaction: dbTransaction })
+              }, 
+              { transaction: dbTransaction }
+            );
           }
 
+          // Commit database state cleanly
           await dbTransaction.commit();
+          transactionCommitted = true;
 
+          // Post-Commit Communications Flow (Errors here won't crash DB states)
           if (success) {
             const event = await getEventByIdRepository(event_id);
             const user_email = await getUserByIdRepository(user_id);
@@ -148,40 +149,40 @@ export async function startMpesaSuccessConsumer() {
             try {
               await sendTemplatedEmail(notificationPayload, "io.opencrafts.sherehe");
             } catch (emailError) {
-              console.error("❌ Failed to send Mpesa success email:", emailError);
+              console.error("Failed to send Mpesa success email:", emailError.message);
             }
-
 
             const pushNotificationPayload = {
               headings: `Your ticket for ${event.event_name} has been confirmed`,
               contents: `A confirmation email has been sent to ${user_email.email}`,
               target_user_id: user_id,
-            }
+            };
 
             try {
               await sendUserPushNotification(pushNotificationPayload, "io.opencrafts.sherehe");
-            } catch (error) {
-              logs(
-                Number(process.hrtime.bigint() - start),
-                "ERROR",
-                req.ip,
-                req.method,
-                `Event created successfully but failed to send push notification: ${error.message}`,
-                req.originalUrl,
-                201,
-                req.headers["user-agent"]
-              );
+            } catch (pushError) {
+              console.error(`Notification failed components fallback: ${pushError.message}`);
             }
-
           }
 
+          // Safe execution acknowledge
           channel.ack(msg);
 
         } catch (error) {
-          if (!dbTransaction.finished) {
-            await dbTransaction.rollback();
+          console.error("Error processing queue message:", error.message);
+          
+          // Only rollback if it hasn't been committed yet
+          if (!transactionCommitted) {
+            try {
+              await dbTransaction.rollback();
+            } catch (rollbackError) {
+              console.error("Transaction fallback rollback failed:", rollbackError.message);
+            }
           }
+
+          // RabbitMQ Dead Letter Routing
           if (msg.fields.redelivered) {
+            console.warn("Message redelivered and failed again. Acking to prevent loop.");
             channel.ack(msg);
           } else {
             channel.nack(msg, false, true);
@@ -191,9 +192,7 @@ export async function startMpesaSuccessConsumer() {
       { noAck: false }
     );
   } catch (error) {
-
-    console.error("❌ Veribroke sdk recieve error:", error);
+    console.error("Veribroke SDK initialization error:", error);
     throw error;
   }
 }
-
