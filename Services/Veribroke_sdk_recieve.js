@@ -42,9 +42,10 @@ export async function startMpesaSuccessConsumer() {
         
         // Dynamic tracking variable to safely control rollbacks
         let transactionCommitted = false;
-        let dbTransaction = await sequelize.transaction();
+        let dbTransaction;
 
         try {
+          dbTransaction = await sequelize.transaction();
           const payload = JSON.parse(msg.content.toString());
           const { request_id, success, message, metadata } = payload;
           const stkCallback = metadata?.Body?.stkCallback;
