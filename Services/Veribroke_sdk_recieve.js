@@ -180,8 +180,9 @@ export async function startMpesaSuccessConsumer() {
             }
           }
 
-          // RabbitMQ Dead Letter Routing
-          if (msg.fields.redelivered) {
+          if (transactionCommitted) {
+            channel.ack(msg);
+          } else if (msg.fields.redelivered) {
             console.warn("Message redelivered and failed again. Acking to prevent loop.");
             channel.ack(msg);
           } else {
