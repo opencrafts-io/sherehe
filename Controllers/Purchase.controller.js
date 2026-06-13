@@ -5,7 +5,7 @@ import { getUserByIdRepository } from '../Repositories/User.repository.js';
 import { sendPaymentRequest } from '../Services/Veribroke_sdk_push.js';
 import { createTransactionRepository, getTransactionByIdRepository } from '../Repositories/Transactions.repository.js';
 import { getPaymentInfoByEventIdRepository } from '../Repositories/paymentInfo.repository.js';
-import { createAttendeeRepository } from '../Repositories/Attendee.repository.js';
+import { createAttendeeRepository , getUserPurchasedTicketRepository } from '../Repositories/Attendee.repository.js';
 import { Op, Sequelize } from "sequelize";
 import sequelize from "../Utils/db.js";
 const SHEREHE_ROUTING_KEY = process.env.SHEREHE_ROUTING_KEY || "NDOVUKUU";
@@ -278,6 +278,24 @@ export const verifyPaymentController = async (req, res) => {
       200,
       req.headers["user-agent"]
     );
+
+    if (transaction.status === "SUCCESS") {
+      if (transaction.user_id !== user_id) {
+        return res.status(403).json({ message: "Unauthorized" });
+      }
+
+      const attendees = await getUserPurchasedTicketRepository(
+        user_id,
+        transaction.event_id
+      );
+
+      return res.status(200).json({
+        status: transaction.status,
+        attendee: attendees,
+      });
+    }
+
+
 
     return res.status(200).json({
       status: transaction.status,

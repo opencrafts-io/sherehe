@@ -305,3 +305,63 @@ export const getAttendeesByEventIdRepository = async (eventId ,  limitPlusOne, o
     throw error;
   }
 }
+
+export const getUserPurchasedTicketRepository = async (
+  userId,
+  eventId
+) => {
+  try {
+    const attendees = await Attendee.findAll({
+      where: {
+        user_id: userId,
+        event_id: eventId
+      },
+      order: [["created_at", "DESC"]],
+      include: [
+        {
+          model: Event,
+          as: "event",
+        },
+        {
+          model: Ticket,
+          as: "ticket",
+          attributes: [
+            "id",
+            "ticket_name",
+            "ticket_price",
+            "start_date",
+            "end_date",
+          ],
+        },
+      ],
+    });
+
+    // ✅ Normalize event_genre to always be an array
+    return attendees.map(attendee => {
+      const json = attendee.toJSON();
+
+      if (json.event) {
+        const genre = json.event.event_genre;
+
+        if (Array.isArray(genre)) {
+          json.event.event_genre = genre;
+        } else if (typeof genre === "string") {
+          try {
+            json.event.event_genre = JSON.parse(genre || "[]");
+          } catch {
+            json.event.event_genre = [];
+          }
+        } else if (genre == null) {
+          json.event.event_genre = [];
+        } else {
+          json.event.event_genre = [];
+        }
+      }
+
+      return json;
+    });
+
+  } catch (error) {
+    throw error;
+  }
+};
