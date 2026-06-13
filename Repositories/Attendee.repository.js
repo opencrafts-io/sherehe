@@ -311,7 +311,8 @@ export const getUserPurchasedTicketRepository = async (
   eventId
 ) => {
   try {
-    const attendees = await Attendee.findAll({
+    // 1. Changed findAll to findOne
+    const attendee = await Attendee.findOne({
       where: {
         user_id: userId,
         event_id: eventId
@@ -336,18 +337,19 @@ export const getUserPurchasedTicketRepository = async (
       ],
     });
 
-    // ✅ Normalize event_genre to always be an array
-    return attendees.map(attendee => {
-      const json = attendee.toJSON();
+    // If no record is found, return null safely
+    if (!attendee) return null;
 
-      if (json.event) {
-        json.event.event_genre = Array.isArray(json.event.event_genre)
-          ? json.event.event_genre
-          : JSON.parse(json.event.event_genre || "[]");
-      }
+    // 2. Normalize event_genre for the single object
+    const json = attendee.toJSON();
 
-      return json;
-    });
+    if (json.event) {
+      json.event.event_genre = Array.isArray(json.event.event_genre)
+        ? json.event.event_genre
+        : JSON.parse(json.event.event_genre || "[]");
+    }
+
+    return json;
 
   } catch (error) {
     throw error;
