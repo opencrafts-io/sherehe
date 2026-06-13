@@ -42,9 +42,10 @@ export async function startMpesaSuccessConsumer() {
         
         // Dynamic tracking variable to safely control rollbacks
         let transactionCommitted = false;
-        let dbTransaction = await sequelize.transaction();
+        let dbTransaction;
 
         try {
+          dbTransaction = await sequelize.transaction();
           const payload = JSON.parse(msg.content.toString());
           const { request_id, success, message, metadata } = payload;
           const stkCallback = metadata?.Body?.stkCallback;
@@ -172,7 +173,7 @@ export async function startMpesaSuccessConsumer() {
           console.error("Error processing queue message:", error.message);
           
           // Only rollback if it hasn't been committed yet
-          if (!transactionCommitted) {
+          if (!transactionCommitted && dbTransaction) {
             try {
               await dbTransaction.rollback();
             } catch (rollbackError) {
@@ -180,8 +181,9 @@ export async function startMpesaSuccessConsumer() {
             }
           }
 
-          // RabbitMQ Dead Letter Routing
-          if (msg.fields.redelivered) {
+          if (transactionCommitted) {
+            channel.ack(msg);
+          } else if (msg.fields.redelivered) {
             console.warn("Message redelivered and failed again. Acking to prevent loop.");
             channel.ack(msg);
           } else {
