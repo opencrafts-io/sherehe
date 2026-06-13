@@ -341,9 +341,21 @@ export const getUserPurchasedTicketRepository = async (
       const json = attendee.toJSON();
 
       if (json.event) {
-        json.event.event_genre = Array.isArray(json.event.event_genre)
-          ? json.event.event_genre
-          : JSON.parse(json.event.event_genre || "[]");
+        const genre = json.event.event_genre;
+
+        if (Array.isArray(genre)) {
+          json.event.event_genre = genre;
+        } else if (typeof genre === "string") {
+          try {
+            json.event.event_genre = JSON.parse(genre || "[]");
+          } catch {
+            json.event.event_genre = [];
+          }
+        } else if (genre == null) {
+          json.event.event_genre = [];
+        } else {
+          json.event.event_genre = [];
+        }
       }
 
       return json;
