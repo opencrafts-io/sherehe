@@ -321,13 +321,9 @@ export const getAttendeesByEventIdRepository = async (eventId, limitPlusOne, off
   }
 }
 
-export const getUserPurchasedTicketRepository = async (
-  userId,
-  eventId
-) => {
+export const getUserPurchasedTicketRepository = async (userId, eventId) => {
   try {
-    // 1. Changed findAll to findOne
-    const attendee = await Attendee.findOne({
+    const attendeeInstance = await Attendee.findOne({
       where: {
         user_id: userId,
         event_id: eventId
@@ -353,33 +349,29 @@ export const getUserPurchasedTicketRepository = async (
     });
 
     // If no record is found, return null safely
-    if (!attendee) return null;
+    if (!attendeeInstance) return null;
 
-      if (json.event) {
-        const genre = json.event.event_genre;
+    // Convert Sequelize instance to a plain data object
+    const attendee = attendeeInstance.toJSON();
 
-        if (Array.isArray(genre)) {
-          json.event.event_genre = genre;
-        } else if (typeof genre === "string") {
-          try {
-            json.event.event_genre = JSON.parse(genre || "[]");
-          } catch {
-            json.event.event_genre = [];
-          }
-        } else if (genre == null) {
-          json.event.event_genre = [];
-        } else {
-          json.event.event_genre = [];
+    // Safely parse event_genre if event exists
+    if (attendee.event) {
+      const genre = attendee.event.event_genre;
+
+      if (Array.isArray(genre)) {
+        attendee.event.event_genre = genre;
+      } else if (typeof genre === "string") {
+        try {
+          attendee.event.event_genre = JSON.parse(genre || "[]");
+        } catch {
+          attendee.event.event_genre = [];
         }
+      } else {
+        attendee.event.event_genre = [];
       }
-
-    if (json.event) {
-      json.event.event_genre = Array.isArray(json.event.event_genre)
-        ? json.event.event_genre
-        : JSON.parse(json.event.event_genre || "[]");
     }
 
-    return json;
+    return attendee;
 
   } catch (error) {
     throw error;
