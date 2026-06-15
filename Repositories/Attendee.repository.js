@@ -344,8 +344,23 @@ export const getUserPurchasedTicketRepository = async (
     // If no record is found, return null safely
     if (!attendee) return null;
 
-    // 2. Normalize event_genre for the single object
-    const json = attendee.toJSON();
+      if (json.event) {
+        const genre = json.event.event_genre;
+
+        if (Array.isArray(genre)) {
+          json.event.event_genre = genre;
+        } else if (typeof genre === "string") {
+          try {
+            json.event.event_genre = JSON.parse(genre || "[]");
+          } catch {
+            json.event.event_genre = [];
+          }
+        } else if (genre == null) {
+          json.event.event_genre = [];
+        } else {
+          json.event.event_genre = [];
+        }
+      }
 
     if (json.event) {
       json.event.event_genre = Array.isArray(json.event.event_genre)

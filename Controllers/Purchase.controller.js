@@ -279,12 +279,20 @@ export const verifyPaymentController = async (req, res) => {
       req.headers["user-agent"]
     );
 
-    if(transaction.status === "SUCCESS"){
-     const attendee = await getUserPurchasedTicketRepository(user_id, transaction.event_id)
-     return res.status(200).json({
-      status: transaction.status,
-      attendee
-    });
+    if (transaction.status === "SUCCESS") {
+      if (transaction.user_id !== user_id) {
+        return res.status(403).json({ message: "Unauthorized" });
+      }
+
+      const attendees = await getUserPurchasedTicketRepository(
+        user_id,
+        transaction.event_id
+      );
+
+      return res.status(200).json({
+        status: transaction.status,
+        attendee: attendees,
+      });
     }
 
 
