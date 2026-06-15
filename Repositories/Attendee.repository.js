@@ -262,7 +262,18 @@ export const getAllUserAttendedSpecificEventRepository = async (eventId, userId,
         },
       ],
     });
-    return attendees;
+      // ✅ Ensure event_genre is ALWAYS an array
+  return attendees.map(attendee => {
+    const json = attendee.toJSON();
+
+    if (json.event) {
+      json.event.event_genre = Array.isArray(json.event.event_genre)
+        ? json.event.event_genre
+        : JSON.parse(json.event.event_genre || "[]");
+    }
+
+    return json;
+  });
   } catch (error) {
     throw error;
   }
