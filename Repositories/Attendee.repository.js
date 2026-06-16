@@ -321,9 +321,9 @@ export const getAttendeesByEventIdRepository = async (eventId, limitPlusOne, off
   }
 }
 
-export const getUserPurchasedTicketRepository = async (userId, eventId) => {
+export const getUserPurchasedTicketsRepository = async (userId, eventId) => {
   try {
-    const attendeeInstance = await Attendee.findOne({
+    const attendeeInstances = await Attendee.findAll({
       where: {
         user_id: userId,
         event_id: eventId
@@ -348,31 +348,34 @@ export const getUserPurchasedTicketRepository = async (userId, eventId) => {
       ],
     });
 
-    // If no record is found, return null safely
-    if (!attendeeInstance) return null;
+    // If no records are found, return an empty array safely
+    if (!attendeeInstances || attendeeInstances.length === 0) return [];
 
-    // Convert Sequelize instance to a plain data object
-    const attendee = attendeeInstance.toJSON();
+    // 2. Map through the instances to convert to plain objects and parse genres
+    const attendees = attendeeInstances.map((instance) => {
+      const attendee = instance.toJSON();
 
-    // Safely parse event_genre if event exists
-    if (attendee.event) {
-      const genre = attendee.event.event_genre;
+      // Safely parse event_genre if event exists
+      if (attendee.event) {
+        const genre = attendee.event.event_genre;
 
-      if (Array.isArray(genre)) {
-        attendee.event.event_genre = genre;
-      } else if (typeof genre === "string") {
-        try {
-          const parsed = JSON.parse(genre || "[]");
-          attendee.event.event_genre = Array.isArray(parsed) ? parsed : [];
-        } catch {
+        if (Array.isArray(genre)) {
+          attendee.event.event_genre = genre;
+        } else if (typeof genre === "string") {
+          try {
+            attendee.event.event_genre = JSON.parse(genre || "[]");
+          } catch {
+            attendee.event.event_genre = [];
+          }
+        } else {
           attendee.event.event_genre = [];
         }
-      } else {
-        attendee.event.event_genre = [];
       }
-    }
 
-    return attendee;
+      return attendee;
+    });
+
+    return attendees;
 
   } catch (error) {
     throw error;
