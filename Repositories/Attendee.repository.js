@@ -381,3 +381,6 @@ export const getUserPurchasedTicketsRepository = async (userId, eventId) => {
     throw error;
   }
 };
+
+// Backwards-compatible alias (remove once all call sites are migrated)
+export const getUserPurchasedTicketRepository = getUserPurchasedTicketsRepository;
