@@ -363,7 +363,8 @@ export const getUserPurchasedTicketsRepository = async (userId, eventId) => {
           attendee.event.event_genre = genre;
         } else if (typeof genre === "string") {
           try {
-            attendee.event.event_genre = JSON.parse(genre || "[]");
+            const parsed = JSON.parse(genre || "[]");
+            attendee.event.event_genre = Array.isArray(parsed) ? parsed : [];
           } catch {
             attendee.event.event_genre = [];
           }
