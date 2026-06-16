@@ -321,7 +321,7 @@ export const getAttendeesByEventIdRepository = async (eventId, limitPlusOne, off
   }
 }
 
-export const getUserPurchasedTicketRepository = async (userId, eventId) => {
+export const getUserPurchasedTicketsRepository = async (userId, eventId) => {
   try {
     // 1. Change findOne to findAll to get all matching records
     const attendeeInstances = await Attendee.findAll({
