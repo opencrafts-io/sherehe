@@ -71,15 +71,6 @@ export const getTicketbyEventIdRepository = async (eventId, institutionIds = [],
       });
     }
 
-    // Check ownership via the Event table instead of the Ticket table
-    if (user_id) {
-      orConditions.push({
-        [Op.and]: [
-          { scope: "private" },
-          { '$event.organizer_id$': user_id } // Reaching into the joined Event model
-        ]
-      });
-    }
 
     const tickets = await Ticket.findAll({
       where: {
