@@ -61,6 +61,13 @@ export const getallTicketInviteRepository = async (ticket_id) => {
         where: {
           ticket_id: ticket_id,
         },
+        include: [
+          {
+            model: Ticket,
+            as: "ticket",
+            attributes: ["id", "ticket_name", "ticket_price", "ticket_quantity"]
+          },
+        ],
       }
     );
     return ticketInvites;
@@ -69,3 +76,15 @@ export const getallTicketInviteRepository = async (ticket_id) => {
   }
 };
 
+export const updateTicketInviteRepository = async (id, data) => {
+  try {
+    const ticketInvite = await TicketInvite.findByPk(id);
+    if (!ticketInvite) {
+      throw new Error("Ticket invite not found");
+    }
+    await ticketInvite.update(data);
+    return ticketInvite;
+  } catch (error) {
+    throw error;
+  }
+};

@@ -18,11 +18,12 @@ import { sendNotification } from "../Utils/Notification.js";
 import { createEventScannerRepository } from "../Repositories/eventScanners.repository.js";
 import { logs } from "../Utils/logs.js";
 import { createEventInstitutionRepository } from "../Repositories/event_institution.repository.js";
-import {createEventInviteRepository} from '../Repositories/event_invite.repository.js';
-import crypto from "crypto";
-import {getUserByIdRepository} from '../Repositories/User.repository.js';
-
-
+import { createEventInviteRepository } from '../Repositories/event_invite.repository.js';
+import crypto from "crypto";;
+import { getAllUserInstitutionRepository } from '../Repositories/user_institution.repository.js';
+import { sendTemplatedEmail } from '../Services/gossip_monger_email.js';
+import { getUserByIdRepository } from '../Repositories/User.repository.js';
+import { sendUserPushNotification } from '../Services/gossip_monger_push_notification.js';
 export const createEventController = async (req, res) => {
   const start = process.hrtime.bigint();
   let savedFiles = [];
@@ -122,7 +123,30 @@ export const createEventController = async (req, res) => {
         { transaction }
       );
 
+      const eventStart = new Date(event.start_date);
+      const eventEnd = new Date(event.end_date);
+
+      if (eventStart >= eventEnd) {
+        throw new Error(`Event "${event.event_name}" must start before it ends.`);
+      }
+
       for (const ticket of tickets) {
+        const ticketStart = ticket.start_date ? new Date(ticket.start_date) : new Date(start_date);
+    const ticketEnd = ticket.end_date ? new Date(ticket.end_date) : new Date(end_date);
+    const eventStart = new Date(event.start_date);
+    const eventEnd = new Date(event.end_date);
+
+        if (ticketStart && ticketStart < eventStart) {
+          throw new Error(`Ticket "${ticket.ticket_name}" starts before the event starts.`);
+        }
+
+        if (ticketEnd && ticketEnd > eventEnd) {
+          throw new Error(`Ticket "${ticket.ticket_name}" ends after the event ends.`);
+        }
+
+        if (ticketStart && ticketEnd && ticketStart >= ticketEnd) {
+          throw new Error(`Ticket "${ticket.ticket_name}" start date must be before its end date.`);
+        }
         await createTicketRepository(
           { ...ticket, event_id: event.id },
           { transaction }
@@ -141,38 +165,38 @@ export const createEventController = async (req, res) => {
         }
       }
       const token = crypto.randomBytes(32).toString("hex");
-      if(scope === "private"){
+      if (scope === "private") {
         await createEventInviteRepository({
           event_id: event.id,
           token,
           expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000)
-        } , { transaction })
+        }, { transaction })
       }
 
-          if (!(payment_type === null || payment_type === undefined)) {
-      const savepayment = await createPaymentInfoRepository({
+      if (!(payment_type === null || payment_type === undefined)) {
+        const savepayment = await createPaymentInfoRepository({
+          event_id: event.id,
+          payment_type,
+          paybill_number,
+          paybill_account_number: account_reference,
+          till_number,
+          phone_number: send_money_phone
+        }, { transaction });
+        if (!savepayment) {
+          return res.status(500).json({
+            error: "Event created but payment info failed to save",
+          });
+        }
+      }
+
+      const eventOrganizer =
+      {
         event_id: event.id,
-        payment_type,
-        paybill_number,
-        paybill_account_number: account_reference,
-        till_number,
-        phone_number: send_money_phone
-      } , { transaction });
-                if (!savepayment) {
-        return res.status(500).json({
-          error: "Event created but payment info failed to save",
-        });
+        user_id: organizer_id,
+        role: "SUPERVISOR"
       }
-    }
 
-        const eventOrganizer =
-    {
-      event_id: event.id,
-      user_id: organizer_id,
-      role: "SUPERVISOR"
-    }
-
-    await createEventScannerRepository(eventOrganizer , { transaction })
+      await createEventScannerRepository(eventOrganizer, { transaction })
 
 
 
@@ -192,7 +216,7 @@ export const createEventController = async (req, res) => {
 
 
 
-    
+
 
     // -------------------------
     // NOTIFICATION (SAFE)
@@ -207,21 +231,65 @@ export const createEventController = async (req, res) => {
       }
     );
 
-    const notificationPayload = {
-      notification: {
-        app_id: "88ca0bb7-c0d7-4e36-b9e6-ea0e29213593",
-        headings: { en: "Event Created Successfully!" },
-        contents: {
-          en: `Hello,\n\nYour event "${event.event_name}" has been successfully created and is scheduled on ${formattedEventDate}.`,
-        },
-        target_user_id: organizer_id,
-        big_picture: event_banner_image,
-        large_icon: event_card_image,
-        small_icon: event_poster_image,
-        url: event_url || "https://opencrafts.io/dashboard",
-      },
+    const organizer_email = await getUserByIdRepository(organizer_id);
+
+    const emailPayload = {
+      to_addresses: [organizer_email.email],
+      subject: `New Event: ${event.event_name}`,
+      template_id: "sherehe-event-confirmed",
+      template_vars: {
+        "created_at": event.created_at,
+        "event_location": event.event_location,
+        "event_name": event.event_name,
+        "scope": event.scope,
+        "start_date": new Date(event.start_date).toLocaleString("en-KE", {
+          timeZone: "Africa/Nairobi",
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        }),
+      }
     };
 
+    try {
+      await sendTemplatedEmail(emailPayload, "io.opencrafts.sherehe");
+    } catch (emailError) {
+      logs(
+        Number(process.hrtime.bigint() - start),
+        "ERROR",
+        req.ip,
+        req.method,
+        `Event created successfully but failed to send confirmation email: ${emailError.message}`,
+        req.originalUrl,
+        201,
+        req.headers["user-agent"]
+      );
+    }
+
+    const pushNotificationPayload = {
+      headings: `New Event: ${event.event_name}`,
+      contents: "Your Event has been created successfully and is now live",
+      target_user_id: organizer_id,
+    }
+
+    try {
+      await sendUserPushNotification(pushNotificationPayload, "io.opencrafts.sherehe");
+    } catch (error) {
+      logs(
+        Number(process.hrtime.bigint() - start),
+        "ERROR",
+        req.ip,
+        req.method,
+        `Event created successfully but failed to send push notification: ${error.message}`,
+        req.originalUrl,
+        201,
+        req.headers["user-agent"]
+      );
+    }
     // sendNotification(notificationPayload);
 
     const duration = Number(process.hrtime.bigint() - start);
@@ -274,11 +342,11 @@ export const getAllEventsController = async (req, res) => {
 
   try {
     const { limit, page, limitPlusOne, offset } = req.pagination;
-    const organizer_id = req.user.sub;
-    const user = await getUserByIdRepository(organizer_id);
+    const user_id = req.user.sub;
+    const { institutionIds } = await getAllUserInstitutionRepository(user_id);
 
 
-    const result = await getAllEventsRepository({ limitPlusOne, offset } , user.institution_id);
+    const result = await getAllEventsRepository({ limitPlusOne, offset }, institutionIds, user_id);
 
     const hasNextPage = result.length > limit;
     const events = hasNextPage ? result.slice(0, limit) : result;

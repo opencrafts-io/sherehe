@@ -10,7 +10,7 @@ collection:
     meta:
       id: fld_7846574000064e15ae9fb8dbb707f9c1
       created: 1751675358991
-      modified: 1767726361886
+      modified: 1777930396585
       sortKey: -1751675358991
       description: >
         | Method     | Endpoint                    |
@@ -40,61 +40,133 @@ collection:
         | **GET**    | `/api/event/organizer/:id`  | Get all events by organizer
         |
     children:
-      - url: http://localhost:3000/event/
+      - url: "{{ _.local }}/event/"
         name: Create Event
         meta:
           id: req_87853c0415ad45ca912c6eac6e23e688
           created: 1751674151145
-          modified: 1770897947826
+          modified: 1779004847819
           isPrivate: false
           description: |
-            🟢 Create Event
-            `Endpoint: POST /api/events
-            Description: Creates a new event with optional tickets and images (card, poster, banner).`
+            # 🆕 Create an event
 
-            📤 Example Request
+            **Method:** `POST`  
+            **Endpoint:** `/api/event`  
+            c
 
-            | Field               | Type         | Required | Description                                                               |
-            | ------------------- | ------------ | -------- | ------------------------------------------------------------------------- |
-            | `event_name`        | string       | ✅ Yes    | Name of the event                                                         |
-            | `event_description` | string       | ✅ Yes    | Description of the event                                                  |
-            | `event_location`    | string       | ✅ Yes    | Location of the event                                                     |
-            | `event_date`        | string (ISO) | ✅ Yes    | Event date (ISO format, e.g., "2025-12-01T18:00:00.000Z")                 |
-            | `event_url`         | string       | ✅ Yes     | External URL of the event                                                 |
-            | `event_genre`       | string       | ✅ Yes      | Genre or type of the event                                                |
-            | `organizer_id`      | integer      | ✅ Yes    | ID of the user creating the event                                         |
-            | `tickets`           | array        | ✅ Yes      | Array of ticket objects: `{ ticket_name, ticket_price, ticket_quantity }` |
+            ---
 
-            📥 Example Response (201 Created)
+            ### 🧾 Explaination of everything
+            **Tickets:** `How should tickets should be looking like`
 
-            | Field               | Type     | Example                                                  | Description                          |
-            | ------------------- | -------- | -------------------------------------------------------- | ------------------------------------ |
-            | `message`           | string   | "Event created successfully"                             | Status message of the operation      |
-            | `event.id`          | uuid  | bcba5efb-2284-4b7c-a1a7-040340131a53                                                        | Event ID                             |
-            | `event_name`        | string   | "Music Festival 2025"                                    | Event name                           |
-            | `event_description` | string   | "Annual outdoor music festival."                         | Event description                    |
-            | `event_location`    | string   | "Nairobi, Kenya"                                         | Event location                       |
-            | `event_date`        | datetime | "2025-12-01T18:00:00.000Z"                               | Event date                           |
-            | `event_url`         | string   | "[https://musicfest2025.com](https://musicfest2025.com)" | External URL                         |
-            | `event_genre`       | string   | "Music"                                                  | Genre/type of event                  |
-            | `organizer_id`      | uuid  | bcba5efb-2284-4b7c-a1a7-040340131a53                                                       | ID of the user who created the event |
-            | `tickets`           | array    | See ticket objects below                                 | Array of created tickets             |
-            | `createdAt`         | datetime | "2025-10-30T10:00:00.000Z"                               | Event creation timestamp             |
-            | `updatedAt`         | datetime | "2025-10-30T10:00:00.000Z"                               | Event last update timestamp          |
+            | Field            | Type     | Required | Description                                                  |
+            |----------------- |--------- |--------- |------------------------------------------------------------ |
+            | `ticket_name`       | string   | ✅       | The name of the ticket |
+            | `ticket_price`         | number   | ✅       | The price of the ticket |
+            | `ticket_for` | mumber (optional defaults to 1)   | ✅       |The number of that each ticket represents (group of 5)|
+            | `ticket_quantity` | mumber   | ✅       |The number of tickets the organizer want   |
+            | `scope` | string enum (private ?? public ?? institution) (defaults to public)    | ✅  |How should the the infromation being displayed  |
+            | `institutions` | array (optional if scope is institution)   | ✅       |The list of institution's id of which the tickets should be viewed by  |
 
-            ⚠️ Example Error Statuses
 
-            | **Status Code**             | **Description**                           |
-            | --------------------------- | ----------------------------------------- |
-            | `400 Bad Request`           | Missing required fields or invalid input. |
-            | `500 Internal Server Error` | Database or server error.                 |
+            ```json
+            "tickets": [
+            	{
+            	 "ticket_name": "VIP Ticket",  
+            	 "ticket_price": 15, 
+            	 "ticket_for":5,  
+            	 "ticket_quantity": 200, 
+            	 "scope": "public" ,  
+            	 "institutions" : [4]
+            	}
+            ]
+            ```
+
+            **Overview:** `How should the overview will look like`
+
+            | Field            | Type     | Required | Description                                                  |
+            |----------------- |--------- |--------- |------------------------------------------------------------ |
+            | `event_name`       | string   | ✅       | The name of the event |
+            | `event_description`         | string   | ✅       | The description of the event |
+            | `event_location` | string (optional defaults to 1)   | ✅       |The location of the event|
+            | `start_date` | date (optional defaults to 1)   | ✅       |The start of the event|
+            | `end_date` | date (optional defaults to 1)   | ✅       |The end of the event|
+            | `event_card_image` | image (optional defaults to 1)   | ✅       |The card image|
+            | `event_banner_image` | image (optional defaults to 1)   | ✅       |The banner image|
+            | `event_poster_image` | image (optional defaults to 1)   | ✅       |The poster image|
+            | `tickets` | JSON   | ✅       |The JSON of the tickets  |
+            | `scope` | string enum (private ?? public ?? institution) (defaults to public)    | ✅  |How should the the infromation being displayed  |
+            | `institutions` | array (optional if scope is institution)   | ✅       |The list of institution's id of which the events should be viewed by  |
+
+
+            ### 💡 Example Request
+            ```json
+            {
+            "event_name": "Test1",
+            "event_description": "Annual technology conference focusing on AI and web development.",
+            "event_location": "Nairobi International Convention Centre",
+            "start_date": "2026-05-10T00:00:00.000Z",
+            "end_date": "2026-05-11T00:00:00.000Z",
+            "event_genre": ["Physical","Adult Time"],
+            "scope": "private",
+            "institutions" : [1],
+            "event_card_image": "https://sherehe-bucket.s3.eu-north-1.amazonaws.com/events/1776001374598-event_card_image.png",
+            "event_poster_image": "https://sherehe-bucket.s3.eu-north-1.amazonaws.com/events/1776001374612-event_poster_image.png",
+            "event_banner_image": "https://sherehe-bucket.s3.eu-north-1.amazonaws.com/events/1776001374611-event_banner_image.png",,
+            "tickets": [
+            	{"ticket_name": "VIP Ticket",  "ticket_price": 15, "ticket_for":5,  "ticket_quantity": 200, "scope": "public" ,  "institutions" : [1]}
+            ]
+            }
+            ```
+
+            ---
+
+            ### ✅ Example Response (200 Created)
+            ```json
+            {
+            	"message": "Event created successfully",
+            	"data": {
+            		"event": {
+            			"created_at": "2026-04-12T13:42:56.138Z",
+            			"updated_at": "2026-04-12T13:42:56.138Z",
+            			"id": "99594839-21a1-40a7-b42d-c65bd4630def",
+            			"attendee_count": 0,
+            			"event_name": "Test1",
+            			"event_description": "Annual technology conference focusing on AI and web development.",
+            			"event_location": "Nairobi International Convention Centre",
+            			"start_date": "2026-05-10T00:00:00.000Z",
+            			"end_date": "2026-05-11T00:00:00.000Z",
+            			"event_genre": [
+            				"Physical",
+            				"Adult Time"
+            			],
+            			"event_card_image": "https://sherehe-bucket.s3.eu-north-1.amazonaws.com/events/1776001374598-event_card_image.png",
+            			"event_poster_image": "https://sherehe-bucket.s3.eu-north-1.amazonaws.com/events/1776001374612-event_poster_image.png",
+            			"event_banner_image": "https://sherehe-bucket.s3.eu-north-1.amazonaws.com/events/1776001374611-event_banner_image.png",
+            			"organizer_id": "6fdd587f-d1dd-49af-9c17-a709612297eb",
+            			"scope": "private",
+            			"deleted_at": null
+            		}
+            	}
+            }
+            ```
+
+            ---
+
+            ### ❌ Error Responses
+
+            | **Code** | **Message**                  |
+            |----------|-------------------------------|
+            | `500`    | `Error: {{error.message}}` |
+
+            ---
           sortKey: -1751675384567
         method: POST
         body:
           mimeType: multipart/form-data
           params:
             - name: event_name
-              value: Chelsea
+              value: Test ticket
               description: ""
               disabled: false
               id: pair_d80291def04e41c1994b97d9162442b7
@@ -113,8 +185,8 @@ collection:
               description: ""
               disabled: false
               id: pair_ab4a8275d7cf49959d56672f5b0bebc3
-            - name: event_date
-              value: 2025-09-10
+            - name: start_date
+              value: 2026-05-10
               description: ""
               disabled: false
               id: pair_ca0a0e1fd0d7455b86a9ae69d5f30acf
@@ -127,14 +199,14 @@ collection:
                 23-41-14.png
               type: file
             - name: event_genre
-              value: '["Adult Time"]'
+              value: '["Physical" , "Adult Time"]'
               description: ""
               disabled: false
               id: pair_84d94397758640079d7009150ee41daa
             - name: event_visibility
-              value: '["1" , "2"]'
+              value: "[]"
               description: ""
-              disabled: false
+              disabled: true
               id: pair_afa89f68172d43ecaaace3fae46647e6
             - name: event_poster_image
               value: ""
@@ -153,8 +225,24 @@ collection:
                 23-41-14.png
               type: file
             - name: tickets
-              value: '[{"ticket_name": "VIP Ticket",  "ticket_price": 15,  "ticket_quantity":
-                200, "ticket_visibility": ["1" , "2"]}]'
+              value: '[  {    "ticket_name": "VIP Ticket",    "ticket_price":
+                15,    "ticket_for": 5,    "ticket_quantity": 200,    "scope":
+                "public",    "institutions":
+                ["478a2ee4-a721-4d35-a4e8-5cc6aca56faa"]  },  {    "ticket_name":
+                "Private",    "ticket_price": 15,    "ticket_for":
+                5,    "ticket_quantity": 200,    "scope":
+                "private",    "institutions":
+                ["478a2ee4-a721-4d35-a4e8-5cc6aca56faa"]  },  {    "ticket_name":
+                "Institution1",    "ticket_price": 15,    "ticket_for":
+                5,    "ticket_quantity": 200,    "scope":
+                "institution",    "start_date":
+                "2026-05-10T00:00:00.000Z",    "end_date":
+                "2026-05-11T00:00:00.000Z",    "institutions":
+                [43]  },  {    "ticket_name": "Institution2",    "ticket_price":
+                15,    "ticket_for": 5,    "ticket_quantity": 200,    "scope":
+                "institution",    "start_date":
+                "2026-05-10T00:00:00.000Z",    "end_date":
+                "2026-05-11T00:00:00.000Z",    "institutions": [42]  }]'
               description: ""
               disabled: false
               id: pair_c9526f4d655d4bb0841de7a32bb46e87
@@ -173,6 +261,21 @@ collection:
               value: SHEREHE2026
               description: ""
               disabled: false
+            - id: pair_09cfa3afb9f6439092cf39b8b538701b
+              name: scope
+              value: private
+              description: ""
+              disabled: false
+            - id: pair_031f060bcd79454395aa6c190e3c018b
+              name: institutions
+              value: "[ 43 ]"
+              description: ""
+              disabled: false
+            - id: pair_1aed5a0b4d5b47b9bc8de5269e8316a5
+              name: end_date
+              value: 2026-05-11
+              description: ""
+              disabled: false
         headers:
           - name: Content-Type
             value: multipart/form-data
@@ -186,51 +289,57 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: https://api.opencrafts.io/qa-sherehe/event/deca727d-ce43-44a8-8c4a-82c4540678c5
+      - url: https://api.opencrafts.io/qa-sherehe/event/f96e2317-aa58-430f-b04b-9e313da92854
         name: Delete Event
         meta:
           id: req_f68e97063dde4fd7847adeed68e75abc
           created: 1751675406540
-          modified: 1768722057648
+          modified: 1776108807521
           isPrivate: false
           description: >
-            🗑️ Delete Event
+            # 🆕 Delete a Event
 
 
-            `Endpoint: DELETE /api/events/:id
+            **Method:** `DELETE`  
 
-            Description: Deletes an event (soft delete or marks as deleted).`
+            **Endpoint:** `/api/event/:id`  
 
-
-            📥 Example Response (200 OK)
-
-
-            | Field     | Type   | Example                      |
-            Description                                     |
-
-            | --------- | ------ | ---------------------------- |
-            ----------------------------------------------- |
-
-            | `message` | string | "Event deleted successfully" | Status message
-            confirming the event was deleted |
+            **Description:** This deletes a event invite ( note that only a
+            superviser role is event_scanners can delete a event invite)
 
 
-            Note: The event is marked as deleted but not permanently removed
-            from the database (soft delete).
 
 
-            ⚠️ Example Error Statuses
+
+            ### ✅ Example Response (200)
+
+            ```json
+
+            { message: "Event deleted successfully" }
+
+            ```
 
 
-            | **Status Code**             | **Description**              |
+            ---
 
-            | --------------------------- | ---------------------------- |
 
-            | `400 Bad Request`           | Invalid or missing event ID. |
+            ### ❌ Error Responses
 
-            | `404 Not Found`             | Event not found.             |
 
-            | `500 Internal Server Error` | Database or server error.    |
+            | **Code** | **Message**                  |
+
+            |----------|-------------------------------|
+
+            | `404`    | `Error: event invite not found` |
+
+            | `409`    | `Error: Event already deleted` |
+
+            | `403`    | `Error: Unauthorized` |
+
+            | `500`    | `Error: Internal server error` |
+
+
+            ---
           sortKey: -1751675406540
         method: DELETE
         headers:
@@ -244,48 +353,103 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/event?page=1&limit=20&event_visibility=1&event_visibility=2
+      - url: "{{ _.local }}/event?page=1&limit=20"
         name: Get all Events
         meta:
           id: req_396769ef52ba480a9745f7b33982f1c2
           created: 1751675623663
-          modified: 1770897340796
+          modified: 1778599459215
           isPrivate: false
-          description: |+
-            Get All Events
+          description: >
+            # 🆕 Get events
 
-            `Endpoint: GET /api/events
-            Description: Retrieves a paginated list of all events.`
 
-            Query Parameters
+            **Method:** `Get`  
 
-            | Parameter | Type    | Description                            |
-            | --------- | ------- | -------------------------------------- |
-            | `page`    | integer | Page number (default: 1)               |
-            | `limit`   | integer | Number of items per page (default: 10) |
+            **Endpoint:** `/api/event?page=1&limit=20`  
 
-            Example Response (200 OK)
-            | Field               | Type     | Example                                                  | Description                          |
-            | ------------------- | -------- | -------------------------------------------------------- | ------------------------------------ |
-            | `id`                | uuid     | "a1b2c3d4-e5f6-7890-abcd-1234567890ef"                   | Event ID (UUID)                      |
-            | `event_name`        | string   | "Music Festival 2025"                                    | Event name                           |
-            | `event_description` | string   | "Annual outdoor music festival."                         | Event description                    |
-            | `event_location`    | string   | "Nairobi, Kenya"                                         | Event location                       |
-            | `event_date`        | datetime | "2025-12-01T18:00:00.000Z"                               | Event date                           |
-            | `event_url`         | string   | "[https://musicfest2025.com](https://musicfest2025.com)" | External URL                         |
-            | `event_genre`       | string   | "Music"                                                  | Genre/type of event                  |
-            | `organizer_id`      | uuid  | "a1b2c3d4-e5f6-7890-abcd-1234567890ef"                                                        | ID of the user who created the event |
-            | `tickets`           | array    | See ticket objects                                       | Array of associated tickets          |
-            | `createdAt`         | datetime | "2025-10-30T10:00:00.000Z"                               | Event creation timestamp             |
-            | `updatedAt`         | datetime | "2025-10-30T12:00:00.000Z"                               | Event last update timestamp          |
+            **Description:** Get events (first shows all events by your
+            institutuion)
 
-            ⚠️ Example Error Statuses
 
-            | **Status Code**             | **Description**           |
-            | --------------------------- | ------------------------- |
-            | `400 Bad Request`           | Invalid query parameters. |
-            | `500 Internal Server Error` | Database or server error. |
 
+
+            ### ✅ Example Response (200)
+
+            ```json
+
+            {
+            	"status": "success",
+            	"currentPage": 1,
+            	"nextPage": null,
+            	"previousPage": null,
+            	"totalEvents": 2,
+            	"data": [
+            		{
+            			"id": "0f5c5c22-933e-4ac0-9a08-c58ffcb1a3c9",
+            			"event_name": "Test institution43",
+            			"event_description": "Annual technology conference focusing on AI and web development.",
+            			"event_location": "Nairobi International Convention Centre",
+            			"start_date": "2026-05-10T00:00:00.000Z",
+            			"end_date": "2026-05-11T00:00:00.000Z",
+            			"attendee_count": 0,
+            			"organizer_id": "6fdd587f-d1dd-49af-9c17-a709612297eb",
+            			"event_card_image": "https://sherehe-bucket.s3.eu-north-1.amazonaws.com/events/1777931533171-event_card_image.png",
+            			"event_poster_image": "https://sherehe-bucket.s3.eu-north-1.amazonaws.com/events/1777931533176-event_poster_image.png",
+            			"event_banner_image": "https://sherehe-bucket.s3.eu-north-1.amazonaws.com/events/1777931533176-event_banner_image.png",
+            			"scope": "institution",
+            			"event_genre": [
+            				"Physical",
+            				"Adult Time"
+            			],
+            			"created_at": "2026-05-04T21:52:15.360Z",
+            			"updated_at": "2026-05-04T21:52:15.363Z"
+            		},
+            		{
+            			"id": "68d1da51-9a07-4c05-98b5-23ec53f28e3b",
+            			"event_name": "Test institution43",
+            			"event_description": "Annual technology conference focusing on AI and web development.",
+            			"event_location": "Nairobi International Convention Centre",
+            			"start_date": "2026-05-10T00:00:00.000Z",
+            			"end_date": "2026-05-11T00:00:00.000Z",
+            			"attendee_count": 0,
+            			"organizer_id": "6fdd587f-d1dd-49af-9c17-a709612297eb",
+            			"event_card_image": "https://sherehe-bucket.s3.eu-north-1.amazonaws.com/events/1778516208182-event_card_image.png",
+            			"event_poster_image": "https://sherehe-bucket.s3.eu-north-1.amazonaws.com/events/1778516208190-event_poster_image.png",
+            			"event_banner_image": "https://sherehe-bucket.s3.eu-north-1.amazonaws.com/events/1778516208189-event_banner_image.png",
+            			"scope": "private",
+            			"event_genre": [
+            				"Physical",
+            				"Adult Time"
+            			],
+            			"created_at": "2026-05-11T16:16:49.917Z",
+            			"updated_at": "2026-05-11T16:16:49.922Z"
+            		}
+            	]
+            }
+
+            ```
+
+
+            ---
+
+
+            ### ❌ Error Responses
+
+
+
+            | **Status Code**             | **Description**              |
+
+            | --------------------------- | ---------------------------- |
+
+            | `400 Bad Request`           | Invalid or missing event ID. |
+
+            | `404 Not Found`             | Event not found.             |
+
+            | `500 Internal Server Error` | Database or server error.    |
+
+
+            ---
           sortKey: -1751675623663
         method: GET
         headers:
@@ -299,80 +463,59 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/event/980b9ae9-abee-4358-b736-582866574668
+      - url: "{{local}}/event/478a2ee4-a721-4d35-a4e8-5cc6aca56faa"
         name: Get Event by id
         meta:
           id: req_55aa26362ae64b58aaca84cf870a8403
           created: 1751675823601
-          modified: 1767892929281
+          modified: 1778599577681
           isPrivate: false
           description: >
-            🔵 Get Event by ID
+            # 🆕 Get event by event id
 
 
-            `Endpoint: GET /api/events/:id
+            **Method:** `Get`  
 
-            Description: Retrieves a single event by its unique ID (UUID).`
+            **Endpoint:** `/api/event/:id`  
 
-
-            📥 Example Response (200 OK)
-
-
-            | Field               | Type     |
-            Example                                                  |
-            Description                          |
-
-            | ------------------- | -------- |
-            -------------------------------------------------------- |
-            ------------------------------------ |
-
-            | `id`                | uuid     |
-            "a1b2c3d4-e5f6-7890-abcd-1234567890ef"                   | Event ID
-            (UUID)                      |
-
-            | `event_name`        | string   | "Music Festival
-            2025"                                    | Event
-            name                           |
-
-            | `event_description` | string   | "Annual outdoor music
-            festival."                         | Event
-            description                    |
-
-            | `event_location`    | string   | "Nairobi,
-            Kenya"                                         | Event
-            location                       |
-
-            | `event_date`        | datetime |
-            "2025-12-01T18:00:00.000Z"                               | Event
-            date                           |
-
-            | `event_url`         | string   |
-            "[https://musicfest2025.com](https://musicfest2025.com)" | External
-            URL                         |
-
-            | `event_genre`       | string   |
-            "Music"                                                  |
-            Genre/type of event                  |
-
-            | `organizer_id`      | uuid  |
-            "a1b2c3d4-e5f6-7890-abcd-1234567890ef"                   | ID of the
-            user who created the event |
-
-            | `tickets`           | array    | See ticket
-            objects                                       | Array of associated
-            tickets          |
-
-            | `createdAt`         | datetime |
-            "2025-10-30T10:00:00.000Z"                               | Event
-            creation timestamp             |
-
-            | `updatedAt`         | datetime |
-            "2025-10-30T12:00:00.000Z"                               | Event
-            last update timestamp          |
+            **Description:** Get event by event id
 
 
 
-            ⚠️ Example Error Statuses
+
+
+            ### ✅ Example Response (200)
+
+            ```json
+
+            {
+            			"id": "478a2ee4-a721-4d35-a4e8-5cc6aca56faa",
+            			"event_name": "Test ticket",
+            			"event_description": "Annual technology conference focusing on AI and web development.",
+            			"event_location": "Nairobi International Convention Centre",
+            			"start_date": "2026-05-10T00:00:00.000Z",
+            			"end_date": "2026-05-11T00:00:00.000Z",
+            			"attendee_count": 0,
+            			"organizer_id": "6fdd587f-d1dd-49af-9c17-a709612297eb",
+            			"event_card_image": "https://sherehe-bucket.s3.eu-north-1.amazonaws.com/events/1778595658543-event_card_image.png",
+            			"event_poster_image": "https://sherehe-bucket.s3.eu-north-1.amazonaws.com/events/1778595658552-event_poster_image.png",
+            			"event_banner_image": "https://sherehe-bucket.s3.eu-north-1.amazonaws.com/events/1778595658550-event_banner_image.png",
+            			"scope": "private",
+            			"event_genre": [
+            				"Physical",
+            				"Adult Time"
+            			],
+            			"created_at": "2026-05-12T14:21:02.115Z",
+            			"updated_at": "2026-05-12T14:21:02.124Z"
+            		}
+            ```
+
+
+            ---
+
+
+            ### ❌ Error Responses
+
 
 
             | **Status Code**             | **Description**              |
@@ -384,6 +527,9 @@ collection:
             | `404 Not Found`             | Event not found.             |
 
             | `500 Internal Server Error` | Database or server error.    |
+
+
+            ---
           sortKey: -1751675823601
         method: GET
         headers:
@@ -397,23 +543,28 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/event/search?q=International
+      - url: "{{local}}/event/search?q=International&event_visibility=1"
         name: Search Events
         meta:
           id: req_ced738ac5b634b488c8bd9207ed0a8fd
           created: 1755668093481
-          modified: 1761846786509
+          modified: 1778599523002
           isPrivate: false
           description: >
-            🔴 Search Events
+            # 🆕 Search Events
 
 
-            `Endpoint: GET /api/events/search?q=<query>
+            **Method:** `GET`  
 
-            Description: Searches events by name, description, or genre.`
+            **Endpoint:** `/api/events/search?q=<query>`  
+
+            **Description:** Search of a events by name, description, or genre
 
 
-            🧩 Query Parameters
+            ---
+
+
+            ### Query Parameters
 
 
             | Parameter | Type   |
@@ -426,64 +577,46 @@ collection:
             description, or genre) |
 
 
-            📥 Example Response (200 OK)
 
 
-            | Field               | Type     |
-            Example                                                  |
-            Description                          |
+            ---
 
-            | ------------------- | -------- |
-            -------------------------------------------------------- |
-            ------------------------------------ |
 
-            | `id`                | uuid     |
-            "a1b2c3d4-e5f6-7890-abcd-1234567890ef"                   | Event ID
-            (UUID)                      |
+            ### ✅ Example Response (200 Created)
 
-            | `event_name`        | string   | "Music Festival
-            2025"                                    | Event
-            name                           |
+            ```json
 
-            | `event_description` | string   | "Annual outdoor music
-            festival."                         | Event
-            description                    |
+            {
+            	"count": 16,
+            	"data": [
+            {
+            			"id": "f3d606a4-ed0d-4a86-bd98-219139ab7963",
+            			"event_name": "Test ticket",
+            			"event_description": "Annual technology conference focusing on AI and web development.",
+            			"event_location": "Nairobi International Convention Centre",
+            			"start_date": "2026-05-10T00:00:00.000Z",
+            			"end_date": "2026-05-11T00:00:00.000Z",
+            			"attendee_count": 0,
+            			"organizer_id": "6fdd587f-d1dd-49af-9c17-a709612297eb",
+            			"event_card_image": "https://sherehe-bucket.s3.eu-north-1.amazonaws.com/events/1778595658543-event_card_image.png",
+            			"event_poster_image": "https://sherehe-bucket.s3.eu-north-1.amazonaws.com/events/1778595658552-event_poster_image.png",
+            			"event_banner_image": "https://sherehe-bucket.s3.eu-north-1.amazonaws.com/events/1778595658550-event_banner_image.png",
+            			"scope": "private",
+            			"event_genre": [
+            				"Physical",
+            				"Adult Time"
+            			],
+            			"created_at": "2026-05-12T14:21:02.115Z",
+            			"updated_at": "2026-05-12T14:21:02.124Z"
+            		},
+            		]
+            }
 
-            | `event_location`    | string   | "Nairobi,
-            Kenya"                                         | Event
-            location                       |
-
-            | `event_date`        | datetime |
-            "2025-12-01T18:00:00.000Z"                               | Event
-            date                           |
-
-            | `event_url`         | string   |
-            "[https://musicfest2025.com](https://musicfest2025.com)" | External
-            URL                         |
-
-            | `event_genre`       | string   |
-            "Music"                                                  |
-            Genre/type of event                  |
-
-            | `organizer_id`      | uuid  |
-            "a1b2c3d4-e5f6-7890-abcd-1234567890ef"                   | ID of the
-            user who created the event |
-
-            | `tickets`           | array    | See ticket
-            objects                                       | Array of associated
-            tickets          |
-
-            | `createdAt`         | datetime |
-            "2025-10-30T10:00:00.000Z"                               | Event
-            creation timestamp             |
-
-            | `updatedAt`         | datetime |
-            "2025-10-30T12:00:00.000Z"                               | Event
-            last update timestamp          |
+            ```
 
 
 
-            ⚠️ Example Error Statuses
+            ###  Example Error Statuses
 
 
             | **Status Code**             |
@@ -513,90 +646,98 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: https://api.opencrafts.io/qa-sherehe/event/organizer/6fdd587f-d1dd-49af-9c17-a709612297ec
+      - url: "{{local}}/event/organizer/6fdd587f-d1dd-49af-9c17-a709612297eb"
         name: Get Event by Organizer Id
         meta:
           id: req_87420373029c4a39a838d9e8f0515324
           created: 1761829290787
-          modified: 1769932610385
+          modified: 1778599611942
           isPrivate: false
           description: >
-            Get Events by Organizer
+            # 🆕 Get event by organizer id
 
 
-            `Endpoint: GET /api/events/organizer/:id
+            **Method:** `Get`  
 
-            Description: Retrieves all events created by a specific organizer.`
+            **Endpoint:** `/api/event/organizer/:id`  
 
-
-            📥 Example Response (200 OK)
-
-
-            | Field               | Type     |
-            Example                                                  |
-            Description                          |
-
-            | ------------------- | -------- |
-            -------------------------------------------------------- |
-            ------------------------------------ |
-
-            | `id`                | uuid     |
-            "a1b2c3d4-e5f6-7890-abcd-1234567890ef"                   | Event ID
-            (UUID)                      |
-
-            | `event_name`        | string   | "Music Festival
-            2025"                                    | Event
-            name                           |
-
-            | `event_description` | string   | "Annual outdoor music
-            festival."                         | Event
-            description                    |
-
-            | `event_location`    | string   | "Nairobi,
-            Kenya"                                         | Event
-            location                       |
-
-            | `event_date`        | datetime |
-            "2025-12-01T18:00:00.000Z"                               | Event
-            date                           |
-
-            | `event_url`         | string   |
-            "[https://musicfest2025.com](https://musicfest2025.com)" | External
-            URL                         |
-
-            | `event_genre`       | string   |
-            "Music"                                                  |
-            Genre/type of event                  |
-
-            | `organizer_id`      | uuid     |
-            "a1b2c3d4-e5f6-7890-abcd-1234567890ef"                   | ID of the
-            user who created the event |
-
-            | `tickets`           | array    | See ticket
-            objects                                       | Array of associated
-            tickets          |
-
-            | `createdAt`         | datetime |
-            "2025-10-30T10:00:00.000Z"                               | Event
-            creation timestamp             |
-
-            | `updatedAt`         | datetime |
-            "2025-10-30T12:00:00.000Z"                               | Event
-            last update timestamp          |
+            **Description:** Get event by organizer id
 
 
-            ⚠️ Example Error Statuses
 
 
-            | **Status Code**             | **Description**                    |
+            ### ✅ Example Response (200)
 
-            | --------------------------- | ---------------------------------- |
+            ```json
 
-            | `400 Bad Request`           | Invalid or missing organizer ID.   |
+            {
+            	"count": 2,
+            	"data": [
+            		{
+            			"id": "68d1da51-9a07-4c05-98b5-23ec53f28e3b",
+            			"event_name": "Test institution43",
+            			"event_description": "Annual technology conference focusing on AI and web development.",
+            			"event_location": "Nairobi International Convention Centre",
+            			"start_date": "2026-05-10T00:00:00.000Z",
+            			"end_date": "2026-05-11T00:00:00.000Z",
+            			"attendee_count": 0,
+            			"organizer_id": "6fdd587f-d1dd-49af-9c17-a709612297eb",
+            			"event_card_image": "https://sherehe-bucket.s3.eu-north-1.amazonaws.com/events/1778516208182-event_card_image.png",
+            			"event_poster_image": "https://sherehe-bucket.s3.eu-north-1.amazonaws.com/events/1778516208190-event_poster_image.png",
+            			"event_banner_image": "https://sherehe-bucket.s3.eu-north-1.amazonaws.com/events/1778516208189-event_banner_image.png",
+            			"scope": "private",
+            			"event_genre": [
+            				"Physical",
+            				"Adult Time"
+            			],
+            			"created_at": "2026-05-11T16:16:49.917Z",
+            			"updated_at": "2026-05-11T16:16:49.922Z"
+            		},
+            		{
+            			"id": "0f5c5c22-933e-4ac0-9a08-c58ffcb1a3c9",
+            			"event_name": "Test institution43",
+            			"event_description": "Annual technology conference focusing on AI and web development.",
+            			"event_location": "Nairobi International Convention Centre",
+            			"start_date": "2026-05-10T00:00:00.000Z",
+            			"end_date": "2026-05-11T00:00:00.000Z",
+            			"attendee_count": 0,
+            			"organizer_id": "6fdd587f-d1dd-49af-9c17-a709612297eb",
+            			"event_card_image": "https://sherehe-bucket.s3.eu-north-1.amazonaws.com/events/1777931533171-event_card_image.png",
+            			"event_poster_image": "https://sherehe-bucket.s3.eu-north-1.amazonaws.com/events/1777931533176-event_poster_image.png",
+            			"event_banner_image": "https://sherehe-bucket.s3.eu-north-1.amazonaws.com/events/1777931533176-event_banner_image.png",
+            			"scope": "institution",
+            			"event_genre": [
+            				"Physical",
+            				"Adult Time"
+            			],
+            			"created_at": "2026-05-04T21:52:15.360Z",
+            			"updated_at": "2026-05-04T21:52:15.363Z"
+            		}
+            	]
+            }
 
-            | `404 Not Found`             | No events found for the organizer. |
+            ```
 
-            | `500 Internal Server Error` | Database or server error.          |
+
+            ---
+
+
+            ### ❌ Error Responses
+
+
+
+            | **Status Code**             | **Description**              |
+
+            | --------------------------- | ---------------------------- |
+
+            | `400 Bad Request`           | Invalid or missing event ID. |
+
+            | `404 Not Found`             | Event not found.             |
+
+            | `500 Internal Server Error` | Database or server error.    |
+
+
+            ---
           sortKey: -1751675773616.5
         method: GET
         headers:
@@ -610,95 +751,454 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/event/tags/Adult
+      - url: "{{local}}/event/tags/Adult"
         name: Get Event by Tags
         meta:
           id: req_1beefca6a4f446cf9dcdd65c89587d58
           created: 1768214452177
-          modified: 1768214616552
+          modified: 1778599672334
           isPrivate: false
           description: >
-            Get Events by Organizer
+            # 🆕 Get events by event tag
 
 
-            `Endpoint: GET /api/events/organizer/:id
+            **Method:** `Get`  
 
-            Description: Retrieves all events created by a specific organizer.`
+            **Endpoint:** `/api/event/:tag`  
 
-
-            📥 Example Response (200 OK)
-
-
-            | Field               | Type     |
-            Example                                                  |
-            Description                          |
-
-            | ------------------- | -------- |
-            -------------------------------------------------------- |
-            ------------------------------------ |
-
-            | `id`                | uuid     |
-            "a1b2c3d4-e5f6-7890-abcd-1234567890ef"                   | Event ID
-            (UUID)                      |
-
-            | `event_name`        | string   | "Music Festival
-            2025"                                    | Event
-            name                           |
-
-            | `event_description` | string   | "Annual outdoor music
-            festival."                         | Event
-            description                    |
-
-            | `event_location`    | string   | "Nairobi,
-            Kenya"                                         | Event
-            location                       |
-
-            | `event_date`        | datetime |
-            "2025-12-01T18:00:00.000Z"                               | Event
-            date                           |
-
-            | `event_url`         | string   |
-            "[https://musicfest2025.com](https://musicfest2025.com)" | External
-            URL                         |
-
-            | `event_genre`       | string   |
-            "Music"                                                  |
-            Genre/type of event                  |
-
-            | `organizer_id`      | uuid     |
-            "a1b2c3d4-e5f6-7890-abcd-1234567890ef"                   | ID of the
-            user who created the event |
-
-            | `tickets`           | array    | See ticket
-            objects                                       | Array of associated
-            tickets          |
-
-            | `createdAt`         | datetime |
-            "2025-10-30T10:00:00.000Z"                               | Event
-            creation timestamp             |
-
-            | `updatedAt`         | datetime |
-            "2025-10-30T12:00:00.000Z"                               | Event
-            last update timestamp          |
+            **Description:** Get events by event tag
 
 
-            ⚠️ Example Error Statuses
 
 
-            | **Status Code**             | **Description**                    |
 
-            | --------------------------- | ---------------------------------- |
+            ### ✅ Example Response (200)
 
-            | `400 Bad Request`           | Invalid or missing organizer ID.   |
+            ```json
 
-            | `404 Not Found`             | No events found for the organizer. |
+            {
+            	"count": 1,
+            	"data": [
+            		{
+                        "id": "68d1da51-9a07-4c05-98b5-23ec53f28e3b",
+                        "event_name": "Test institution43",
+                        "event_description": "Annual technology conference focusing on AI and web development.",
+                        "event_location": "Nairobi International Convention Centre",
+                        "start_date": "2026-05-10T00:00:00.000Z",
+                        "end_date": "2026-05-11T00:00:00.000Z",
+                        "attendee_count": 0,
+                        "organizer_id": "6fdd587f-d1dd-49af-9c17-a709612297eb",
+                        "event_card_image": "https://sherehe-bucket.s3.eu-north-1.amazonaws.com/events/1778516208182-event_card_image.png",
+                        "event_poster_image": "https://sherehe-bucket.s3.eu-north-1.amazonaws.com/events/1778516208190-event_poster_image.png",
+                        "event_banner_image": "https://sherehe-bucket.s3.eu-north-1.amazonaws.com/events/1778516208189-event_banner_image.png",
+                        "scope": "private",
+                        "event_genre": [
+                            "Physical",
+                            "Adult Time"
+                        ],
+                        "created_at": "2026-05-11T16:16:49.917Z",
+                        "updated_at": "2026-05-11T16:16:49.922Z"
+                    },
+            		]
+            }
 
-            | `500 Internal Server Error` | Database or server error.          |
+            ```
+
+
+            ---
+
+
+            ### ❌ Error Responses
+
+
+
+            | **Status Code**             | **Description**              |
+
+            | --------------------------- | ---------------------------- |
+
+            | `400 Bad Request`           | Invalid or missing event ID. |
+
+            | `404 Not Found`             | Event not found.             |
+
+            | `500 Internal Server Error` | Database or server error.    |
+
+
+            ---
           sortKey: -1751675748624.25
         method: GET
         headers:
           - name: User-Agent
             value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{local}}/invite/event/06cbb78da66d802aa5c0182699b3e6343a35057041fdd5bcb4\
+          7281b79ff183f2"
+        name: Get  Event by Invite
+        meta:
+          id: req_560f9dbdbb784414a0dbad9bc8ae9dfc
+          created: 1775243681695
+          modified: 1778600015025
+          isPrivate: false
+          description: >
+            # 🆕 Get event by event invite link
+
+
+            **Method:** `Get`  
+
+            **Endpoint:** `/api/invite/event`  
+
+            **Description:** Get the event linked by event invite url
+
+
+
+
+            ### ✅ Example Response (200)
+
+            ```json
+
+            {
+            	"message": "Event invite validated successfully",
+            	"Event": {
+            		"id": "478a2ee4-a721-4d35-a4e8-5cc6aca56faa",
+            		"event_name": "Test1",
+            		"event_description": "Annual technology conference focusing on AI and web development.",
+            		"event_location": "Nairobi International Convention Centre",
+            		"start_date": null,
+            		"end_date": null,
+            		"attendee_count": 0,
+            		"organizer_id": "6fdd587f-d1dd-49af-9c17-a709612297eb",
+            		"event_card_image": "https://sherehe-bucket.s3.eu-north-1.amazonaws.com/events/1774541039117-event_card_image.png",
+            		"event_poster_image": "https://sherehe-bucket.s3.eu-north-1.amazonaws.com/events/1774541039120-event_poster_image.png",
+            		"event_banner_image": "https://sherehe-bucket.s3.eu-north-1.amazonaws.com/events/1774541039120-event_banner_image.png",
+            		"event_genre": [
+            			"Physical",
+            			"Adult Time"
+            		],
+            		"created_at": "2026-03-26T16:04:01.003Z",
+            		"updated_at": "2026-03-26T16:04:01.009Z"
+            	}
+            }
+
+            ```
+
+
+            ---
+
+
+            ### ❌ Error Responses
+
+
+
+            | **Status Code**             | **Description**              |
+
+            | --------------------------- | ---------------------------- |
+
+            | `400 Bad Request`           | Invalid or missing event ID. |
+
+            | `404 Not Found`             | Event not found.             |
+
+            | `500 Internal Server Error` | Database or server error.    |
+
+
+            ---
+          sortKey: -1751675569382.25
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{local}}/invite/event/944d231e-38bf-4aac-95cd-92d565af42b2"
+        name: Delete  Event invite by id
+        meta:
+          id: req_6ad1d52c36654d2dac57cc5447b57ed7
+          created: 1776000102248
+          modified: 1778599533521
+          isPrivate: false
+          description: >
+            # 🆕 Delete a event invite
+
+
+            **Method:** `DELETE`  
+
+            **Endpoint:** `/api/invite/event/:id`  
+
+            **Description:** This deletes a event invite ( note that only a
+            superviser role is event_scanners can delete a event invite)
+
+
+
+
+
+            ### ✅ Example Response (200)
+
+            ```json
+
+            { message: "Event invite deleted successfully" }
+
+            ```
+
+
+            ---
+
+
+            ### ❌ Error Responses
+
+
+            | **Code** | **Message**                  |
+
+            |----------|-------------------------------|
+
+            | `404`    | `Error: event invite not found` |
+
+            | `409`    | `Error: Event already deleted` |
+
+            | `403`    | `Error: Unauthorized` |
+
+            | `500`    | `Error: Internal server error` |
+
+
+            ---
+          sortKey: -1755668093581
+        method: DELETE
+        headers:
+          - name: User-Agent
+            value: insomnia/11.2.0
+        authentication:
+          type: bearer
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{local}}/invite/event/all/f3d606a4-ed0d-4a86-bd98-219139ab7963"
+        name: Get all event invites by event id
+        meta:
+          id: req_c45abae15a61447ca8ff373229675487
+          created: 1776000148612
+          modified: 1779294347611
+          isPrivate: false
+          description: >
+            # 🆕 Get event by event invite link
+
+
+            **Method:** `Get`  
+
+            **Endpoint:** `/api/invite/event`  
+
+            **Description:** Get the event linked by event invite url
+
+
+
+
+            ### ✅ Example Response (200)
+
+            ```json
+
+            [
+            	{
+            		"id": "25b1b225-628d-4153-a9a8-6a38b8e5009d",
+            		"event_id": "68d1da51-9a07-4c05-98b5-23ec53f28e3b",
+            		"token": "09574d27daf6d93f53891ae900615142de9ee60757276278bccf48979aafa469",
+            		"expires_at": "2026-05-12T16:16:49.988Z",
+            		"max_uses": 100,
+            		"used_count": 0,
+            		"created_at": "2026-05-11T16:16:49.990Z",
+            		"updated_at": "2026-05-11T16:16:49.990Z",
+            		"event": {
+            			"id": "68d1da51-9a07-4c05-98b5-23ec53f28e3b",
+            			"event_name": "Test institution43"
+            		}
+            	}
+            ]
+
+            ```
+
+
+            ---
+
+
+            ### ❌ Error Responses
+
+
+
+            | **Status Code**             | **Description**              |
+
+            | --------------------------- | ---------------------------- |
+
+            | `400 Bad Request`           | Invalid or missing event ID. |
+
+            | `404 Not Found`             | Event not found.             |
+
+            | `500 Internal Server Error` | Database or server error.    |
+
+
+            ---
+          sortKey: -1751675487961.125
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.2.0
+        authentication:
+          type: bearer
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{local}}/invite/event/"
+        name: Create  Event invite
+        meta:
+          id: req_ef1d1b104a4549b9a6981861481d300c
+          created: 1776000180553
+          modified: 1778599999901
+          isPrivate: false
+          description: >
+            # 🆕 Create an event link
+
+
+            **Method:** `POST`  
+
+            **Endpoint:** `/api/invite/event`  
+
+            **Description:** Creates an event invite link that which has number
+            of users that can use it and the time in which it expires
+
+
+            ---
+
+
+            ### 🧾 Request Body
+
+
+            | Field            | Type     | Required |
+            Description                                                  |
+
+            |----------------- |--------- |---------
+            |------------------------------------------------------------ |
+
+            | `event_id`       | uuid   | ✅       |  Event
+            id.                                         |
+
+            | `expires_at`         | time zone   | ✅       | The time in which
+            the tickets expires                |
+
+            | `max_uses` | mumber   | ✅       |The number of users that can use
+            this link   |
+
+
+
+            ---
+
+
+            ### 💡 Example Request
+
+            ```json
+
+            {
+              "event_id": "478a2ee4-a721-4d35-a4e8-5cc6aca56faa",
+              "expires_at": "2026-12-31T23:59:59Z",
+              "max_uses": 5
+            }
+
+
+            ```
+
+
+            ---
+
+
+            ### ✅ Example Response (200 Created)
+
+            ```json
+
+            {
+            	"message": "event invite created successfully",
+            	"url": "api/invite/event/06cbb78da66d802aa5c0182699b3e6343a35057041fdd5bcb47281b79ff183f2"
+            }
+
+            ```
+
+
+            ---
+
+
+            ### ❌ Error Responses
+
+
+            | **Code** | **Message**                  |
+
+            |----------|-------------------------------|
+
+            | `500`    | `Error: {{error.message}}` |
+
+
+            ---
+          sortKey: -1751675596522.625
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "event_id": "478a2ee4-a721-4d35-a4e8-5cc6aca56faa",
+              "expires_at": "2026-12-31T23:59:59Z",
+              "max_uses": 5
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.2.0
+        authentication:
+          type: bearer
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{local}}/invite/event/e87ca55a-cc01-4eaa-a458-1e429f5f1ee3"
+        name: Update Event invite by invite id
+        meta:
+          id: req_df58625c65a74a3b9f5d007be3cc67f3
+          created: 1779294045613
+          modified: 1779294622387
+          isPrivate: false
+          description: ""
+          sortKey: -1779294045613
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"max_uses": 1,
+            	"expires_at": "2026-07-12T14:21:02.260Z"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.2
         settings:
           renderRequestBody: true
           encodeUrl: true
@@ -718,7 +1218,7 @@ collection:
     meta:
       id: fld_7a8efd5265454d09907f3d503435afb1
       created: 1751676656622
-      modified: 1763282779465
+      modified: 1777931983164
       sortKey: -1751644905958
       description: |
         | Method     | Endpoint                 | Description             |
@@ -730,111 +1230,103 @@ collection:
         | **PUT**    | `/api/tickets/:id`       | Update ticket details   |
         | **DELETE** | `/api/tickets/:id`       | Soft delete a ticket    |
     children:
-      - url: http://localhost:3000/ticket/
+      - url: "{{local}}/ticket/"
         name: Create Ticket
         meta:
           id: req_10935d13ed974718b76f9af6ef0bed48
           created: 1751676656623
-          modified: 1770897771760
+          modified: 1778600604427
           isPrivate: false
-          description: >
-            | Field             | Type      | Required |
-            Description                                         |
-
-            | ----------------- | --------- | -------- |
-            --------------------------------------------------- |
-
-            | `event_id`        | `integer` | ✅        | The ID of the event
-            this ticket belongs to.         |
-
-            | `ticket_name`     | `string`  | ✅        | The name or type of the
-            ticket (e.g. VIP, Regular). |
-
-            | `ticket_price`    | `decimal` | ✅        | The cost of the
-            ticket.                             |
-
-            | `ticket_quantity` | `integer` | ✅        | The number of available
-            tickets.                    |
+          description: >-
+            # 🆕 Create an ticket
 
 
+            **Method:** `POST`  
 
-            `Example Request`
+            **Endpoint:** `/api/invite/ticket`  
 
-            | Field             | Type    | Required | Example    |
-            Description                                          |
-
-            | ----------------- | ------- | -------- | ---------- |
-            ---------------------------------------------------- |
-
-            | `event_id`        | integer | ✅ Yes    | 12         | The ID of
-            the event this ticket belongs to.          |
-
-            | `ticket_name`     | string  | ✅ Yes    | "VIP Pass" | The name or
-            type of the ticket (e.g., VIP, Regular). |
-
-            | `ticket_price`    | decimal | ✅ Yes    | 2500       | The cost of
-            the ticket.                              |
-
-            | `ticket_quantity` | integer | ✅ Yes    | 100        | The number
-            of available tickets.                     |
+            **Description:** Creates an ticket invite link that which has number
+            of users that can use it and the time in which it expires
 
 
+            ---
 
-            `Example Response (201 Created)`
 
-            | Field             | Type     | Example                       |
-            Description                     |
+            ### 🧾 Request Body
 
-            | ----------------- | -------- | ----------------------------- |
-            ------------------------------- |
 
-            | `message`         | string   | "Ticket created successfully" |
-            Status message of the operation |
+            | Field            | Type     | Required |
+            Description                                                  |
 
-            | `ticket.id`       | integer  | 1                             |
-            Ticket ID                       |
+            |----------------- |--------- |---------
+            |------------------------------------------------------------ |
 
-            | `ticket.event_id` | integer  | 12                            |
-            Event ID the ticket belongs to  |
+            | `ticket_name`       | string   | ✅       | The name of the ticket
+            |
 
-            | `ticket_name`     | string   | "VIP Pass"                    |
-            Ticket name/type                |
+            | `ticket_price`         | number   | ✅       | The price of the
+            ticket |
 
-            | `ticket_price`    | decimal  | 2500                          |
-            Ticket price                    |
+            | `ticket_for` | mumber (optional defaults to 1)   | ✅       |The
+            number of that each ticket represents (group of 5)|
 
-            | `ticket_quantity` | integer  | 100                           |
-            Number of available tickets     |
+            | `ticket_quantity` | mumber   | ✅       |The number of tickets the
+            organizer want   |
 
-            | `delete_tag`      | boolean  | false                         |
-            Soft-delete status              |
+            | `scope` | string enum (private ?? public ?? institution) (defaults
+            to public)    | ✅  |How should the the infromation being
+            displayed  |
 
-            | `createdAt`       | datetime | "2025-10-30T10:00:00.000Z"    |
-            Ticket creation timestamp       |
+            | `institutions` | array (optional if scope is institution)   |
+            ✅       |The list of institution's id of which the tickets should be
+            viewed by  |
+
+            | `start_date` | date  | ✅       |The start date of the ticket   |
+
+            | `end_date` | date   | ✅       |The end start of the ticket |
 
 
 
-            `Example Error Satuses`
+            ```json
+            	{
+            	 "ticket_name": "VIP Ticket",  
+            	 "ticket_price": 15, 
+            	 "ticket_for":5,  
+            	 "ticket_quantity": 200, 
+            	 "scope": "public" ,  
+            	 "institutions" : [1],
+            	 "start_date": "2026-05-10T00:00:00.000Z",
+               "end_date": "2026-05-11T00:00:00.000Z"
+            	}
+            ```
+
+            ---
 
 
-            | **Status Code**             | **Description**               |
+            ### ❌ Error Responses
 
-            | --------------------------- | ----------------------------- |
 
-            | `400 Bad Request`           | Missing required fields.      |
+            | **Code** | **Message**                  |
 
-            | `500 Internal Server Error` | Database or validation error. |
+            |----------|-------------------------------|
+
+            | `500`    | `Error: {{error.message}}` |
+
+
+            ---
           sortKey: -1751675384567
         method: POST
         body:
           mimeType: application/json
           text: |
             {
-              "event_id": "0dc85081-a9eb-443b-bce1-094ae4322ea5",
+              "event_id": "36763ed8-c9e3-48cc-8160-f7a539029638",
               "ticket_name": "VI Ticket",
               "ticket_price": 1500,
               "ticket_quantity": 200,
-            	"ticket_visibility": ["1" , "2"]
+            	"ticket_visibility": [1 , 2],
+            	"start_date": "2026-05-10T00:00:00.000Z",
+              "end_date": "2026-05-11T00:00:00.000Z"
             }
         headers:
           - name: Content-Type
@@ -849,50 +1341,57 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/ticket/2668c9ac-78c7-4c88-b8cd-4f0539832314
+      - url: "{{local}}/ticket/2668c9ac-78c7-4c88-b8cd-4f0539832314"
         name: Delete Tickets
         meta:
           id: req_d8cd2abe1a8d4764ac8472e5903117ea
           created: 1751676656625
-          modified: 1763283379510
+          modified: 1778600277304
           isPrivate: false
           description: >
-            🗑️ Delete Ticket (Soft Delete)
-
-            `Endpoint: DELETE /api/tickets/:id
-
-            Description: Marks a ticket as deleted by setting delete_tag to
-            true.`
+            # 🆕 Delete a ticket
 
 
-            Example Response (204 No Content)
+            **Method:** `DELETE`  
 
-            | Field     | Type   | Example |
-            Description                                        |
+            **Endpoint:** `/api/invite/ticket/:id`  
 
-            | --------- | ------ | ------- |
-            -------------------------------------------------- |
-
-            | `message` | string | —       | No content returned (ticket deleted
-            successfully). |
+            **Description:** This deletes a ticket ( note that only a superviser
+            role is event_scanners can delete a ticket)
 
 
-            Note: A 204 No Content status means the operation was successful but
-            the server does not return any body content.
 
 
-            ⚠️ Example Error Statuses
+
+            ### ✅ Example Response (200)
+
+            ```json
+
+            { message: "Tickets deleted successfully" }
+
+            ```
 
 
-            | **Status Code**             | **Description**               |
+            ---
 
-            | --------------------------- | ----------------------------- |
 
-            | `400 Bad Request`           | Invalid or missing ticket ID. |
+            ### ❌ Error Responses
 
-            | `404 Not Found`             | Ticket not found.             |
 
-            | `500 Internal Server Error` | Database or server error.     |
+            | **Code** | **Message**                  |
+
+            |----------|-------------------------------|
+
+            | `404`    | `Error: event invite not found` |
+
+            | `409`    | `Error: Event already deleted` |
+
+            | `403`    | `Error: Unauthorized` |
+
+            | `500`    | `Error: Internal server error` |
+
+
+            ---
           sortKey: -1751675406540
         method: DELETE
         headers:
@@ -906,67 +1405,51 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/ticket/5beb1359-f70c-4097-bc9c-82d2316e1f8c
+      - url: "{{local}}/ticket/150378f5-79fc-420e-a45c-98f1256f30ed"
         name: Get by Ticket Id
         meta:
           id: req_08744788b76b4ca38487367868db3804
           created: 1751676656626
-          modified: 1770898154028
+          modified: 1778600266179
           isPrivate: false
-          description: >
-            🔵 Get Ticket by ID
+          description: |
+            # 🆕 Get by ticket ticket id
+
+            **Method:** `Get`  
+            **Endpoint:** `/api/invite/ticket/:id`  
+            **Description:** Get ticket by ticket id
 
 
-            `Endpoint: GET /api/tickets/:id
 
-            Description: Retrieves a single ticket by its unique ID.`
+            ### ✅ Example Response (200)
+            ```json
+            {
+            	"message": "Ticket retrieved successfully",
+            	"ticket": {
+            		"id": "be9528bf-57c1-47ec-9fb6-608ba17e5d5b",
+            		"event_id": "f3d606a4-ed0d-4a86-bd98-219139ab7963",
+            		"ticket_name": "Private",
+            		"ticket_price": 15,
+            		"ticket_for": 5,
+            		"ticket_quantity": 200,
+            		"start_date": "2026-05-10T00:00:00.000Z",
+            		"end_date": "2026-05-11T00:00:00.000Z"
+            	}
+            }
+            ```
 
+            ---
 
-
-            📥 Example Response (200 OK)
-
-            | Field             | Type     | Example                    |
-            Description                    |
-
-            | ----------------- | -------- | -------------------------- |
-            ------------------------------ |
-
-            | `id`              | integer  | 1                          | Ticket
-            ID                      |
-
-            | `event_id`        | integer  | 12                         | Event
-            ID the ticket belongs to |
-
-            | `ticket_name`     | string   | "VIP Pass"                 | Ticket
-            name/type               |
-
-            | `ticket_price`    | decimal  | 2500                       | Ticket
-            price                   |
-
-            | `ticket_quantity` | integer  | 100                        | Number
-            of available tickets    |
-
-            | `delete_tag`      | boolean  | false                      |
-            Soft-delete status             |
-
-            | `createdAt`       | datetime | "2025-10-30T10:00:00.000Z" | Ticket
-            creation timestamp      |
-
-            | `updatedAt`       | datetime | "2025-10-30T12:00:00.000Z" | Ticket
-            last update timestamp   |
+            ### ❌ Error Responses
 
 
-            ⚠️ Example Error Statuses
-
-            | **Status Code**             | **Description**               |
-
-            | --------------------------- | ----------------------------- |
-
+            | **Status Code**             | **Description**              |
+            | --------------------------- | ---------------------------- |
             | `400 Bad Request`           | Invalid or missing ticket ID. |
-
             | `404 Not Found`             | Ticket not found.             |
+            | `500 Internal Server Error` | Database or server error.    |
 
-            | `500 Internal Server Error` | Database or server error.     |
+            ---
           sortKey: -1751675623663
         method: GET
         headers:
@@ -980,74 +1463,50 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/ticket/event/a60d69ad-9cef-4f22-ad63-d29c1c46fb95
+      - url: "{{ _.local }}/ticket/event/f3d606a4-ed0d-4a86-bd98-219139ab7963"
         name: Get Tickets by  Event Id
         meta:
           id: req_a55b7b8c2fe34bac917ad7f91f29ef61
           created: 1751676656627
-          modified: 1770898111382
+          modified: 1778600236337
           isPrivate: false
-          description: >
-            Get Tickets by Event ID
+          description: |
+            # 🆕 Get ticket by event id
 
-
-            `Endpoint: GET /api/tickets/event/:id     Description: Retrieves all
-            tickets associated with a specific event.`
-
-
-
-            📥 Example Response (200 OK)
-
-
-            | Field             | Type     | Example                    |
-            Description                    |
-
-            | ----------------- | -------- | -------------------------- |
-            ------------------------------ |
-
-            | `id`              | integer  | 1                          | Ticket
-            ID                      |
-
-            | `event_id`        | integer  | 12                         | Event
-            ID the ticket belongs to |
-
-            | `ticket_name`     | string   | "VIP Pass"                 | Ticket
-            name/type               |
-
-            | `ticket_price`    | decimal  | 2500                       | Ticket
-            price                   |
-
-            | `ticket_quantity` | integer  | 100                        | Number
-            of available tickets    |
-
-            | `delete_tag`      | boolean  | false                      |
-            Soft-delete status             |
-
-            | `createdAt`       | datetime | "2025-10-30T10:00:00.000Z" | Ticket
-            creation timestamp      |
-
-            | `updatedAt`       | datetime | "2025-10-30T12:00:00.000Z" | Ticket
-            last update timestamp   |
-
-
-            ⚠️ Example Error Statuses
+            **Method:** `Get`  
+            **Endpoint:** `/api/invite/ticket/:id`  
+            **Description:** Get ticket by event id
 
 
 
-            | **Status Code**             |
-            **Description**                       |
+            ### ✅ Example Response (200)
+            ```json
+            [
+            	{
+            		"id": "be9528bf-57c1-47ec-9fb6-608ba17e5d5b",
+            		"event_id": "f3d606a4-ed0d-4a86-bd98-219139ab7963",
+            		"ticket_name": "Private",
+            		"ticket_price": 15,
+            		"ticket_for": 5,
+            		"ticket_quantity": 200,
+            		"start_date": "2026-05-10T00:00:00.000Z",
+            		"end_date": "2026-05-11T00:00:00.000Z"
+            	}
+            ]
+            ```
 
-            | --------------------------- |
-            ------------------------------------- |
+            ---
 
-            | `400 Bad Request`           | Invalid or missing event
-            ID.          |
+            ### ❌ Error Responses
 
-            | `404 Not Found`             | No tickets found for the given
-            event. |
 
-            | `500 Internal Server Error` | Database or server
-            error.             |
+            | **Status Code**             | **Description**              |
+            | --------------------------- | ---------------------------- |
+            | `400 Bad Request`           | Invalid or missing ticket ID. |
+            | `404 Not Found`             | Ticket not found.             |
+            | `500 Internal Server Error` | Database or server error.    |
+
+            ---
           sortKey: -1751675823601
         method: GET
         headers:
@@ -1061,81 +1520,100 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/ticket/01309ab6-b6ec-4566-9470-bb88a440019d
+      - url: "{{local}}/ticket/01309ab6-b6ec-4566-9470-bb88a440019d"
         name: Update Ticket
         meta:
           id: req_9e730538a3634991853b63941e99a46b
           created: 1761830906618
-          modified: 1768161931791
+          modified: 1778600163827
           isPrivate: false
           description: >
-            ✏️ Update Ticket
+            # 🆕 Create an ticket link
 
 
-            `Endpoint: PUT /api/tickets/:id
+            **Method:** `Put`  
 
-            Description: Updates ticket details by ID (e.g., name, price, or
-            quantity).`
+            **Endpoint:** `/api/ticket/:id`  
 
-
-            Request Body
+            **Description:** Update ticket
 
 
-            | Field             | Type    | Required | Description             |
-
-            | ----------------- | ------- | -------- | ----------------------- |
-
-            | `ticket_name`     | string  | ❌ No     | New ticket name         |
-
-            | `ticket_price`    | decimal | ❌ No     | Updated ticket price    |
-
-            | `ticket_quantity` | integer | ❌ No     | Updated ticket quantity |
+            ---
 
 
-            📥 Example Response (200 OK)
-
-            | Field             | Type     | Example                       |
-            Description                     |
-
-            | ----------------- | -------- | ----------------------------- |
-            ------------------------------- |
-
-            | `message`         | string   | "Ticket updated successfully" |
-            Status message of the operation |
-
-            | `ticket.id`       | integer  | 1                             |
-            Ticket ID                       |
-
-            | `ticket.event_id` | integer  | 12                            |
-            Event ID the ticket belongs to  |
-
-            | `ticket_name`     | string   | "VIP Pass Updated"            |
-            Updated ticket name/type        |
-
-            | `ticket_price`    | decimal  | 3000                          |
-            Updated ticket price            |
-
-            | `ticket_quantity` | integer  | 120                           |
-            Updated number of tickets       |
-
-            | `delete_tag`      | boolean  | false                         |
-            Soft-delete status              |
-
-            | `updatedAt`       | datetime | "2025-10-30T15:00:00.000Z"    |
-            Ticket last update timestamp    |
+            ### 🧾 Request Body
 
 
-            ⚠️ Example Error Statuses
+            | Field            | Type     | Required |
+            Description                                                  |
 
-            | **Status Code**             | **Description**                  |
+            |----------------- |--------- |---------
+            |------------------------------------------------------------ |
 
-            | --------------------------- | -------------------------------- |
+            | `ticket_name`       | string   | ✅       | The name of the ticket|
 
-            | `400 Bad Request`           | Invalid input or missing fields. |
+            | `ticket_price`         | time zone   | ✅       | The price of the
+            ticket|
 
-            | `404 Not Found`             | Ticket not found.                |
+            | `ticket_quantity` | mumber   | ✅       |The numbers of tickets the
+            organizer wants to sell
 
-            | `500 Internal Server Error` | Database or server error.        |
+
+
+            ---
+
+
+            ### 💡 Example Request
+
+            ```json
+
+            {
+              "ticket_name": "VIP Ticket",
+              "ticket_price": 1500,
+              "ticket_quantity": 600
+            }
+
+
+
+            ```
+
+
+            ---
+
+
+            ### ✅ Example Response (200 Created)
+
+            ```json
+
+            {
+            	"message": "Ticket updated successfully",
+            	"ticket": {
+            		"id": "01309ab6-b6ec-4566-9470-bb88a440019d",
+            		"event_id": "d7ec8f06-fe1b-4d8b-8869-09f37383ab25",
+            		"ticket_name": "VIP Ticket",
+            		"ticket_price": 1500,
+            		"ticket_quantity": 600,
+            		"updated_at": "2026-01-06T15:37:20.867Z"
+            	}
+            }
+
+            ```
+
+
+            ---
+
+
+            ### ❌ Error Responses
+
+
+            | **Code** | **Message**                  |
+
+            |----------|-------------------------------|
+
+            | `500`    | `Error: {{error.message}}` |
+
+
+            ---
           sortKey: -1761830906618
         method: PUT
         body:
@@ -1145,6 +1623,354 @@ collection:
               "ticket_name": "VIP Ticket",
               "ticket_price": 1500,
               "ticket_quantity": 600
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.2
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{local}}/invite/ticket/2b6d3acc4389246ee0849fac7eb2ac2b3320fba75732126d4\
+          8924053d46bcfb3"
+        name: Get  Ticket by Invite
+        meta:
+          id: req_985b5ebdead24f17b0cc15ba5aeab7fb
+          created: 1775391451287
+          modified: 1778600223684
+          isPrivate: false
+          description: |
+            # 🆕 Get ticket by ticket token
+
+            **Method:** `Get`  
+            **Endpoint:** `/api/invite/ticket/:id`  
+            **Description:** Get ticket by ticket token
+
+
+
+            ### ✅ Example Response (200)
+            ```json
+            {
+            	"message": "Ticket retrieved successfully",
+            	"ticket":{
+            		"id": "be9528bf-57c1-47ec-9fb6-608ba17e5d5b",
+            		"event_id": "f3d606a4-ed0d-4a86-bd98-219139ab7963",
+            		"ticket_name": "Private",
+            		"ticket_price": 15,
+            		"ticket_for": 5,
+            		"ticket_quantity": 200,
+            		"start_date": "2026-05-10T00:00:00.000Z",
+            		"end_date": "2026-05-11T00:00:00.000Z"
+            	}
+            }
+            ```
+
+            ---
+
+            ### ❌ Error Responses
+
+
+            | **Status Code**             | **Description**              |
+            | --------------------------- | ---------------------------- |
+            | `400 Bad Request`           | Invalid or missing ticket ID. |
+            | `404 Not Found`             | Ticket not found.             |
+            | `500 Internal Server Error` | Database or server error.    |
+
+            ---
+          sortKey: -1756753365109.5
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{local}}/invite/ticket/"
+        name: Create  Ticket invite
+        meta:
+          id: req_5d2f009b0fcf4f4d880096ce4efb3681
+          created: 1775998020465
+          modified: 1778600148945
+          isPrivate: false
+          description: >
+            # 🆕 Create an ticket link
+
+
+            **Method:** `POST`  
+
+            **Endpoint:** `/api/invite/ticket`  
+
+            **Description:** Creates an ticket invite link that which has number
+            of users that can use it and the time in which it expires
+
+
+            ---
+
+
+            ### 🧾 Request Body
+
+
+            | Field            | Type     | Required |
+            Description                                                  |
+
+            |----------------- |--------- |---------
+            |------------------------------------------------------------ |
+
+            | `ticket_id`       | uuid   | ✅       |  Event
+            id.                                         |
+
+            | `expires_at`         | time zone   | ✅       | The time in which
+            the tickets expires                |
+
+            | `max_uses` | mumber   | ✅       |The number of users that can use
+            this link   |
+
+
+
+            ---
+
+
+            ### 💡 Example Request
+
+            ```json
+
+            {
+              "ticket_id": "478a2ee4-a721-4d35-a4e8-5cc6aca56faa",
+              "expires_at": "2026-12-31T23:59:59Z",
+              "max_uses": 5
+            }
+
+
+            ```
+
+
+            ---
+
+
+            ### ✅ Example Response (200 Created)
+
+            ```json
+
+            {
+            	"message": "Ticket invite created successfully",
+            	"url": "api/invite/ticket/2b6d3acc4389246ee0849fac7eb2ac2b3320fba75732126d48924053d46bcfb3"
+            }
+
+            ```
+
+
+            ---
+
+
+            ### ❌ Error Responses
+
+
+            | **Code** | **Message**                  |
+
+            |----------|-------------------------------|
+
+            | `500`    | `Error: {{error.message}}` |
+
+
+            ---
+          sortKey: -1761830906718
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "ticket_id": "7a607cc1-4061-4929-b481-9ba373f22589",
+              "expires_at": "2026-12-31T23:59:59Z",
+              "max_uses": 5
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.2.0
+        authentication:
+          type: bearer
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{local}}/invite/event/944d231e-38bf-4aac-95cd-92d565af42b2"
+        name: Delete  Ticket invite by id
+        meta:
+          id: req_f6cd34ea73a84035a27fbc2163828ab9
+          created: 1775998495829
+          modified: 1778600090211
+          isPrivate: false
+          description: >
+            # 🆕 Delete a ticket invite
+
+
+            **Method:** `DELETE`  
+
+            **Endpoint:** `/api/invite/event/:id`  
+
+            **Description:** This deletes a ticket invite ( note that only a
+            superviser role is event_scanners can delete a ticket invite)
+
+
+
+
+
+            ### ✅ Example Response (200)
+
+            ```json
+
+            { message: "Event deleted successfully" }
+
+            ```
+
+
+            ---
+
+
+            ### ❌ Error Responses
+
+
+            | **Code** | **Message**                  |
+
+            |----------|-------------------------------|
+
+            | `404`    | `Error: event invite not found` |
+
+            | `409`    | `Error: Event already deleted` |
+
+            | `403`    | `Error: Unauthorized` |
+
+            | `500`    | `Error: Internal server error` |
+
+
+            ---
+          sortKey: -1761830906893
+        method: DELETE
+        headers:
+          - name: User-Agent
+            value: insomnia/11.2.0
+        authentication:
+          type: bearer
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{local}}/invite/ticket/all/a90f4ba4-9bbe-4994-b453-356771ef282c"
+        name: Get all ticket invites by ticket id
+        meta:
+          id: req_f2529cb10da94966a746a83ddb91d4de
+          created: 1775999454622
+          modified: 1778600133552
+          isPrivate: false
+          description: >
+            # 🆕 Get all ticket invites by ticket id
+
+
+            **Method:** `Get`  
+
+            **Endpoint:** `/api/invite/ticket/all/:id`  
+
+            **Description:** Get all ticket invites by ticket id
+
+
+
+
+            ### ✅ Example Response (200)
+
+            ```json
+
+            [
+            	{
+            		"id": "6dff3c91-053b-4a40-b172-145614fdf403",
+            		"ticket_id": "a90f4ba4-9bbe-4994-b453-356771ef282c",
+            		"token": "0438f9bbecb99a9159e28ee15615d6c93f5eeb40db73b564776a21d8dc2f3da1",
+            		"expires_at": "2026-05-05T21:52:15.403Z",
+            		"max_uses": 100,
+            		"used_count": 0,
+            		"created_at": "2026-05-04T21:52:15.404Z",
+            		"updated_at": "2026-05-04T21:52:15.404Z",
+            		"ticket": {
+            			"id": "a90f4ba4-9bbe-4994-b453-356771ef282c",
+            			"ticket_name": "Private",
+            			"ticket_price": 15,
+            			"ticket_quantity": 200
+            		}
+            	}
+            ]
+
+            ```
+
+
+            ---
+
+
+            ### ❌ Error Responses
+
+
+
+            | **Status Code**             | **Description**              |
+
+            | --------------------------- | ---------------------------- |
+
+            | `400 Bad Request`           | Invalid or missing ticket ID. |
+
+            | `404 Not Found`             | Ticket not found.             |
+
+            | `500 Internal Server Error` | Database or server error.    |
+
+
+            ---
+          sortKey: -1761830906768
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.2.0
+        authentication:
+          type: bearer
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{local}}/invite/ticket/f6206060-eace-4e47-91a4-a90c939765bd"
+        name: Update Ticket invite by invite id
+        meta:
+          id: req_8fb0894db265455aad2a565e4981dd78
+          created: 1779294420669
+          modified: 1779294612949
+          isPrivate: false
+          description: ""
+          sortKey: -1779294420669
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"max_uses": 1,
+            	"expires_at": "2026-07-12T14:21:02.260Z"
             }
         headers:
           - name: Content-Type
@@ -1170,7 +1996,7 @@ collection:
     meta:
       id: fld_634ba505cbb549b69198733060fcaaf2
       created: 1751677247772
-      modified: 1763279672376
+      modified: 1774539461336
       sortKey: -1751629679441.5
       description: >
         | Method     | Endpoint                   |
@@ -1392,7 +2218,7 @@ collection:
         meta:
           id: req_af25ee091d2d4d47b3a9e50ee0e82c87
           created: 1763569200655
-          modified: 1768995265862
+          modified: 1774541284665
           isPrivate: false
           description: |
             # Attendee API Documentation
@@ -1431,8 +2257,8 @@ collection:
           mimeType: application/json
           text: |
             {
-              "eventId": "f9da12b7-b2fa-407b-8feb-4bab6bc69f3e",
-              "attendeeId": "006643fa-ba9a-42e5-928d-354984098e9e"
+              "eventId": "478a2ee4-a721-4d35-a4e8-5cc6aca56faa",
+              "attendeeId": "851a91e3-a9cf-4345-adf3-858beec8f129"
             }
         headers:
           - name: Content-Type
@@ -1615,12 +2441,12 @@ collection:
       sortKey: -1761825514602
       description: ""
     children:
-      - url: http://localhost:3000/user/
+      - url: "{{ _.local }}/user/"
         name: Create
         meta:
           id: req_4d9b8461558b4d53aea07f5c2345ca82
           created: 1761825526376
-          modified: 1770895323730
+          modified: 1776534363225
           isPrivate: false
           description: >
             User API Documentation
@@ -1702,7 +2528,7 @@ collection:
           text: |
             {
               "id": "6fdd587f-d1dd-49af-9c17-a709612297eb",
-              "username": "ordo-chao",
+              "username": "ordo_chao",
               "email": "princeben9312@gmail.com",
               "name": "Prince Benedict Wachira",
               "phone": "+254741414892"
@@ -1741,12 +2567,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/user/search?q=eugen
+      - url: http://localhost:3000/user/search?q=ordo
         name: Get user by username
         meta:
           id: req_948d5762c12946f7b0d91b3fafa1c6fa
           created: 1769592788471
-          modified: 1769593465625
+          modified: 1776534466811
           isPrivate: false
           description: ""
           sortKey: -1763700139838
@@ -1777,48 +2603,53 @@ collection:
       sortKey: -1763283604877
       description: ""
     children:
-      - url: https://api.opencrafts.io/qa-sherehe/purchase/ffbe5513-7e20-469f-a944-bfc828ad36ad
+      - url: "{{local}}/purchase/e2f02300-bdc8-4f3e-956a-943d5a5c7c61"
         name: Verify Ticket
         meta:
           id: req_4e0455607be34fbbae55f010256592e8
           created: 1763283611299
-          modified: 1768723081720
+          modified: 1776006076740
           isPrivate: false
-          description: |
-            # Ticket API Documentation
+          description: >
+            # 🆕 Verify the status of a transaction regarding ticket purchasing
 
-            ## 1. Purchase a Ticket
 
-            `Endpoint: POST /api/ticket/purchase`  
-            `Description: Allows a user to purchase tickets for an event, updates ticket availability, and sends a notification to the user.`
+            **Method:** `Get`  
 
-            🧩 Request Body
+            **Endpoint:** `/api/purchase/:id`  
 
-            | Field           | Type   | Required | Description                                 |
-            | --------------- | ------ | -------- | ------------------------------------------- |
-            | `ticket_id`     | UUID   | ✅ Yes    | The ID of the ticket being purchased        |
-            | `ticket_quantity` | number | ✅ Yes  | Number of tickets the user wants to buy     |
+            **Description:** This verifies is the ticket has been purchased by
+            the user and both veribroke and sherehe confirms this
 
-            📥 Example Response (201 Created)
 
-            | Field     | Type     | Example                                                                 | Description                         |
-            | --------- | -------- | ----------------------------------------------------------------------- | ----------------------------------- |
-            | `message` | string   | "Ticket purchased successfully"                                         | Confirmation message                |
-            | `attendee`| object   | `{ ticket_id: "uuid", user_id: "uuid", ticket_quantity: 2, event_id: "uuid" }` | Details of the created attendee record |
 
-            ⚠️ Example Error Statuses
 
-            | Status Code                 | Description                                                                 |
-            | --------------------------- | --------------------------------------------------------------------------- |
-            | `400 Bad Request`           | Missing required fields or not enough tickets available                     |
-            | `404 Not Found`             | Ticket or event not found                                                   |
-            | `500 Internal Server Error` | Server or database error                                                    |
 
-            📌 Notes
-            - The API updates the ticket count in the database.
-            - The attendee count for the event is updated automatically.
-            - A notification is sent to the user upon successful purchase.
-            - `ticket_id` and `ticket_quantity` must be valid and available.
+            ### ✅ Example Response (200)
+
+            ```json
+
+            {
+            	"status": "SUCCESS" || "status": "PENDING" || "status": "FAILED" || "status": "CANCELLED"  || "status": "REVERSED" 
+            }
+
+            ```
+
+
+            ---
+
+
+            ### ❌ Error Responses
+
+
+            | **Code** | **Message**                  |
+
+            |----------|-------------------------------|
+
+            | `500`    | `Error: {{error.message}}` |
+
+
+            ---
           sortKey: -1763283611299
         method: GET
         headers:
@@ -1832,48 +2663,94 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: https://api.opencrafts.io/qa-sherehe/purchase/
+      - url: "{{local}}/purchase/"
         name: Purchase Ticket
         meta:
           id: req_f671a6c5aef7431bbd4f4e2020c06daa
           created: 1768063660618
-          modified: 1769932176684
+          modified: 1776005156679
           isPrivate: false
-          description: |
-            # Ticket API Documentation
+          description: >
+            # 🆕 Create Purchase a ticket
 
-            ## 1. Purchase a Ticket
 
-            `Endpoint: POST /api/ticket/purchase`  
-            `Description: Allows a user to purchase tickets for an event, updates ticket availability, and sends a notification to the user.`
+            **Method:** `POST`  
 
-            🧩 Request Body
+            **Endpoint:** `/api/purchase`  
 
-            | Field           | Type   | Required | Description                                 |
-            | --------------- | ------ | -------- | ------------------------------------------- |
-            | `ticket_id`     | UUID   | ✅ Yes    | The ID of the ticket being purchased        |
-            | `ticket_quantity` | number | ✅ Yes  | Number of tickets the user wants to buy     |
+            **Description:** Creates a transaction which is send to veribroke
+            that initiates purchasing of a ticket
 
-            📥 Example Response (201 Created)
 
-            | Field     | Type     | Example                                                                 | Description                         |
-            | --------- | -------- | ----------------------------------------------------------------------- | ----------------------------------- |
-            | `message` | string   | "Ticket purchased successfully"                                         | Confirmation message                |
-            | `attendee`| object   | `{ ticket_id: "uuid", user_id: "uuid", ticket_quantity: 2, event_id: "uuid" }` | Details of the created attendee record |
+            ---
 
-            ⚠️ Example Error Statuses
 
-            | Status Code                 | Description                                                                 |
-            | --------------------------- | --------------------------------------------------------------------------- |
-            | `400 Bad Request`           | Missing required fields or not enough tickets available                     |
-            | `404 Not Found`             | Ticket or event not found                                                   |
-            | `500 Internal Server Error` | Server or database error                                                    |
+            ### 🧾 Request Body
 
-            📌 Notes
-            - The API updates the ticket count in the database.
-            - The attendee count for the event is updated automatically.
-            - A notification is sent to the user upon successful purchase.
-            - `ticket_id` and `ticket_quantity` must be valid and available.
+
+            | Field            | Type     | Required |
+            Description                                                  |
+
+            |----------------- |--------- |---------
+            |------------------------------------------------------------ |
+
+            | `ticket_quantity`       | number   | ✅       |  Number of tickets
+            the user wants.                                         |
+
+            | `ticket_id`         | uuid   | ✅       | The ticket
+            id.                 |
+
+            | `user_phone` | string   | ✅       |The users phone number (if not
+            entered it defaults to the number in the users table.    |
+
+
+
+            ---
+
+
+            ### 💡 Example Request
+
+            ```json
+
+            {
+            	"ticket_quantity": 1,
+            	"ticket_id":"150378f5-79fc-420e-a45c-98f1256f30ed",
+            	"user_phone": "0741414892"
+            }
+
+
+            ```
+
+
+            ---
+
+
+            ### ✅ Example Response (200 Created)
+
+            ```json
+
+            {
+            	"message": "Sdk request sent successfully",
+            	"trans_id": "e2f02300-bdc8-4f3e-956a-943d5a5c7c61"
+            }
+
+            ```
+
+
+            ---
+
+
+            ### ❌ Error Responses
+
+
+            | **Code** | **Message**                  |
+
+            |----------|-------------------------------|
+
+            | `500`    | `Error: {{error.message}}` |
+
+
+            ---
           sortKey: -1763110673016.5
         method: POST
         body:
@@ -1881,7 +2758,7 @@ collection:
           text: |-
             {
             	"ticket_quantity": 1,
-            	"ticket_id":"15a53a88-e8d8-402d-9e13-171b30bf2b90",
+            	"ticket_id":"150378f5-79fc-420e-a45c-98f1256f30ed",
             	"user_phone": "0741414892"
             }
         headers:
@@ -1920,12 +2797,12 @@ collection:
         | **PUT**    | `/api/tickets/:id`       | Update ticket details   |
         | **DELETE** | `/api/tickets/:id`       | Soft delete a ticket    |
     children:
-      - url: http://localhost:3000/eventscanner/
+      - url: "{{local}}/eventscanner/"
         name: Create Event Scanner
         meta:
           id: req_4cf4544c3c4a4ce98138008e97b6a65c
           created: 1769007963792
-          modified: 1769839488333
+          modified: 1778600656761
           isPrivate: false
           description: >
             | Field             | Type      | Required |
@@ -2036,12 +2913,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/eventscanner/ccc28e58-4736-4dd4-a15c-fb3ca77bfd0a
+      - url: "{{local}}/eventscanner/ccc28e58-4736-4dd4-a15c-fb3ca77bfd0a"
         name: Delete Event Scanner
         meta:
           id: req_9216ec3da63c4d8588806976dd629c37
           created: 1769007963795
-          modified: 1769008473724
+          modified: 1778600643176
           isPrivate: false
           description: >
             🗑️ Delete Ticket (Soft Delete)
@@ -2093,12 +2970,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/eventscanner/event/936aeb44-9e2d-400b-a4c8-c9869be15ed6
+      - url: "{{local}}/eventscanner/event/936aeb44-9e2d-400b-a4c8-c9869be15ed6"
         name: Get Event Scanners by event id
         meta:
           id: req_4b3e7336dbc84a189930d8c9fcef7345
           created: 1769007963797
-          modified: 1769008296748
+          modified: 1778600621869
           isPrivate: false
           description: >
             🔵 Get Ticket by ID
@@ -2167,12 +3044,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/eventscanner/user/936aeb44-9e2d-400b-a4c8-c9869be15ed6
+      - url: "{{local}}/eventscanner/user/936aeb44-9e2d-400b-a4c8-c9869be15ed6"
         name: Get Event Scanner by user id
         meta:
           id: req_4edb41393a9549c2bf137f0a6295cc32
           created: 1769938564281
-          modified: 1769938573220
+          modified: 1778600632229
           isPrivate: false
           description: >
             🔵 Get Ticket by ID
@@ -2428,12 +3305,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/dashboard/tickets/936aeb44-9e2d-400b-a4c8-c9869be15ed6
+      - url: http://localhost:3000/dashboard/tickets/96321021-133a-4b00-993c-01576f5533cf
         name: Ticket Stats
         meta:
           id: req_f49b16db5b3e4fab81ce53b2f0fc03b8
           created: 1769687960787
-          modified: 1769688373477
+          modified: 1772622283455
           isPrivate: false
           description: >
             🔵 Get Ticket by ID
@@ -2520,5 +3397,8 @@ environments:
   meta:
     id: env_2018c78472f749338e8f3755f6fa9474
     created: 1751674150845
-    modified: 1751674150845
+    modified: 1775238263451
     isPrivate: false
+  data:
+    Staging: https://api.opencrafts.io/qa-sherehe
+    local: http://localhost:3000

@@ -1,4 +1,4 @@
-import { Ticket , TicketInstitution } from '../Models/index.js';
+import { Ticket , TicketInstitution , Event } from '../Models/index.js';
 import { getEventByIdRepository } from './Event.repository.js';
 import { Sequelize , Op , literal } from "sequelize";
 import { createTicketInstitutionRepository } from "./ticket_institution.repository.js";
@@ -55,43 +55,52 @@ export const getTicketByIdRepository = async (id) => {
   }
 };
 
-export const getTicketbyEventIdRepository = async (eventId, institution_id) => {
+export const getTicketbyEventIdRepository = async (eventId, institutionIds = [], user_id) => {
   try {
+    // 1. Define visibility conditions
+    const orConditions = [
+      { scope: "public" } // Anyone sees public tickets
+    ];
+
+    if (institutionIds.length > 0) {
+      orConditions.push({
+        [Op.and]: [
+          { scope: "institution" },
+          { '$ticket_institutions.institution_id$': { [Op.in]: institutionIds } }
+        ]
+      });
+    }
+
+
     const tickets = await Ticket.findAll({
       where: {
-        // 1. First, strictly filter by the specific event
         event_id: eventId,
-        
-        // 2. Then, ensure the user only sees tickets they are allowed to see
-        [Op.and]: [
-          {
-            [Op.or]: [
-              { scope: "public" },
-              {
-                [Op.and]: [
-                  { scope: "institution" },
-                  { '$ticket_institutions.institution_id$': institution_id }
-                ]
-              }
-            ]
-          }
-        ]
+        [Op.or]: orConditions
       },
       include: [
         {
           model: TicketInstitution,
           as: "ticket_institutions",
           attributes: [],
-          required: false // Essential for 'public' tickets to show up
+          required: false,
+          where: institutionIds.length > 0 ? {
+            institution_id: { [Op.in]: institutionIds }
+          } : undefined
+        },
+        {
+          // We must include the Event to access its organizer_id
+          model: Event,
+          as: "event", 
+          attributes: [], // We don't need the event data, just the join for the WHERE clause
+          required: true  // A ticket must have an event
         }
       ],
-      order: [
+      order: institutionIds.length > 0 ? [
         [
-          // Using Number() and avoiding single quotes for the raw SQL CASE
           literal(`
             CASE 
               WHEN "tickets"."scope" = 'institution' 
-                   AND "ticket_institutions"."institution_id" = ${institution_id ? Number(institution_id) : 'NULL'}
+                   AND "ticket_institutions"."institution_id" IN (${institutionIds.map(id => Number(id)).join(',')})
               THEN 0
               ELSE 1
             END
@@ -99,8 +108,9 @@ export const getTicketbyEventIdRepository = async (eventId, institution_id) => {
           "ASC"
         ],
         ["created_at", "DESC"]
-      ],
-      subQuery: false
+      ] : [["created_at", "DESC"]],
+      subQuery: false,
+      distinct: true
     });
 
     return tickets;
@@ -158,6 +168,7 @@ export const getEventTicketSalesStatsRepository = async (eventId) => {
       "ticket_name",
       "ticket_price",
       "ticket_quantity", // remaining
+      "scope",
 
       [
         Sequelize.literal(`(
@@ -178,6 +189,7 @@ export const getEventTicketSalesStatsRepository = async (eventId) => {
     ticket_name: ticket.ticket_name,
     ticket_price: ticket.ticket_price,
     tickets_sold: Number(ticket.tickets_sold),
-    tickets_remaining: ticket.ticket_quantity
+    tickets_remaining: ticket.ticket_quantity,
+    scope : ticket.scope
   }));
 };

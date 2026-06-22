@@ -20,51 +20,76 @@ export const createEventRepository = async (eventData, options = {}) => {
   }
 };
 
-export const getAllEventsRepository = async (
-  params,
-  institution_id
-) => {
+export const getAllEventsRepository = async (params, institutionIds = [], user_id) => {
   try {
     const { limitPlusOne = 20, offset = 0 } = params;
 
-    const events = await Event.findAll({
-      where: {
-        [Op.or]: [
-          { scope: "public" },
-          {
-            [Op.and]: [
-              { scope: "institution" },
-              { '$event_institutions.institution_id$': institution_id }
-            ]
-          }
-        ]
-      },
+    // 1. Build the OR conditions for visibility
+    const orConditions = [
+      { scope: "public" } // Anyone can see public events
+    ];
 
+    // 2. If user has institutions, allow them to see institutional events for those IDs
+    if (institutionIds.length > 0) {
+      orConditions.push({
+        [Op.and]: [
+          { scope: "institution" },
+          { '$event_institutions.institution_id$': { [Op.in]: institutionIds } }
+        ]
+      });
+    }
+
+    // 3. Allow the organizer to see their own private events
+    if (user_id) {
+      orConditions.push({
+        [Op.and]: [
+          { scope: "private" },
+          { organizer_id: user_id }
+        ]
+      });
+    }
+
+    const whereCondition = { [Op.or]: orConditions };
+
+    // Build order array (keeping your existing logic for prioritizing institutions)
+    let orderArray = [["created_at", "DESC"]];
+    
+    if (institutionIds.length > 0) {
+      const institutionIdList = institutionIds.map(id => Number(id)).join(',');
+      orderArray = [
+        [
+          literal(`
+            CASE 
+              WHEN "events"."scope" = 'institution' 
+                   AND "event_institutions"."institution_id" IN (${institutionIdList})
+              THEN 0
+              ELSE 1
+            END
+          `),
+          "ASC"
+        ],
+        ["created_at", "DESC"]
+      ];
+    }
+
+    const events = await Event.findAll({
+      where: whereCondition,
       include: [
         {
           model: EventInstitution,
           as: "event_institutions",
           attributes: [],
-          required: false
+          required: false, // Left Join is necessary here so we don't exclude public/private events
+          where: institutionIds.length > 0 ? {
+            institution_id: { [Op.in]: institutionIds }
+          } : undefined
         }
       ],
-      order: [
-        [
-          literal(`
-        CASE 
-          WHEN "events"."scope" = 'institution' 
-               AND "event_institutions"."institution_id" = '${Number(institution_id)}'
-          THEN 0
-          ELSE 1
-        END
-      `),
-          "ASC"
-        ],
-        ["created_at", "DESC"]
-      ],
+      order: orderArray,
       limit: limitPlusOne,
       offset,
-      subQuery: false
+      subQuery: false,
+      distinct: true
     });
 
     const formattedEvents = events.map(event => ({
@@ -77,7 +102,7 @@ export const getAllEventsRepository = async (
     return formattedEvents;
 
   } catch (error) {
-    console.log(error)
+    console.error(error);
     throw error;
   }
 };

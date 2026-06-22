@@ -1,9 +1,9 @@
-import { Attendee , User , Ticket , Event } from "../Models/index.js";
-import { Op , Sequelize } from "sequelize";
+import { Attendee, User, Ticket, Event } from "../Models/index.js";
+import { Op, Sequelize } from "sequelize";
 
-export const createAttendeeRepository = async (attendee , options = {}) => {
+export const createAttendeeRepository = async (attendee, options = {}) => {
   try {
-    const newAttendee = await Attendee.create(attendee , options);
+    const newAttendee = await Attendee.create(attendee, options);
     return newAttendee;
   } catch (error) {
     throw error;
@@ -125,12 +125,12 @@ export const getAttendeeByEventAndIdRepository = async (
         {
           model: Ticket,
           as: "ticket",
-          attributes: ["id", "ticket_name", "ticket_price", "ticket_quantity"]
+          attributes: ["id", "ticket_name", "ticket_price", "ticket_quantity", "start_date", "end_date"]
         },
         {
           model: Event,
           as: "event",
-          attributes: ["id", "event_date"]
+          attributes: ["id", "end_date"]
         }
       ]
     });
@@ -168,6 +168,8 @@ export const getUserAttendedEventsRepository = async (
             "id",
             "ticket_name",
             "ticket_price",
+            "start_date",
+            "end_date",
           ],
         },
       ],
@@ -232,7 +234,7 @@ export const searchAttendeesByEventNameTicketNameRepository = async (
 
 
 
-export const getAllUserAttendedSpecificEventRepository = async (eventId , userId , limitPlusOne , offset) => {
+export const getAllUserAttendedSpecificEventRepository = async (eventId, userId, limitPlusOne, offset) => {
   try {
     const attendees = await Attendee.findAll({
       where: {
@@ -244,17 +246,34 @@ export const getAllUserAttendedSpecificEventRepository = async (eventId , userId
       offset,
       include: [
         {
+          model: Event,
+          as: "event",
+        },
+        {
           model: Ticket,
           as: "ticket",
           attributes: [
             "id",
             "ticket_name",
             "ticket_price",
+            "start_date",
+            "end_date",
           ],
         },
       ],
     });
-    return attendees;
+      // ✅ Ensure event_genre is ALWAYS an array
+  return attendees.map(attendee => {
+    const json = attendee.toJSON();
+
+    if (json.event) {
+      json.event.event_genre = Array.isArray(json.event.event_genre)
+        ? json.event.event_genre
+        : JSON.parse(json.event.event_genre || "[]");
+    }
+
+    return json;
+  });
   } catch (error) {
     throw error;
   }
@@ -262,13 +281,13 @@ export const getAllUserAttendedSpecificEventRepository = async (eventId , userId
 
 export const getTotalAttendeesByEventIdRepository = async (eventId) => {
   try {
-  const count = await Attendee.count({
-    where: {
-      event_id: eventId
-    },
-    distinct: true,
-    col: "user_id"
-  });
+    const count = await Attendee.count({
+      where: {
+        event_id: eventId
+      },
+      distinct: true,
+      col: "user_id"
+    });
 
     return count;
   } catch (error) {
@@ -276,22 +295,22 @@ export const getTotalAttendeesByEventIdRepository = async (eventId) => {
   }
 };
 
-export const getAttendeesByEventIdRepository = async (eventId ,  limitPlusOne, offset) => {
+export const getAttendeesByEventIdRepository = async (eventId, limitPlusOne, offset) => {
   try {
     const attendees = await Attendee.findAll({
       where: {
         event_id: eventId,
       },
       include: [
-      {
-        model: User,
-        as: "user",
-      },
-      {
-        model: Ticket,
-        as: "ticket",
-      },
-    ],
+        {
+          model: User,
+          as: "user",
+        },
+        {
+          model: Ticket,
+          as: "ticket",
+        },
+      ],
       order: [["created_at", "DESC"]],
       limit: limitPlusOne,
       offset
@@ -301,3 +320,65 @@ export const getAttendeesByEventIdRepository = async (eventId ,  limitPlusOne, o
     throw error;
   }
 }
+
+export const getUserPurchasedTicketRepository = async (userId, eventId) => {
+  try {
+    // 1. Change findOne to findAll to get all matching records
+    const attendeeInstances = await Attendee.findAll({
+      where: {
+        user_id: userId,
+        event_id: eventId
+      },
+      order: [["created_at", "DESC"]],
+      include: [
+        {
+          model: Event,
+          as: "event",
+        },
+        {
+          model: Ticket,
+          as: "ticket",
+          attributes: [
+            "id",
+            "ticket_name",
+            "ticket_price",
+            "start_date",
+            "end_date",
+          ],
+        },
+      ],
+    });
+
+    // If no records are found, return an empty array safely
+    if (!attendeeInstances || attendeeInstances.length === 0) return [];
+
+    // 2. Map through the instances to convert to plain objects and parse genres
+    const attendees = attendeeInstances.map((instance) => {
+      const attendee = instance.toJSON();
+
+      // Safely parse event_genre if event exists
+      if (attendee.event) {
+        const genre = attendee.event.event_genre;
+
+        if (Array.isArray(genre)) {
+          attendee.event.event_genre = genre;
+        } else if (typeof genre === "string") {
+          try {
+            attendee.event.event_genre = JSON.parse(genre || "[]");
+          } catch {
+            attendee.event.event_genre = [];
+          }
+        } else {
+          attendee.event.event_genre = [];
+        }
+      }
+
+      return attendee;
+    });
+
+    return attendees;
+
+  } catch (error) {
+    throw error;
+  }
+};
