@@ -70,6 +70,21 @@ export const createEventController = async (req, res) => {
         message: "Missing required event details",
       });
     }
+if (scope === "institution") {
+  const eventInstitutions = new Set(institutions);
+
+  for (const ticket of tickets) {
+    if (ticket.scope !== "institution") continue;
+
+    for (const ticketInstitution of ticket.institutions) {
+      if (!eventInstitutions.has(ticketInstitution)) {
+        throw new Error(
+          `Ticket institution ${ticketInstitution} is not part of the event institutions`
+        );
+      }
+    }
+  }
+}
 
     // -------------------------
     // IMAGE PROCESSING
@@ -132,9 +147,9 @@ export const createEventController = async (req, res) => {
 
       for (const ticket of tickets) {
         const ticketStart = ticket.start_date ? new Date(ticket.start_date) : new Date(start_date);
-    const ticketEnd = ticket.end_date ? new Date(ticket.end_date) : new Date(end_date);
-    const eventStart = new Date(event.start_date);
-    const eventEnd = new Date(event.end_date);
+        const ticketEnd = ticket.end_date ? new Date(ticket.end_date) : new Date(end_date);
+        const eventStart = new Date(event.start_date);
+        const eventEnd = new Date(event.end_date);
 
         if (ticketStart && ticketStart < eventStart) {
           throw new Error(`Ticket "${ticket.ticket_name}" starts before the event starts.`);
