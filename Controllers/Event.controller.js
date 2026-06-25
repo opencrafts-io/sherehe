@@ -49,7 +49,6 @@ export const createEventController = async (req, res) => {
 
     const organizer_id = req.user.sub;
     let tickets = req.body.tickets;
-
     // -------------------------
     // VALIDATIONS
     // -------------------------
@@ -70,10 +69,20 @@ export const createEventController = async (req, res) => {
         message: "Missing required event details",
       });
     }
-if (scope === "institution") {
-  const eventInstitutions = new Set(institutions);
 
-  for (const ticket of tickets) {
+    const parsedInstitutions =
+  typeof institutions === "string"
+    ? JSON.parse(institutions)
+    : institutions;
+
+const parsedTickets =
+  typeof tickets === "string"
+    ? JSON.parse(tickets)
+    : tickets;
+if (scope === "institution") {
+  const eventInstitutions = new Set(parsedInstitutions);
+
+  for (const ticket of parsedTickets) {
     if (ticket.scope !== "institution") continue;
 
     for (const ticketInstitution of ticket.institutions) {
@@ -343,9 +352,10 @@ if (scope === "institution") {
       500,
       req.headers["user-agent"]
     );
+    
 
-    return res.status(500).json({
-      error: "Unexpected server error",
+    return res.status(400).json({
+      error: "Unexpected error",
       details: error.message,
     });
   }

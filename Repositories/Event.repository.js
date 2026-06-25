@@ -78,7 +78,7 @@ export const getAllEventsRepository = async (params, institutionIds = [], user_i
         {
           model: EventInstitution,
           as: "event_institutions",
-          attributes: [],
+          attributes: ["institution_id"],
           required: false, // Left Join is necessary here so we don't exclude public/private events
           where: institutionIds.length > 0 ? {
             institution_id: { [Op.in]: institutionIds }
@@ -92,12 +92,28 @@ export const getAllEventsRepository = async (params, institutionIds = [], user_i
       distinct: true
     });
 
-    const formattedEvents = events.map(event => ({
-      ...event.toJSON(),
-      event_genre: Array.isArray(event.event_genre)
-        ? event.event_genre
-        : JSON.parse(event.event_genre || '[]')
-    }));
+const formattedEvents = events.map(event => {
+  const json = event.toJSON();
+
+  const result = {
+    ...json,
+    event_genre: Array.isArray(json.event_genre)
+      ? json.event_genre
+      : JSON.parse(json.event_genre || "[]")
+  };
+
+  // Remove raw join table data
+  delete result.event_institutions;
+
+  // Only add institutions for institution-scoped events
+  if (json.scope === "institution") {
+    result.institutions = (json.event_institutions || []).map(inst =>
+      String(inst.institution_id)
+    );
+  }
+
+  return result;
+});
 
     return formattedEvents;
 
@@ -110,16 +126,35 @@ export const getAllEventsRepository = async (params, institutionIds = [], user_i
 
 export const getEventByIdRepository = async (eventId) => {
   try {
-    const event = await Event.findByPk(eventId);
+    const event = await Event.findByPk(eventId, {
+      include: [
+        {
+          model: EventInstitution,
+          as: "event_institutions",
+          attributes: ["institution_id"],
+          required: false
+        }
+      ]
+    });
 
     if (!event) return null;
 
+    const json = event.toJSON();
+
     const formattedEvent = {
-      ...event.toJSON(),
-      event_genre: Array.isArray(event.event_genre)
-        ? event.event_genre
-        : JSON.parse(event.event_genre || '[]'),
+      ...json,
+      event_genre: Array.isArray(json.event_genre)
+        ? json.event_genre
+        : JSON.parse(json.event_genre || "[]")
     };
+
+    delete formattedEvent.event_institutions;
+
+    if (json.scope === "institution") {
+      formattedEvent.institutions = (json.event_institutions || []).map(
+        inst => String(inst.institution_id)
+      );
+    }
 
     return formattedEvent;
   } catch (error) {
@@ -213,20 +248,45 @@ export const searchEventRepository = async (searchQuery) => {
 
 export const getEventbyOrganizerIdRepository = async (organizerId) => {
   try {
-    console.log(organizerId)
-    const events = await Event.findAll({ where: { organizer_id: organizerId }, order: [["created_at", "DESC"]] });
-    const formattedEvents = events.map(event => ({
-      ...event.toJSON(),
-      event_genre: Array.isArray(event.event_genre)
-        ? event.event_genre
-        : JSON.parse(event.event_genre || '[]')
-    }));
+    const events = await Event.findAll({
+      where: { organizer_id: organizerId },
+      order: [["created_at", "DESC"]],
+      include: [
+        {
+          model: EventInstitution,
+          as: "event_institutions",
+          attributes: ["institution_id"],
+          required: false,
+        },
+      ],
+    });
+
+    const formattedEvents = events.map((event) => {
+      const json = event.toJSON();
+
+      const formattedEvent = {
+        ...json,
+        event_genre: Array.isArray(json.event_genre)
+          ? json.event_genre
+          : JSON.parse(json.event_genre || "[]"),
+      };
+
+      delete formattedEvent.event_institutions;
+
+      if (json.scope === "institution") {
+        formattedEvent.institutions = (json.event_institutions || []).map(
+          (inst) => String(inst.institution_id)
+        );
+      }
+
+      return formattedEvent;
+    });
+
     return formattedEvents;
   } catch (error) {
     throw error;
   }
 };
-
 
 
 export const getEventByTagsRepository = async (tags) => {

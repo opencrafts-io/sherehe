@@ -1,4 +1,4 @@
-import {EventInvite , Event } from '../Models/index.js';
+import {EventInvite , Event , EventInstitution } from '../Models/index.js';
 import { Op } from "sequelize";
 
 export const createEventInviteRepository = async (eventInvite , options={}) => {
@@ -11,18 +11,27 @@ export const createEventInviteRepository = async (eventInvite , options={}) => {
 };
 
 export const validateInviteRepository = async (token) => {
-  // Find the invite including the event
-  const invite = await EventInvite.findOne({ 
+  const invite = await EventInvite.findOne({
     where: { token },
     include: [
       {
         model: Event,
-        as: "event"
+        as: "event",
+        include: [
+          {
+            model: EventInstitution,
+            as: "event_institutions",
+            attributes: ["institution_id"],
+            required: false,
+          },
+        ],
       },
     ],
   });
 
-  if (!invite) throw new Error("Invalid invite");
+  if (!invite) {
+    throw new Error("Invalid invite");
+  }
 
   if (invite.expires_at < new Date()) {
     throw new Error("Invite expired");
@@ -31,20 +40,29 @@ export const validateInviteRepository = async (token) => {
   if (invite.used_count >= invite.max_uses) {
     throw new Error("Invite limit reached");
   }
-  
 
   // Increment used count
   invite.used_count += 1;
   await invite.save();
 
-        const formattedEvent = {
-      ...invite.event.toJSON(),
-      event_genre: Array.isArray(invite.event.event_genre)
-        ? invite.event.event_genre
-        : JSON.parse(invite.event.event_genre || '[]'),
-    };
+  const json = invite.event.toJSON();
 
-    return formattedEvent;
+  const formattedEvent = {
+    ...json,
+    event_genre: Array.isArray(json.event_genre)
+      ? json.event_genre
+      : JSON.parse(json.event_genre || "[]"),
+  };
+
+  delete formattedEvent.event_institutions;
+
+  if (json.scope === "institution") {
+    formattedEvent.institutions = (json.event_institutions || []).map(
+      inst => String(inst.institution_id)
+    );
+  }
+
+  return formattedEvent;
 };
 
 export const deleteeventInviteRepository = async (id) => {
