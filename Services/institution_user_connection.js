@@ -11,7 +11,7 @@ const RABBITMQ_VHOST = process.env.RABBITMQ_VHOST
 
 // const ROUTING_KEY=process.env.ROUTING_KEY || "veribroke.mpesa-stk"
 
-export async function consumeInstitutionEvents() {
+export async function consumeUserInstitutionEvents() {
   const start = process.hrtime.bigint();
 
   try {
