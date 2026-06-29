@@ -7,7 +7,8 @@ const PORT = process.env.PORT || 3001;
 import './Models/index.js';
 import { startVerisafeListener } from './Services/verisafe.js';
 import {startMpesaSuccessConsumer} from './Services/Veribroke_sdk_recieve.js';
-import {consumeInstitutionEvents} from './Services/institution_connection.js'
+import {consumeUserInstitutionEvents} from './Services/institution_user_connection.js'
+import {consumeInstitutionEvents}from './Services/institution.js'
 
 dotenv.config();
 const app = express();
@@ -43,13 +44,14 @@ app.listen(PORT, async () => {
   try {
     await sequelize.authenticate();
 
-    await sequelize.sync({ alter: true });
+    await sequelize.sync({});
     console.log("✅ Models synced...");
     // startVerisafeListener();
     await startMpesaSuccessConsumer();
     // Start Verisafe
     await startVerisafeListener();
     await consumeInstitutionEvents()
+    await consumeUserInstitutionEvents()
     console.log(`🚀 Server running on port ${PORT}`);
   } catch (error) {
     console.error("❌ Database error:", error);

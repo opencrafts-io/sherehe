@@ -1,4 +1,4 @@
-import {EventInvite , Event , EventInstitution } from '../Models/index.js';
+import {EventInvite , Event , EventInstitution , Institution } from '../Models/index.js';
 import { Op } from "sequelize";
 
 export const createEventInviteRepository = async (eventInvite , options={}) => {
@@ -20,9 +20,15 @@ export const validateInviteRepository = async (token) => {
         include: [
           {
             model: EventInstitution,
-            as: "event_institutions",
             attributes: ["institution_id"],
             required: false,
+            include: [
+              {
+                model: Institution,
+                as: "institution",
+                attributes: ["institution_id", "name"],
+              },
+            ],
           },
         ],
       },
@@ -54,11 +60,16 @@ export const validateInviteRepository = async (token) => {
       : JSON.parse(json.event_genre || "[]"),
   };
 
+  // Remove join table from response
   delete formattedEvent.event_institutions;
 
+  // Only include institutions for institution-scoped events
   if (json.scope === "institution") {
     formattedEvent.institutions = (json.event_institutions || []).map(
-      inst => String(inst.institution_id)
+      ({ institution }) => ({
+        institution_id: institution.institution_id,
+        name: institution.name,
+      })
     );
   }
 

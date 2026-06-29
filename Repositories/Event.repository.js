@@ -1,4 +1,4 @@
-import { Event, EventInstitution } from '../Models/index.js';
+import { Event, EventInstitution , Institution } from '../Models/index.js';
 import { Op, literal } from "sequelize";
 
 export const createEventRepository = async (eventData, options = {}) => {
@@ -130,11 +130,17 @@ export const getEventByIdRepository = async (eventId) => {
       include: [
         {
           model: EventInstitution,
-          as: "event_institutions",
           attributes: ["institution_id"],
-          required: false
-        }
-      ]
+          required: false,
+          include: [
+            {
+              model: Institution,
+              as: "institution",
+              attributes: ["institution_id", "name"],
+            },
+          ],
+        },
+      ],
     });
 
     if (!event) return null;
@@ -145,14 +151,19 @@ export const getEventByIdRepository = async (eventId) => {
       ...json,
       event_genre: Array.isArray(json.event_genre)
         ? json.event_genre
-        : JSON.parse(json.event_genre || "[]")
+        : JSON.parse(json.event_genre || "[]"),
     };
 
+    // Remove the join table from the response
     delete formattedEvent.event_institutions;
 
+    // Only include institutions for institution-scoped events
     if (json.scope === "institution") {
       formattedEvent.institutions = (json.event_institutions || []).map(
-        inst => String(inst.institution_id)
+        ({ institution }) => ({
+          institution_id: institution.institution_id,
+          name: institution.name,
+        })
       );
     }
 
@@ -254,9 +265,15 @@ export const getEventbyOrganizerIdRepository = async (organizerId) => {
       include: [
         {
           model: EventInstitution,
-          as: "event_institutions",
           attributes: ["institution_id"],
           required: false,
+          include: [
+            {
+              model: Institution,
+              as: "institution",
+              attributes: ["institution_id", "name"],
+            },
+          ],
         },
       ],
     });
@@ -271,11 +288,16 @@ export const getEventbyOrganizerIdRepository = async (organizerId) => {
           : JSON.parse(json.event_genre || "[]"),
       };
 
+      // Remove the join table from the response
       delete formattedEvent.event_institutions;
 
+      // Only include institutions for institution-scoped events
       if (json.scope === "institution") {
         formattedEvent.institutions = (json.event_institutions || []).map(
-          (inst) => String(inst.institution_id)
+          ({ institution }) => ({
+            institution_id: institution.institution_id,
+            name: institution.name,
+          })
         );
       }
 
