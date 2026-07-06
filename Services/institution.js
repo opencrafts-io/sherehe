@@ -59,10 +59,7 @@ export async function consumeInstitutionEvents() {
         try {
           const payload = JSON.parse(msg.content.toString());
 
-          console.log("Received Event:");
-          console.log(JSON.stringify(payload, null, 2));
-
-          const metadata = payload.metadata;
+          const metadata = payload.meta;
           const institution = payload.institution;
 
           if (!metadata || !institution) {
@@ -77,8 +74,6 @@ export async function consumeInstitutionEvents() {
             return channel.ack(msg);
           }
 
-          console.log(institution)
-
           switch (metadata.event_type) {
             case "institution.created":
 
@@ -89,18 +84,11 @@ export async function consumeInstitutionEvents() {
 
             case "institution.updated":
 
-              /**
-               * Update local database if needed
-               */
               await updateInstitutionRepository(institution.id, institution)
 
               break;
 
             case "institution.deleted":
-
-              /**
-               * Delete locally if needed
-               */
 
               await deleteInstitutionRepository(institution.id)
 
