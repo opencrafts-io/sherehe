@@ -8,6 +8,7 @@ import { sendTemplatedEmail } from '../Services/gossip_monger_email.js';
 import { getEventByIdRepository } from "../Repositories/Event.repository.js";
 import { getUserByIdRepository } from "../Repositories/User.repository.js";
 import { sendUserPushNotification } from '../Services/gossip_monger_push_notification.js'
+import {generateQrWithLogo} from '../Utils/generate_qr_code.js'
 
 const RABBITMQ_HOST = process.env.RABBITMQ_HOST
 const RABBITMQ_PASSWORD = process.env.RABBITMQ_PASSWORD
@@ -122,6 +123,8 @@ export async function startMpesaSuccessConsumer() {
           if (success) {
             const event = await getEventByIdRepository(event_id);
             const user_email = await getUserByIdRepository(user_id);
+            const url = await generateQrWithLogo(`https://academia.opencrafts.io/sherehe/get-event/${event_id}/event-tickets`);
+            console.log(url);
 
             const notificationPayload = {
               to_addresses: [user_email.email],
