@@ -105,7 +105,7 @@ export async function sendTicketPurchasedEmail(id ,event_name , created_at, tick
                             </div>
 
                             <img
-                                src="data:image/png;base64,${qr_code_base64}"
+                                src="${qr_code_base64}"
                                 alt="Ticket QR Code"
                                 width="180"
                                 style="display:block;margin:auto;border:8px solid #f8fafc;border-radius:12px;"
