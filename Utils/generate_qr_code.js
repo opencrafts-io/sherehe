@@ -13,10 +13,15 @@ export async function generateQrWithLogo(url) {
         margin: 2,
     });
 
-    const logo = await sharp("./assets/academia-logo.png")
-        .resize({ height: logoHeight }) // Scales width proportionally
-        .png()
-        .toBuffer();
+    let logo;
+    try {
+        logo = await sharp("./assets/academia-logo.png")
+            .resize({ height: logoHeight }) // Scales width proportionally
+            .png()
+            .toBuffer();
+    } catch {
+        return `data:image/png;base64,${qrBuffer.toString("base64")}`;
+    }
 
     const logoMetadata = await sharp(logo).metadata();
     const logoLeft = Math.floor((qrWidth - logoMetadata.width) / 2);
