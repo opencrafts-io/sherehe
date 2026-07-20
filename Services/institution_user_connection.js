@@ -76,7 +76,6 @@ export async function consumeUserInstitutionEvents() {
           );
 
         } catch (err) {
-          console.error('[!] Error processing event:', err.message);
           
           const end = process.hrtime.bigint();
           const durationMicroseconds = Number(end - start) / 1000;
@@ -99,6 +98,18 @@ export async function consumeUserInstitutionEvents() {
     }, { noAck: false });
 
   } catch (error) {
-    console.error('[!] RabbitMQ Connection Error:', error);
+    const end = process.hrtime.bigint();
+    const durationMicroseconds = Number(end - start) / 1000;
+    logs(
+      durationMicroseconds,
+      "ERR",
+      'rabbitmq',
+      'event',
+      "Failed to connect to RabbitMQ",
+      'unknown',
+      500,
+      'connection_error',
+      error.message
+    );
   }
 }

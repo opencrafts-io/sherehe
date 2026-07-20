@@ -5,7 +5,6 @@ export const createTransactionRepository = async (data , options = {}) => {
     const transaction = await Transaction.create(data , options);
     return transaction;
   } catch (error) {
-    console.error('❌ Error creating transaction:', error);
     throw error;
   }
 };
@@ -15,7 +14,6 @@ export const getAllTransactionsRepository = async () => {
     const transactions = await Transaction.findAll();
     return transactions;
   } catch (error) {
-    console.error('❌ Error getting transactions:', error);
     throw error;
   }
 };
@@ -25,7 +23,6 @@ export const getTransactionByUserIdTicketIdRepository = async (userId , ticketId
     const transactions = await Transaction.findOne({ where: { user_id: userId , ticket_id: ticketId } });
     return transactions;
   } catch (error) {
-    console.error('❌ Error getting transactions:', error);
     throw error;
   }
 };
@@ -35,7 +32,6 @@ export const getTransactionByIdRepository = async (id) => {
     const transaction = await Transaction.findByPk(id);
     return transaction;
   } catch (error) {
-    console.error('❌ Error getting transaction:', error);
     throw error;
   }
 };
@@ -49,7 +45,6 @@ export const updateTransactionRepository = async (id, data , options = {}) => {
     await transaction.update(data , options);
     return transaction;
   } catch (error) {
-    console.error('❌ Error updating transaction:', error);
     throw error;
   }
 };

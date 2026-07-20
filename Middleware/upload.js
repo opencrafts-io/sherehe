@@ -62,13 +62,11 @@ export const processAndSaveImages = async (req, res, next) => {
 
         // ✅ 4. Store the final URL in req.images
         req.images[fieldName] = `https://${BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${filename}`;
-        // console.log(`✅ Uploaded ${fieldName} to S3:`, req.images[fieldName]);
       }
     });
 
     await Promise.all(uploadPromises);
   } catch (error) {
-    console.error("S3 Upload Error:", error);
     res.status(500).json({ error: "Failed to process and upload images." });
   }
 };

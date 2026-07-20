@@ -6,7 +6,7 @@ export const createInstitutionRepository = async (data , options={}) => {
 
     return institution;
   } catch (err) {
-    console.log(err)
+    throw err
   }
 };
 
@@ -19,7 +19,7 @@ export const updateInstitutionRepository = async (id, data) => {
     await institution.update(data);
     return institution;
   } catch (err) {
-    console.log(err)
+    throw err
   }
 };
 export const deleteInstitutionRepository = async (id) => {
@@ -31,6 +31,6 @@ export const deleteInstitutionRepository = async (id) => {
     await institution.destroy();
     return { message: "Institution deleted successfully" };
   } catch (err) {
-    console.log(err)
+    throw err
   }
 };

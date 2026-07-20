@@ -20,12 +20,4 @@ export const verifyToken = (req, res, next) => {
     next();
   }
 
-  // jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-  //   // if (err) return res.status(403).json('Token is not valid!');
-  //   console.log(user)
-  //   if (user.user_role !== 'client') return res.status(403).json('You are not authorized!');
-    
-  //   req.user = user;
-  //   next();
-  // });
 };

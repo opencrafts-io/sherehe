@@ -35,9 +35,8 @@ export const cleanupFiles = async (files = []) => {
           })
         );
 
-        console.log("🗑️ Deleted from S3:", key);
       } catch (err) {
-        console.error("⚠️ Failed to delete from S3:", key, err.message);
+        throw err;
       }
     }
   }

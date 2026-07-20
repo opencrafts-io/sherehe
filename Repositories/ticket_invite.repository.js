@@ -36,7 +36,6 @@ export const validateInviteRepository = async (token) => {
   // Increment used count
   invite.used_count += 1;
   await invite.save();
-  console.log(invite);
 
   return invite.ticket;
 };

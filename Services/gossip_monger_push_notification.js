@@ -168,7 +168,6 @@ export async function sendPushNotification(notificationData, sourceServiceId, re
       error.message
     );
 
-    console.error('[!] Error sending push notification:', error.message);
     throw error;
   }
 }
