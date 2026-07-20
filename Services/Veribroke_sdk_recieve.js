@@ -136,7 +136,7 @@ export async function startMpesaSuccessConsumer() {
                   hour12: true
                 })
 
-            const ticketEmail = sendTicketPurchasedEmail(ticket_id,event.event_name , created_at, ticket.ticket_name , ticket.ticket_for , attendeesToCreate , ticket.ticket_price , url)
+            const ticketEmail = await sendTicketPurchasedEmail(ticket_id,event.event_name , created_at, ticket.ticket_name , ticket.ticket_for , attendeesToCreate , ticket.ticket_price , url)
             const notificationPayload = {
               to_addresses: [user_email.email],
               subject: `Your ticket for ${event.event_name} has been confirmed`,
