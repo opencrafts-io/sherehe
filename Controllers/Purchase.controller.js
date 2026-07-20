@@ -284,7 +284,7 @@ export const verifyPaymentController = async (req, res) => {
         return res.status(403).json({ message: "Unauthorized" });
       }
 
-      const attendees = await getUserPurchasedTicketRepository(
+      const attendees = await getUserPurchasedTicketsRepository(
         user_id,
         transaction.event_id
       );
