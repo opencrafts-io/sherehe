@@ -23,14 +23,6 @@ export async function consumeInstitutionEvents() {
 
     const connection = await amqp.connect(RABBITMQ_URL);
 
-    connection.on("error", (err) => {
-      console.error("[RabbitMQ] Connection Error:", err);
-    });
-
-    connection.on("close", () => {
-      console.error("[RabbitMQ] Connection Closed");
-    });
-
     const channel = await connection.createChannel();
 
     await channel.assertExchange(EXCHANGE_NAME, EXCHANGE_TYPE, {
@@ -59,14 +51,11 @@ export async function consumeInstitutionEvents() {
         try {
           const payload = JSON.parse(msg.content.toString());
 
-          console.log("Received Event:");
-          console.log(JSON.stringify(payload, null, 2));
 
           const metadata = payload.metadata;
           const institution = payload.institution;
 
           if (!metadata || !institution) {
-            console.warn("Invalid payload received.");
             return channel.ack(msg);
           }
 
@@ -76,8 +65,6 @@ export async function consumeInstitutionEvents() {
           ) {
             return channel.ack(msg);
           }
-
-          console.log(institution)
 
           switch (metadata.event_type) {
             case "institution.created":
@@ -89,27 +76,17 @@ export async function consumeInstitutionEvents() {
 
             case "institution.updated":
 
-              /**
-               * Update local database if needed
-               */
               await updateInstitutionRepository(institution.id, institution)
 
               break;
 
             case "institution.deleted":
 
-              /**
-               * Delete locally if needed
-               */
-
               await deleteInstitutionRepository(institution.id)
 
               break;
 
             default:
-              console.warn(
-                `Unknown event: ${metadata.event_type}`
-              );
               break;
           }
 
@@ -131,10 +108,6 @@ export async function consumeInstitutionEvents() {
             metadata.event_type
           );
         } catch (err) {
-          console.error(
-            "[RabbitMQ] Error Processing Event:",
-            err
-          );
 
           const end = process.hrtime.bigint();
 
@@ -161,6 +134,16 @@ export async function consumeInstitutionEvents() {
       }
     );
   } catch (err) {
-    console.error("[RabbitMQ] Failed to connect:", err);
+             logs(
+            1,
+            "ERR",
+            "rabbitmq",
+            "event",
+            "Rabbitmq error",
+            "unknown",
+            500,
+            "processing_error",
+            err.message
+          );
   }
 }

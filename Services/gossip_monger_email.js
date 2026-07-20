@@ -119,8 +119,6 @@ export async function sendEmail(emailData, sourceServiceId, requestId = null) {
       'email_publish_error',
       error.message
     );
-    
-    console.error('[!] Error sending email:', error.message);
     throw error;
   }
 }
@@ -167,7 +165,7 @@ export async function sendTemplatedEmail({
   reply_to = null,
   cc_addresses = null,
   bcc_addresses = null,
-  attachments = null
+  attachments = null,
 }, sourceServiceId) {
   
   const defaultFrom = process.env.GOSSIP_FROM_ADDRESS || 'sherehe@posta.opencrafts.io';

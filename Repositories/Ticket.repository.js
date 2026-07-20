@@ -115,7 +115,6 @@ export const getTicketbyEventIdRepository = async (eventId, institutionIds = [],
 
     return tickets;
   } catch (error) {
-    console.error("Error in getTicketbyEventIdRepository:", error);
     throw error;
   }
 };

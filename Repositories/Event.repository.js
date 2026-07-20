@@ -118,7 +118,6 @@ const formattedEvents = events.map(event => {
     return formattedEvents;
 
   } catch (error) {
-    console.error(error);
     throw error;
   }
 };

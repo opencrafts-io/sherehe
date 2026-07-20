@@ -11,7 +11,6 @@ import {
 
 import { createTicketRepository } from "../Repositories/Ticket.repository.js";
 import { createPaymentInfoRepository } from "../Repositories/paymentInfo.repository.js";
-import { cleanupFiles } from "../Middleware/cleanupFiles.js";
 import { processAndSaveImages } from "../Middleware/upload.js";
 import sequelize from "../Utils/db.js";
 import { sendNotification } from "../Utils/Notification.js";
@@ -107,7 +106,6 @@ if (scope === "institution") {
       try {
         tickets = JSON.parse(tickets);
       } catch {
-        cleanupFiles(savedFiles);
         return res.status(400).json({
           error: "Invalid JSON format for tickets",
         });
@@ -115,7 +113,6 @@ if (scope === "institution") {
     }
 
     if (!Array.isArray(tickets) || tickets.length === 0) {
-      cleanupFiles(savedFiles);
       return res.status(422).json({
         error: "At least one ticket type is required",
       });
@@ -229,7 +226,6 @@ if (scope === "institution") {
       if (!transaction.finished) {
         await transaction.rollback();
       }
-      cleanupFiles(savedFiles);
       throw error;
     }
 
@@ -338,7 +334,6 @@ if (scope === "institution") {
     })
 
   } catch (error) {
-    cleanupFiles(savedFiles);
 
     const duration = Number(process.hrtime.bigint() - start);
 

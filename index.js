@@ -44,16 +44,16 @@ app.listen(PORT, async () => {
   try {
     await sequelize.authenticate();
 
-    await sequelize.sync({force:true});
-    console.log("✅ Models synced...");
+    await sequelize.sync({});
+    console.log("Models synced...");
     // startVerisafeListener();
     await startMpesaSuccessConsumer();
     // Start Verisafe
     await startVerisafeListener();
     await consumeInstitutionEvents()
     await consumeUserInstitutionEvents()
-    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
   } catch (error) {
-    console.error("❌ Database error:", error);
+    console.error("Database error:", error);
   }
 });

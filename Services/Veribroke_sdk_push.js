@@ -35,7 +35,6 @@ try {
   await channel.close();
   await connection.close();
 } catch (error) {
-  console.error("❌ Veribroke sdk recieve error:", error);
   throw error;
 }
 };

@@ -4,10 +4,12 @@ import { createAttendeeRepository } from "../Repositories/Attendee.repository.js
 import { updateTicketRepository, getTicketByIdRepository } from "../Repositories/Ticket.repository.js";
 import { Op, Sequelize } from "sequelize";
 import sequelize from "../Utils/db.js";
-import { sendTemplatedEmail } from '../Services/gossip_monger_email.js';
+import { sendPlainEmail } from '../Services/gossip_monger_email.js';
 import { getEventByIdRepository } from "../Repositories/Event.repository.js";
 import { getUserByIdRepository } from "../Repositories/User.repository.js";
 import { sendUserPushNotification } from '../Services/gossip_monger_push_notification.js'
+import {generateQrWithLogo} from '../Utils/generate_qr_code.js'
+import {sendTicketPurchasedEmail} from '../Utils/Email.js'
 
 const RABBITMQ_HOST = process.env.RABBITMQ_HOST
 const RABBITMQ_PASSWORD = process.env.RABBITMQ_PASSWORD
@@ -33,7 +35,7 @@ export async function startMpesaSuccessConsumer() {
 
     await channel.bindQueue(q.queue, EXCHANGE_NAME, SHEREHE_ROUTING_KEY);
 
-    console.log("👂 Monitoring M-Pesa queues successfully...");
+    console.log("Monitoring M-Pesa queues successfully...");
 
     channel.consume(
       q.queue,
@@ -122,13 +124,8 @@ export async function startMpesaSuccessConsumer() {
           if (success) {
             const event = await getEventByIdRepository(event_id);
             const user_email = await getUserByIdRepository(user_id);
-
-            const notificationPayload = {
-              to_addresses: [user_email.email],
-              subject: `Your ticket for ${event.event_name} has been confirmed`,
-              template_id: "sherehe-ticket-confirmation",
-              template_vars: {
-                "created_at": new Date().toLocaleString('en-KE', {
+            const url = await generateQrWithLogo(`https://academia.opencrafts.io/sherehe/get-event/${event_id}/event-tickets`);
+            const created_at = new Date().toLocaleString('en-KE', {
                   timeZone: 'Africa/Nairobi',
                   weekday: 'long',
                   year: 'numeric',
@@ -137,18 +134,18 @@ export async function startMpesaSuccessConsumer() {
                   hour: '2-digit',
                   minute: '2-digit',
                   hour12: true
-                }),
-                "event_name": `${event.event_name}`,
-                "id": `${ticket_id}`,
-                "ticket_for": `${ticket.ticket_for}`,
-                "ticket_name": `${ticket.ticket_name}`,
-                "ticket_price": `${ticket.ticket_price}`,
-                "ticket_quantity": `${attendeesToCreate}`,
-              }
+                })
+
+            const ticketEmail = await sendTicketPurchasedEmail(ticket_id,event.event_name , created_at, ticket.ticket_name , ticket.ticket_for , attendeesToCreate , ticket.ticket_price , url)
+            const notificationPayload = {
+              to_addresses: [user_email.email],
+              subject: `Your ticket for ${event.event_name} has been confirmed`,
+              body_html: ticketEmail,
+              body_text: ticketEmail
             };
 
             try {
-              await sendTemplatedEmail(notificationPayload, "io.opencrafts.sherehe");
+              await sendPlainEmail(notificationPayload, "io.opencrafts.sherehe");
             } catch (emailError) {
               console.error("Failed to send Mpesa success email:", emailError.message);
             }

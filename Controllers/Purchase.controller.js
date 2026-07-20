@@ -5,7 +5,7 @@ import { getUserByIdRepository } from '../Repositories/User.repository.js';
 import { sendPaymentRequest } from '../Services/Veribroke_sdk_push.js';
 import { createTransactionRepository, getTransactionByIdRepository } from '../Repositories/Transactions.repository.js';
 import { getPaymentInfoByEventIdRepository } from '../Repositories/paymentInfo.repository.js';
-import { createAttendeeRepository , getUserPurchasedTicketRepository } from '../Repositories/Attendee.repository.js';
+import { createAttendeeRepository , getUserPurchasedTicketsRepository } from '../Repositories/Attendee.repository.js';
 import { Op, Sequelize } from "sequelize";
 import sequelize from "../Utils/db.js";
 const SHEREHE_ROUTING_KEY = process.env.SHEREHE_ROUTING_KEY || "NDOVUKUU";
