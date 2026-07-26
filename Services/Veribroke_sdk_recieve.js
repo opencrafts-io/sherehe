@@ -158,7 +158,7 @@ export async function startMpesaSuccessConsumer() {
               to_addresses: [user_email.email],
               subject: `Your ticket for ${event.event_name} has been confirmed`,
               body_html: ticketEmail,
-              body_text: ticketEmail
+              body_text: `Thank you for your purchase! We’ve successfully received your payment for ${event.event_name}. Your order details and digital pass are ready below—simply present the QR code at the entrance for quick check-in.`
             };
 
             try {
