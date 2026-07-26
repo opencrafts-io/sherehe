@@ -322,7 +322,7 @@ export async function sendEventConfirmedEmail({
                                             <tr>
                                                 <td style="padding: 8px 0; line-height: 1.4;">
                                                     <span style="color: #94a3b8; display: inline-block; min-width: 80px; font-weight: 600; text-transform: uppercase; font-size: 11px;">Location:</span> 
-                                                    <span style="color: #111827; font-weight: 600;">📍 ${event_location}</span>
+                                                    <span style="color: #111827; font-weight: 600;"> ${event_location}</span>
                                                 </td>
                                             </tr>
                                             ` : ''}
@@ -331,7 +331,7 @@ export async function sendEventConfirmedEmail({
                                             <tr>
                                                 <td style="padding: 8px 0; border-top: 1px solid #f1f5f9; line-height: 1.4;">
                                                     <span style="color: #94a3b8; display: inline-block; min-width: 80px; font-weight: 600; text-transform: uppercase; font-size: 11px;">Date & Time:</span> 
-                                                    <span style="color: #111827; font-weight: 600;">📅 ${formattedStart || ''} ${formattedEnd ? `– ${formattedEnd}` : ''}</span>
+                                                    <span style="color: #111827; font-weight: 600;"> ${formattedStart || ''} ${formattedEnd ? `– ${formattedEnd}` : ''}</span>
                                                 </td>
                                             </tr>
                                             ` : ''}
