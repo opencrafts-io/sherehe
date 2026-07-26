@@ -217,7 +217,7 @@ const formatDate = (d) => {
 
 
 
-export async function sendEventConfirmedEmail({
+export async function sendEventConfirmedEmail(
     organizer_name = "Organizer",
     event_name,
     event_description,
@@ -227,7 +227,7 @@ export async function sendEventConfirmedEmail({
     event_banner_image,
     scope = "public",
     created_at
-}) {
+) {
     // Explicit date formatting with time included
     const formatDate = (d) => {
         if (!d) return null;
@@ -246,7 +246,7 @@ export async function sendEventConfirmedEmail({
     const formattedDate = formatDate(created_at);
     const formattedEnd = formatDate(end_date);
     const currentYear = new Date().getFullYear();
-
+    
     const email = `
 <!DOCTYPE html>
 <html>

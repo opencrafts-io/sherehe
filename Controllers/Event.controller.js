@@ -253,7 +253,6 @@ if (scope === "institution") {
     );
 
     const organizer_email = await getUserByIdRepository(organizer_id);
-
                 const ticketEmail = await sendEventConfirmedEmail(
                   organizer_email.name,
                   event.event_name,
