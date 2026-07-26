@@ -20,9 +20,10 @@ import { createEventInstitutionRepository } from "../Repositories/event_institut
 import { createEventInviteRepository } from '../Repositories/event_invite.repository.js';
 import crypto from "crypto";;
 import { getAllUserInstitutionRepository } from '../Repositories/user_institution.repository.js';
-import { sendTemplatedEmail } from '../Services/gossip_monger_email.js';
+import { sendPlainEmail } from '../Services/gossip_monger_email.js';
 import { getUserByIdRepository } from '../Repositories/User.repository.js';
 import { sendUserPushNotification } from '../Services/gossip_monger_push_notification.js';
+import {sendEventConfirmedEmail} from '../Utils/Email.js'
 export const createEventController = async (req, res) => {
   const start = process.hrtime.bigint();
   let savedFiles = [];
@@ -253,30 +254,27 @@ if (scope === "institution") {
 
     const organizer_email = await getUserByIdRepository(organizer_id);
 
-    const emailPayload = {
-      to_addresses: [organizer_email.email],
-      subject: `New Event: ${event.event_name}`,
-      template_id: "sherehe-event-confirmed",
-      template_vars: {
-        "created_at": event.created_at,
-        "event_location": event.event_location,
-        "event_name": event.event_name,
-        "scope": event.scope,
-        "start_date": new Date(event.start_date).toLocaleString("en-KE", {
-          timeZone: "Africa/Nairobi",
-          weekday: "long",
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: true,
-        }),
-      }
-    };
+                const ticketEmail = await sendEventConfirmedEmail(
+                  organizer_email.name,
+                  event.event_name,
+                  event.event_description,
+                  event.event_location,
+                  event.start_date,
+                  event.end_date,
+                  event.event_banner_image,
+                  event.scope,
+                  event.created_at
+                  )
+
+    const emailPayload ={
+              to_addresses: [organizer_email.email],
+              subject: `Event Confirmation: ${event.event_name}`,
+              body_html: ticketEmail,
+              body_text: `Congratulations! ${event.event_name} is officially published and live on Academia.Thank you for bringing your event to our platform. All event details, location, and scheduling information are now active for attendees.`
+            }; 
 
     try {
-      await sendTemplatedEmail(emailPayload, "io.opencrafts.sherehe");
+      await sendPlainEmail(emailPayload, "io.opencrafts.sherehe");
     } catch (emailError) {
       logs(
         Number(process.hrtime.bigint() - start),
