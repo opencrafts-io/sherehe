@@ -8,7 +8,7 @@ import { sendPlainEmail } from '../Services/gossip_monger_email.js';
 import { getEventByIdRepository } from "../Repositories/Event.repository.js";
 import { getUserByIdRepository } from "../Repositories/User.repository.js";
 import { sendUserPushNotification } from '../Services/gossip_monger_push_notification.js'
-import {generateQrWithLogo} from '../Utils/generate_qr_code.js'
+import {generateGoQrUrl} from '../Utils/generate_qr_code.js'
 import {sendTicketPurchasedEmail} from '../Utils/Email.js'
 
 const RABBITMQ_HOST = process.env.RABBITMQ_HOST
@@ -124,7 +124,7 @@ export async function startMpesaSuccessConsumer() {
           if (success) {
             const event = await getEventByIdRepository(event_id);
             const user_email = await getUserByIdRepository(user_id);
-            const url = await generateQrWithLogo(`https://academia.opencrafts.io/sherehe/get-event/${event_id}/event-tickets`);
+            const url = await generateGoQrUrl(`https://academia.opencrafts.io/sherehe/get-event/${event_id}/event-tickets`);
             const created_at = new Date().toLocaleString('en-KE', {
                   timeZone: 'Africa/Nairobi',
                   weekday: 'long',
@@ -135,8 +135,25 @@ export async function startMpesaSuccessConsumer() {
                   minute: '2-digit',
                   hour12: true
                 })
+                
 
-            const ticketEmail = await sendTicketPurchasedEmail(ticket_id,event.event_name , created_at, ticket.ticket_name , ticket.ticket_for , attendeesToCreate , ticket.ticket_price , url)
+            const ticketEmail = await sendTicketPurchasedEmail(
+              user_email.name,
+              ticket_id,
+              event.event_name , 
+              event.event_description ,
+              event.event_location ,
+              event.start_date ,
+              event.end_date ,
+              event.event_card_image ,
+              created_at,
+               ticket.ticket_name , 
+              ticket.ticket_for , 
+              attendeesToCreate , 
+              ticket.ticket_price ,
+              ticket.start_date ,
+              ticket.end_date ,
+               url)
             const notificationPayload = {
               to_addresses: [user_email.email],
               subject: `Your ticket for ${event.event_name} has been confirmed`,
