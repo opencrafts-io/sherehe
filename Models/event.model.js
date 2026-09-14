@@ -19,6 +19,11 @@ const Event = sequelize.define(
       allowNull: false,
       defaultValue: 0
     },
+    has_dynamic_questions: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
+    },
     organizer_id: { type: DataTypes.UUID, allowNull: false },
     event_card_image: { type: DataTypes.STRING, allowNull: true },
     event_poster_image: { type: DataTypes.STRING, allowNull: true },
