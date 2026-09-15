@@ -30,6 +30,11 @@ export const createTicketController = async (req, res) => {
       });
     }
 
+    if (ticket_name.length > 100) {
+      logRequest("WARN", "Missing required fields", 400);
+    return res.status(400).json({ error: "The ticket name has more than 100 characters." });
+  }
+
 
     const event = await getEventByIdRepository(event_id);
     if (!event) {
