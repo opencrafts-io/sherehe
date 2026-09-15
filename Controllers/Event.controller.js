@@ -52,6 +52,9 @@ export const createEventController = async (req, res) => {
     // -------------------------
     // VALIDATIONS
     // -------------------------
+    if (event_name.length > 100) {
+     return res.status(400).json({ error: "The Event name has more than 100 characters" });
+}
     if (payment_type === "MPESA_PAYBILL" && !paybill_number) {
       return res.status(400).json({ error: "Paybill number is required" });
     }
