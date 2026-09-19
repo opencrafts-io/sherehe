@@ -1,6 +1,26 @@
 // Repository/dynamicQuestionRepository.js
 import { Event, DynamicQuestion, QuestionResponse } from '../Models/index.js';
-import { Op, fn, col , literal } from 'sequelize';
+import { Op, literal } from 'sequelize';
+
+// ============================================================
+// Helper: live attendee count for an event
+// Mirrors the pattern used in eventRepository.js
+// ============================================================
+const attendeeCountLiteral = () => literal(`(
+  SELECT COALESCE(SUM("attendees"."ticket_quantity"), 0)
+  FROM "attendees"
+  WHERE "attendees"."event_id" = "events"."id"
+  AND "attendees"."deleted_at" IS NULL
+)`);
+
+// ============================================================
+// Helper: live response count for a question
+// ============================================================
+const responseCountLiteral = () => literal(`(
+  SELECT COUNT(*)
+  FROM "question_responses" AS qr
+  WHERE qr."question_id" = "dynamic_questions"."id"
+)`);
 
 /**
  * Create a question
@@ -50,8 +70,9 @@ export const getRegistrationQuestionsRepository = async (eventId, timing = 'befo
   }
 };
 
-
-
+/**
+ * List questions for admin (with live response count)
+ */
 export const listQuestionsForAdminRepository = async (eventId, filters = {}) => {
   try {
     const { timing, is_active, search } = filters;
@@ -65,16 +86,7 @@ export const listQuestionsForAdminRepository = async (eventId, filters = {}) => 
       where,
       order: [['ask_timing', 'ASC'], ['display_order', 'ASC']],
       attributes: {
-        include: [
-          [
-            literal(`(
-              SELECT COUNT(*)
-              FROM question_responses AS qr
-              WHERE qr.question_id = "dynamic_questions"."id"
-            )`),
-            'response_count'
-          ]
-        ]
+        include: [[responseCountLiteral(), 'response_count']]
       }
     });
 
@@ -89,47 +101,52 @@ export const listQuestionsForAdminRepository = async (eventId, filters = {}) => 
     throw error;
   }
 };
+
 /**
  * Admin dashboard stats for all questions in an event
+ *
+ * Uses SQL-side aggregation for both attendee_count (SUM of ticket_quantity
+ * on the attendees table) and per-question response_count. This mirrors the
+ * pattern used in eventRepository.js and avoids:
+ *   - Trusting the stale `attendee_count` column on Event
+ *   - Loading every QuestionResponse row into memory just to count them
  */
-
 export const getQuestionsDashboardRepository = async (eventId) => {
   try {
     const event = await Event.findByPk(eventId, {
-      include: [
-        {
-          model: DynamicQuestion,               // no `as` — Sequelize uses the model name
-          include: [
-            {
-              model: QuestionResponse,          // no `as` — Sequelize uses the model name
-              attributes: ['id']
-            }
-          ]
-        }
-      ]
+      attributes: {
+        exclude: ['attendee_count'],
+        include: [[attendeeCountLiteral(), 'attendee_count']]
+      }
     });
 
     if (!event) return null;
 
-    const json = event.toJSON();
+    const questions = await DynamicQuestion.findAll({
+      where: { event_id: eventId },
+      order: [['ask_timing', 'ASC'], ['display_order', 'ASC']],
+      attributes: {
+        include: [[responseCountLiteral(), 'response_count']]
+      }
+    });
 
-    // Sequelize will expose them under the model name keys:
-    //   json.dynamic_questions
-    //   q.question_responses
-    const questions = json.dynamic_questions || [];
+    const json = event.toJSON();
+    const totalAttendees = Number(json.attendee_count) || 0;
 
     const stats = questions.map(q => {
-      const responseCount = q.question_responses?.length || 0;
+      const row = q.toJSON();
+      const responseCount = Number(row.response_count) || 0;
+
       return {
-        id: q.id,
-        text: q.question_text,
-        type: q.question_type,
-        timing: q.ask_timing,
-        is_required: q.is_required,
-        is_active: q.is_active,
+        id: row.id,
+        text: row.question_text,
+        type: row.question_type,
+        timing: row.ask_timing,
+        is_required: row.is_required,
+        is_active: row.is_active,
         response_count: responseCount,
-        response_rate: json.attendee_count
-          ? ((responseCount / json.attendee_count) * 100).toFixed(1) + '%'
+        response_rate: totalAttendees
+          ? ((responseCount / totalAttendees) * 100).toFixed(1) + '%'
           : 'N/A'
       };
     });
@@ -137,7 +154,7 @@ export const getQuestionsDashboardRepository = async (eventId) => {
     return {
       event_id: json.id,
       event_name: json.event_name,
-      total_attendees: json.attendee_count,
+      total_attendees: totalAttendees,
       total_questions: stats.length,
       before_registration: stats.filter(s => s.timing === 'before_registration').length,
       after_registration: stats.filter(s => s.timing === 'after_registration').length,
@@ -148,6 +165,7 @@ export const getQuestionsDashboardRepository = async (eventId) => {
     throw error;
   }
 };
+
 /**
  * Get a single question by id
  */
@@ -243,7 +261,10 @@ export const bulkCreateResponsesRepository = async (responsesData, options = {})
 /**
  * Get paginated responses for a question
  */
-export const getQuestionResponsesRepository = async (questionId, { page = 1, limit = 50, userId } = {}) => {
+export const getQuestionResponsesRepository = async (
+  questionId,
+  { page = 1, limit = 50, userId } = {}
+) => {
   try {
     const offset = (page - 1) * limit;
     const where = { question_id: questionId };

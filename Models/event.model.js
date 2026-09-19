@@ -14,11 +14,6 @@ const Event = sequelize.define(
     event_location: { type: DataTypes.STRING, allowNull: false },
     start_date: { type: DataTypes.DATE, allowNull: true },
     end_date: { type: DataTypes.DATE, allowNull: true },
-    attendee_count: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 0
-    },
     has_dynamic_questions: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
