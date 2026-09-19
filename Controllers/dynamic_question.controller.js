@@ -70,7 +70,8 @@ export const submitQuestionResponsesController = async (req, res) => {
   let transaction;
 
   try {
-    const { eventId, responses } = req.body;
+    const { responses } = req.body;
+    const { eventId } = req.params;
     const userId = req.user.sub;
 
     if (!eventId || !Array.isArray(responses) || responses.length === 0) {
