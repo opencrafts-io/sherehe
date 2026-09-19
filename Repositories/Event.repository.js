@@ -102,69 +102,74 @@ export const getAllEventsRepository = async (
       [Op.or]: orConditions
     };
 
-    let orderArray = [
-      ["created_at", "DESC"]
-    ];
+let orderArray = [
+  [attendeeCountLiteral(), "DESC"],
+  ["created_at", "DESC"]
+];
 
-    if (institutionIds.length > 0) {
-      const institutionIdList = institutionIds
-        .map(id => Number(id))
-        .join(',');
+if (institutionIds.length > 0) {
+  const institutionIdList = institutionIds
+    .map(id => Number(id))
+    .join(',');
 
-      orderArray = [
-        [
-          literal(`
-            CASE
-              WHEN "events"."scope" = 'institution'
-              AND "event_institutions"."institution_id"
-              IN (${institutionIdList})
-              THEN 0
-              ELSE 1
-            END
-          `),
-          "ASC"
-        ],
-        ["created_at", "DESC"]
-      ];
+  orderArray = [
+    [
+      literal(`
+        CASE 
+          WHEN "events"."scope" = 'institution'
+               AND "event_institutions"."institution_id" IN (${institutionIdList})
+          THEN 0
+          ELSE 1
+        END
+      `),
+      "ASC"
+    ],
+
+    [attendeeCountLiteral(), "DESC"],
+
+    ["created_at", "DESC"]
+  ];
+}
+
+const events = await Event.findAll({
+  where: whereCondition,
+
+  attributes: {
+    exclude: ["attendee_count"],
+
+    include: [
+      [
+        attendeeCountLiteral(),
+        "attendee_count"
+      ]
+    ]
+  },
+
+  include: [
+    {
+      model: EventInstitution,
+      as: "event_institutions",
+      attributes: ["institution_id"],
+      required: false,
+
+      where: institutionIds.length > 0
+        ? {
+            institution_id: {
+              [Op.in]: institutionIds
+            }
+          }
+        : undefined
     }
+  ],
 
-    const events = await Event.findAll({
-      where: whereCondition,
-      attributes: {
-        exclude: [
-          "attendee_count"
-        ],
-        include: [
-          [
-            attendeeCountLiteral(),
-            "attendee_count"
-          ]
-        ]
-      },
+  order: orderArray,
 
-      include: [
-        {
-          model: EventInstitution,
-          as: "event_institutions",
-          attributes: [
-            "institution_id"
-          ],
-          required: false,
-          where: institutionIds.length > 0
-            ? {
-                institution_id: {
-                  [Op.in]: institutionIds
-                }
-              }
-            : undefined
-        }
-      ],
-      order: orderArray,
-      limit: limitPlusOne,
-      offset,
-      subQuery: false,
-      distinct: true
-    });
+  limit: limitPlusOne,
+  offset,
+
+  subQuery: false,
+  distinct: true
+});
 
     const formattedEvents = events.map(event => {
       const json = event.toJSON();
