@@ -3471,9 +3471,7 @@ collection:
             | `display_order` | number | ❌ | Default: `0` |
             | `ask_timing` | enum | ❌ | `before_registration` (default), `after_registration`, `after_event` |
             | `conditional_logic` | object | ❌ | e.g. `{ depends_on_question_id, operator, value }` |
-            | `internal_note` | string | ❌ | Admin-only note |
             | `is_admin_only` | boolean | ❌ | Default: `false` |
-            | `include_in_export` | boolean | ❌ | Default: `true` |
 
             > ⚠️ Do **not** send `event_id`, `created_by`, `updated_by` — the controller injects them automatically from `req.params.eventId` and `req.user.sub`.
 
@@ -4637,9 +4635,7 @@ collection:
             | `display_order` | number | |
             | `ask_timing` | enum | `before_registration`, `after_registration`, `after_event` |
             | `conditional_logic` | object | |
-            | `internal_note` | string | |
             | `is_admin_only` | boolean | |
-            | `include_in_export` | boolean | |
 
             > ❌ Do **not** send `id`, `event_id`, `created_by`, `updated_by`, `created_at`, `updated_at`. The controller auto-sets `updated_by`.
 
@@ -4704,7 +4700,6 @@ collection:
             ```json
             {
               "is_admin_only": true,
-              "internal_note": "For internal use only — do not expose."
             }
             ```
 
@@ -4838,11 +4833,7 @@ collection:
                 "display_order": 1,
                 "ask_timing": "before_registration",
                 "conditional_logic": null,
-                "internal_note": null,
                 "is_admin_only": false,
-                "include_in_export": true,
-                "created_by": "6fdd587f-d1dd-49af-9c17-a709612297eb",
-                "updated_by": "6fdd587f-d1dd-49af-9c17-a709612297eb",
                 "created_at": "2026-09-14T16:35:11.795Z",
                 "updated_at": "2026-09-14T17:05:22.000Z"
               }

@@ -195,11 +195,31 @@ export const createQuestionController = async (req, res) => {
     const { eventId } = req.params;
     const adminId = req.user.sub;
 
+    const {question_text ,
+      question_type , 
+      options, 
+      validation_rules, 
+      is_required, 
+      ask_timing, 
+      display_order , 
+      help_text , 
+      is_active , 
+      conditional_logic , 
+      is_admin_only} = req.body;
+
     const payload = {
-      ...req.body,
+      question_type , 
+      options, 
+      validation_rules, 
+      is_required, 
+      ask_timing, 
+      display_order , 
+      help_text , 
+      is_active , 
+      conditional_logic , 
+      is_admin_only,
+      question_text,
       event_id: eventId,
-      created_by: adminId,
-      updated_by: adminId
     };
 
     const question = await createQuestionRepository(payload);
@@ -231,7 +251,33 @@ export const updateQuestionController = async (req, res) => {
     const { questionId } = req.params;
     const adminId = req.user.sub;
 
-    const result = await updateQuestionRepository(questionId, req.body, adminId);
+        const {question_text ,
+      question_type , 
+      options, 
+      validation_rules, 
+      is_required, 
+      ask_timing, 
+      display_order , 
+      help_text , 
+      is_active , 
+      conditional_logic , 
+      is_admin_only} = req.body;
+
+    const payload = {
+      question_type , 
+      options, 
+      validation_rules, 
+      is_required, 
+      ask_timing, 
+      display_order , 
+      help_text , 
+      is_active , 
+      conditional_logic , 
+      is_admin_only,
+      question_text,
+    };
+
+    const result = await updateQuestionRepository(questionId, payload, adminId);
 
     if (result.status === "not_found") {
       const duration = Number(process.hrtime.bigint() - start);

@@ -168,7 +168,7 @@ export const updateQuestionRepository = async (questionId, updateData, updatedBy
     const question = await DynamicQuestion.findByPk(questionId);
     if (!question) return { status: 'not_found' };
 
-    await question.update({ ...updateData, updated_by: updatedBy });
+    await question.update({ ...updateData });
     return { status: 'success', question: question.toJSON() };
   } catch (error) {
     throw error;
@@ -183,7 +183,7 @@ export const toggleQuestionActiveRepository = async (questionId, updatedBy) => {
     const question = await DynamicQuestion.findByPk(questionId);
     if (!question) return { status: 'not_found' };
 
-    await question.update({ is_active: !question.is_active, updated_by: updatedBy });
+    await question.update({ is_active: !question.is_active });
     return {
       status: 'success',
       id: question.id,
@@ -202,7 +202,7 @@ export const reorderQuestionsRepository = async (eventId, order, updatedBy, opti
     await Promise.all(
       order.map(({ id, display_order }) =>
         DynamicQuestion.update(
-          { display_order, updated_by: updatedBy },
+          { display_order },
           { where: { id, event_id: eventId }, ...options }
         )
       )
@@ -293,7 +293,7 @@ export const getQuestionValuesRepository = async (questionId) => {
  */
 export const getEventResponsesForExportRepository = async (eventId, timing) => {
   try {
-    const questionWhere = { event_id: eventId, include_in_export: true };
+    const questionWhere = { event_id: eventId };
     if (timing) questionWhere.ask_timing = timing;
 
     const questions = await DynamicQuestion.findAll({

@@ -52,7 +52,7 @@ export const createEventController = async (req, res) => {
     // -------------------------
     // VALIDATIONS
     // -------------------------
-    if (event_name.length > 100) {
+    if (typeof event_name === "string" && event_name.length > 100) {
      return res.status(400).json({ error: "The Event name has more than 100 characters" });
 }
     if (payment_type === "MPESA_PAYBILL" && !paybill_number) {
@@ -162,7 +162,7 @@ if (scope === "institution") {
         const eventEnd = new Date(event.end_date);
         const ticket_name = ticket.ticket_name;
 
-            if (ticket_name.length > 100) {
+            if (typeof ticket_name === "string" && ticket_name.length > 100) {
      throw new Error("The Ticket name has more than 100 characters" );
 }
 
