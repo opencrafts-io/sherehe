@@ -19,6 +19,7 @@ const attendeeCountLiteral = () => literal(`(
   SELECT COALESCE(SUM("ticket_quantity"), 0)
   FROM "attendees"
   WHERE "attendees"."event_id" = "events"."id"
+  AND "attendees"."deleted_at" IS NULL
 )`);
 
 

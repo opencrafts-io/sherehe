@@ -11,7 +11,7 @@ import {
   reorderQuestionsController,
   deleteQuestionController,
   getQuestionResponsesController,
-  exportResponsesCSVController
+  // exportResponsesCSVController
 } from "../Controllers/dynamic_question.controller.js";
 
 import { verifyToken } from "../Middleware/jwt_token_verification.js";
@@ -67,6 +67,6 @@ router.get("/admin/questions/:questionId/responses", getQuestionResponsesControl
 
 // Export responses as CSV
 // Query: ?timing=before_registration
-router.get("/admin/events/:eventId/responses/export", exportResponsesCSVController);
+// router.get("/admin/events/:eventId/responses/export", exportResponsesCSVController);
 
 export default router;

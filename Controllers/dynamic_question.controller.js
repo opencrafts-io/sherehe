@@ -13,7 +13,8 @@ import {
   bulkCreateResponsesRepository,
   getQuestionResponsesRepository,
   getQuestionValuesRepository,
-  getEventResponsesForExportRepository
+  // getEventResponsesForExportRepository,
+  validateResponseValue
 } from "../Repositories/dynamic_questions.repository.js";
 
 import sequelize from "../Utils/db.js";
@@ -68,6 +69,12 @@ export const getRegistrationQuestionsController = async (req, res) => {
 export const submitQuestionResponsesController = async (req, res) => {
   const start = process.hrtime.bigint();
   let transaction;
+  const fail = (status, message) => {
+    const duration = Number(process.hrtime.bigint() - start);
+    logs(duration, status >= 500 ? "ERROR" : "WARN", req.ip, req.method,
+         message, req.originalUrl, status, req.headers["user-agent"]);
+    return res.status(status).json({ error: message });
+  };
 
   try {
     const { responses } = req.body;
@@ -75,14 +82,86 @@ export const submitQuestionResponsesController = async (req, res) => {
     const userId = req.user.sub;
 
     if (!eventId || !Array.isArray(responses) || responses.length === 0) {
-      const duration = Number(process.hrtime.bigint() - start);
-      logs(duration, "WARN", req.ip, req.method, "Invalid response payload", req.originalUrl, 422, req.headers["user-agent"]);
-      return res.status(422).json({ error: "eventId and responses array are required" });
+      return fail(422, "eventId and responses array are required");
+    }
+
+    // 0. Reject duplicate question_ids in the same payload
+    const questionIds = responses.map(r => r.question_id);
+    if (new Set(questionIds).size !== questionIds.length) {
+      return fail(422, "Duplicate question_id in payload");
     }
 
     transaction = await sequelize.transaction();
 
     try {
+      // 1. Load the questions, scoped to THIS event and marked usable
+      const questions = await DynamicQuestion.findAll({
+        where: {
+          id: { [Op.in]: questionIds },
+          event_id: eventId,
+          is_active: true,
+          is_deleted: false,
+          visibility: { [Op.in]: ["public", "attendee"] } // adjust to schema
+        },
+        transaction,
+        lock: transaction.LOCK.UPDATE
+      });
+
+      // 2. Every submitted question must have been found & belong to eventId
+      if (questions.length !== questionIds.length) {
+        const found = new Set(questions.map(q => q.id));
+        const missing = questionIds.filter(id => !found.has(id));
+        await transaction.rollback();
+        return fail(422, `Invalid or inaccessible question_id(s): ${missing.join(", ")}`);
+      }
+
+      const questionById = new Map(questions.map(q => [q.id, q]));
+
+      // 3. Validate registration_id ownership (if provided)
+      const regIds = [...new Set(responses.map(r => r.registration_id).filter(Boolean))];
+      if (regIds.length) {
+        const owned = await Registration.findAll({
+          where: { id: { [Op.in]: regIds }, user_id: userId, event_id: eventId },
+          attributes: ["id"],
+          transaction
+        });
+        const ownedSet = new Set(owned.map(r => r.id));
+        const bad = regIds.filter(id => !ownedSet.has(id));
+        if (bad.length) {
+          await transaction.rollback();
+          return fail(403, `registration_id not owned by user for this event: ${bad.join(", ")}`);
+        }
+      }
+
+      // 4. Load existing responses to satisfy conditional logic & uniqueness
+      const existing = await QuestionResponse.findAll({
+        where: { event_id: eventId, user_id: userId },
+        transaction
+      });
+      const responseByQuestionId = new Map(existing.map(r => [r.question_id, r]));
+
+      // 5. Per-question value validation + conditional logic
+      for (const r of responses) {
+        const q = questionById.get(r.question_id);
+
+        if (responseByQuestionId.has(q.id) && q.allow_multiple !== true) {
+          await transaction.rollback();
+          return fail(409, `Question ${q.id} already answered`);
+        }
+
+        if (!conditionMet(q, responseByQuestionId)) {
+          await transaction.rollback();
+          return fail(422, `Question ${q.id} is not currently applicable`);
+        }
+
+        const err = validateResponseValue(q, r.response_value);
+        if (err) {
+          await transaction.rollback();
+          return fail(422, `Invalid response for question ${q.id}: ${err}`);
+        }
+      }
+
+      // 6. Insert
       const responsesToCreate = responses.map(r => ({
         question_id: r.question_id,
         event_id: eventId,
@@ -92,26 +171,18 @@ export const submitQuestionResponsesController = async (req, res) => {
       }));
 
       await bulkCreateResponsesRepository(responsesToCreate, { transaction });
-
       await transaction.commit();
     } catch (error) {
-      if (!transaction.finished) await transaction.rollback();
+      if (transaction && !transaction.finished) await transaction.rollback();
       throw error;
     }
 
     const duration = Number(process.hrtime.bigint() - start);
-    logs(duration, "INFO", req.ip, req.method, "Responses submitted", req.originalUrl, 201, req.headers["user-agent"]);
-
-    return res.status(201).json({
-      message: "Responses submitted successfully"
-    });
+    logs(duration, "INFO", req.ip, req.method, "Responses submitted",
+         req.originalUrl, 201, req.headers["user-agent"]);
+    return res.status(201).json({ message: "Responses submitted successfully" });
   } catch (error) {
-    const duration = Number(process.hrtime.bigint() - start);
-    logs(duration, "ERROR", req.ip, req.method, error.message, req.originalUrl, 500, req.headers["user-agent"]);
-    return res.status(500).json({
-      error: "Failed to submit responses",
-      details: error.message
-    });
+    return fail(500, `Failed to submit responses: ${error.message}`);
   }
 };
 
@@ -527,52 +598,52 @@ export const getQuestionResponsesController = async (req, res) => {
 /**
  * Export responses as CSV
  */
-export const exportResponsesCSVController = async (req, res) => {
-  const start = process.hrtime.bigint();
+// export const exportResponsesCSVController = async (req, res) => {
+//   const start = process.hrtime.bigint();
 
-  try {
-    const { eventId } = req.params;
-    const { timing } = req.query;
+//   try {
+//     const { eventId } = req.params;
+//     const { timing } = req.query;
 
-    const { questions, responses } = await getEventResponsesForExportRepository(eventId, timing);
+//     const { questions, responses } = await getEventResponsesForExportRepository(eventId, timing);
 
-    // Pivot responses: one row per user, one column per question
-    const userMap = {};
-    responses.forEach(r => {
-      if (!userMap[r.user_id]) userMap[r.user_id] = { user_id: r.user_id };
-      userMap[r.user_id][r.question_id] = r.response_value;
-    });
+//     // Pivot responses: one row per user, one column per question
+//     const userMap = {};
+//     responses.forEach(r => {
+//       if (!userMap[r.user_id]) userMap[r.user_id] = { user_id: r.user_id };
+//       userMap[r.user_id][r.question_id] = r.response_value;
+//     });
 
-    const fields = ["user_id", ...questions.map(q => q.question_text)];
+//     const fields = ["user_id", ...questions.map(q => q.question_text)];
 
-    const rows = Object.values(userMap).map(u => {
-      const row = { user_id: u.user_id };
-      questions.forEach(q => {
-        const val = u[q.id];
-        row[q.question_text] = Array.isArray(val)
-          ? val.join(", ")
-          : typeof val === "object" && val !== null
-            ? JSON.stringify(val)
-            : val ?? "";
-      });
-      return row;
-    });
+//     const rows = Object.values(userMap).map(u => {
+//       const row = { user_id: u.user_id };
+//       questions.forEach(q => {
+//         const val = u[q.id];
+//         row[q.question_text] = Array.isArray(val)
+//           ? val.join(", ")
+//           : typeof val === "object" && val !== null
+//             ? JSON.stringify(val)
+//             : val ?? "";
+//       });
+//       return row;
+//     });
 
-    const parser = new Parser({ fields });
-    const csv = parser.parse(rows);
+//     const parser = new Parser({ fields });
+//     const csv = parser.parse(rows);
 
-    const duration = Number(process.hrtime.bigint() - start);
-    logs(duration, "INFO", req.ip, req.method, "Admin: exported responses CSV", req.originalUrl, 200, req.headers["user-agent"]);
+//     const duration = Number(process.hrtime.bigint() - start);
+//     logs(duration, "INFO", req.ip, req.method, "Admin: exported responses CSV", req.originalUrl, 200, req.headers["user-agent"]);
 
-    res.header("Content-Type", "text/csv");
-    res.header("Content-Disposition", `attachment; filename="event-${eventId}-responses.csv"`);
-    return res.send(csv);
-  } catch (error) {
-    const duration = Number(process.hrtime.bigint() - start);
-    logs(duration, "ERROR", req.ip, req.method, error.message, req.originalUrl, 500, req.headers["user-agent"]);
-    return res.status(500).json({
-      error: "Failed to export responses",
-      details: error.message
-    });
-  }
-};
+//     res.header("Content-Type", "text/csv");
+//     res.header("Content-Disposition", `attachment; filename="event-${eventId}-responses.csv"`);
+//     return res.send(csv);
+//   } catch (error) {
+//     const duration = Number(process.hrtime.bigint() - start);
+//     logs(duration, "ERROR", req.ip, req.method, error.message, req.originalUrl, 500, req.headers["user-agent"]);
+//     return res.status(500).json({
+//       error: "Failed to export responses",
+//       details: error.message
+//     });
+//   }
+// };

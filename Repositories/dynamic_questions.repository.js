@@ -28,6 +28,12 @@ const responseCountLiteral = () => literal(`(
 export const createQuestionRepository = async (questionData, options = {}) => {
   try {
     const question = await DynamicQuestion.create(questionData, options);
+
+    const event = await Event.findByPk(question.event_id);
+    if (event && !event.has_dynamic_questions) {
+      // update has_dynamic_questions to true
+      event.update({ has_dynamic_questions: true });
+    }
     return question.toJSON();
   } catch (error) {
     throw error;
@@ -333,5 +339,64 @@ export const getEventResponsesForExportRepository = async (eventId, timing) => {
     };
   } catch (error) {
     throw error;
+  }
+};
+
+export const validateResponseValue = (question, value) => {
+  const rules = question.validation_rule || {};
+
+  switch (question.type) {
+    case "text":
+    case "textarea": {
+      if (typeof value !== "string") return "must be a string";
+      if (rules.minLength != null && value.length < rules.minLength)
+        return `must be at least ${rules.minLength} characters`;
+      if (rules.maxLength != null && value.length > rules.maxLength)
+        return `must be at most ${rules.maxLength} characters`;
+      if (rules.pattern && !new RegExp(rules.pattern).test(value))
+        return "does not match required pattern";
+      return null;
+    }
+    case "number": {
+      const n = Number(value);
+      if (!Number.isFinite(n)) return "must be a number";
+      if (rules.min != null && n < rules.min) return `must be >= ${rules.min}`;
+      if (rules.max != null && n > rules.max) return `must be <= ${rules.max}`;
+      return null;
+    }
+    case "boolean":
+      return typeof value === "boolean" ? null : "must be a boolean";
+    case "single_choice": {
+      const allowed = (question.options || []).map(o => o.value ?? o.id);
+      return allowed.includes(value) ? null : "invalid option";
+    }
+    case "multi_choice": {
+      if (!Array.isArray(value)) return "must be an array";
+      const allowed = new Set((question.options || []).map(o => o.value ?? o.id));
+      return value.every(v => allowed.has(v)) ? null : "invalid option(s)";
+    }
+    case "date": {
+      const d = new Date(value);
+      return Number.isNaN(d.getTime()) ? "invalid date" : null;
+    }
+    default:
+      return "unsupported question type";
+  }
+};
+
+const conditionMet = (question, responseByQuestionId) => {
+  const cond = question.conditional_logic;
+  if (!cond) return true;
+  const parent = responseByQuestionId.get(cond.question_id);
+  if (!parent) return false;
+  const { operator, value } = cond;
+  const pv = parent.response_value;
+  switch (operator) {
+    case "eq":   return pv === value;
+    case "neq":  return pv !== value;
+    case "in":   return Array.isArray(value) && value.includes(pv);
+    case "gt":   return Number(pv) >  Number(value);
+    case "lt":   return Number(pv) <  Number(value);
+    default:     return false;
   }
 };
