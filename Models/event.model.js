@@ -14,10 +14,10 @@ const Event = sequelize.define(
     event_location: { type: DataTypes.STRING, allowNull: false },
     start_date: { type: DataTypes.DATE, allowNull: true },
     end_date: { type: DataTypes.DATE, allowNull: true },
-    attendee_count: {
-      type: DataTypes.INTEGER,
+    has_dynamic_questions: {
+      type: DataTypes.BOOLEAN,
       allowNull: false,
-      defaultValue: 0
+      defaultValue: false
     },
     organizer_id: { type: DataTypes.UUID, allowNull: false },
     event_card_image: { type: DataTypes.STRING, allowNull: true },

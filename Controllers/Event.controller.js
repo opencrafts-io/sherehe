@@ -52,6 +52,9 @@ export const createEventController = async (req, res) => {
     // -------------------------
     // VALIDATIONS
     // -------------------------
+    if (typeof event_name === "string" && event_name.length > 100) {
+     return res.status(400).json({ error: "The Event name has more than 100 characters" });
+}
     if (payment_type === "MPESA_PAYBILL" && !paybill_number) {
       return res.status(400).json({ error: "Paybill number is required" });
     }
@@ -157,6 +160,11 @@ if (scope === "institution") {
         const ticketEnd = ticket.end_date ? new Date(ticket.end_date) : new Date(end_date);
         const eventStart = new Date(event.start_date);
         const eventEnd = new Date(event.end_date);
+        const ticket_name = ticket.ticket_name;
+
+            if (typeof ticket_name === "string" && ticket_name.length > 100) {
+     throw new Error("The Ticket name has more than 100 characters" );
+}
 
         if (ticketStart && ticketStart < eventStart) {
           throw new Error(`Ticket "${ticket.ticket_name}" starts before the event starts.`);

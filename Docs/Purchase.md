@@ -310,7 +310,7 @@ const paymentData = {
   "trans_amount": amount,              // Total ticket amount
   "service_name": "SHEREHE",           // Service identifier
   "trans_desc": `Ticket purchase for ${ticket_quantity} ticket(s) to ${event.event_name}`,
-  "reply_to": SHEREHE_ROUTING_KEY,    // Queue for callbacks (NDOVUKUU)
+  "reply_to": SHEREHE_ROUTING_KEY,    // Queue for callbacks (io.opencrafts.sherehe)
   "split_data": {
     "originator": "MPESA",
     "extras": {

@@ -12,6 +12,8 @@ import TicketInstitution from './ticket_institution.model.js';
 import ScannedTickets from './Scanned_tickets.model.js';
 import UserInstitution from './user_institution.model.js';
 import Institution from './institution.model.js'
+import DynamicQuestion from './DynamicQuestion.js';
+import QuestionResponse from './QuestionResponse.js';
 // Define relationships
 
 User.hasMany(Event, { foreignKey: 'organizer_id' });
@@ -126,5 +128,29 @@ Institution.hasMany(UserInstitution, {
   foreignKey: "institution_id",
 });
 
+Event.hasMany(DynamicQuestion, {
+  foreignKey: 'event_id',
+});
 
-export { User, Institution , Event, Ticket, Attendee , PaymentInfo , Transaction , EventScanner , EventInvite , EventInstitution , TicketInvite , TicketInstitution , ScannedTickets , UserInstitution};
+DynamicQuestion.belongsTo(Event, {
+  foreignKey: 'event_id',
+});
+
+DynamicQuestion.hasMany(QuestionResponse, {
+  foreignKey: 'question_id',
+});
+
+QuestionResponse.belongsTo(DynamicQuestion, {
+  foreignKey: 'question_id',
+});
+
+Event.hasMany(QuestionResponse, {
+  foreignKey: 'event_id',
+});
+
+QuestionResponse.belongsTo(Event, {
+  foreignKey: 'event_id',
+});
+
+
+export { User, Institution , Event, Ticket, Attendee , PaymentInfo , Transaction , EventScanner , EventInvite , EventInstitution , TicketInvite , TicketInstitution , ScannedTickets , UserInstitution , DynamicQuestion , QuestionResponse};

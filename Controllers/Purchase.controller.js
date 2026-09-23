@@ -8,7 +8,7 @@ import { getPaymentInfoByEventIdRepository } from '../Repositories/paymentInfo.r
 import { createAttendeeRepository , getUserPurchasedTicketsRepository } from '../Repositories/Attendee.repository.js';
 import { Op, Sequelize } from "sequelize";
 import sequelize from "../Utils/db.js";
-const SHEREHE_ROUTING_KEY = process.env.SHEREHE_ROUTING_KEY || "NDOVUKUU";
+const SHEREHE_ROUTING_KEY = process.env.SHEREHE_ROUTING_KEY || "io.opencrafts.sherehe";
 
 export const purchaseTicketController = async (req, res) => {
   const start = process.hrtime.bigint();

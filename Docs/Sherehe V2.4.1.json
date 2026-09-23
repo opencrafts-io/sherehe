@@ -45,7 +45,7 @@ collection:
         meta:
           id: req_87853c0415ad45ca912c6eac6e23e688
           created: 1751674151145
-          modified: 1779004847819
+          modified: 1782379904658
           isPrivate: false
           description: |
             # 🆕 Create an event
@@ -242,7 +242,7 @@ collection:
                 15,    "ticket_for": 5,    "ticket_quantity": 200,    "scope":
                 "institution",    "start_date":
                 "2026-05-10T00:00:00.000Z",    "end_date":
-                "2026-05-11T00:00:00.000Z",    "institutions": [42]  }]'
+                "2026-05-11T00:00:00.000Z",    "institutions": [43]  }]'
               description: ""
               disabled: false
               id: pair_c9526f4d655d4bb0841de7a32bb46e87
@@ -263,7 +263,7 @@ collection:
               disabled: false
             - id: pair_09cfa3afb9f6439092cf39b8b538701b
               name: scope
-              value: private
+              value: institution
               description: ""
               disabled: false
             - id: pair_031f060bcd79454395aa6c190e3c018b
@@ -353,12 +353,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: "{{ _.local }}/event?page=1&limit=20"
+      - url: "{{ _.local }}/event?page=1&limit=50"
         name: Get all Events
         meta:
           id: req_396769ef52ba480a9745f7b33982f1c2
           created: 1751675623663
-          modified: 1778599459215
+          modified: 1782379922701
           isPrivate: false
           description: >
             # 🆕 Get events
@@ -463,12 +463,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: "{{local}}/event/478a2ee4-a721-4d35-a4e8-5cc6aca56faa"
+      - url: "{{local}}/event/28c937d6-8499-4bd5-a5e3-a7045460f936"
         name: Get Event by id
         meta:
           id: req_55aa26362ae64b58aaca84cf870a8403
           created: 1751675823601
-          modified: 1778599577681
+          modified: 1782599230033
           isPrivate: false
           description: >
             # 🆕 Get event by event id
@@ -837,13 +837,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: "{{local}}/invite/event/06cbb78da66d802aa5c0182699b3e6343a35057041fdd5bcb4\
-          7281b79ff183f2"
+      - url: http://localhost:3000/invite/event/ed7d657e7f49bffad6e6fa6de5c16a108c55d59c3a5c9ba5f636c9ae6c61b80b
         name: Get  Event by Invite
         meta:
           id: req_560f9dbdbb784414a0dbad9bc8ae9dfc
           created: 1775243681695
-          modified: 1778600015025
+          modified: 1782599774950
           isPrivate: false
           description: >
             # 🆕 Get event by event invite link
@@ -1069,7 +1068,7 @@ collection:
         meta:
           id: req_ef1d1b104a4549b9a6981861481d300c
           created: 1776000180553
-          modified: 1778599999901
+          modified: 1782599757861
           isPrivate: false
           description: >
             # 🆕 Create an event link
@@ -1158,7 +1157,7 @@ collection:
           mimeType: application/json
           text: |-
             {
-              "event_id": "478a2ee4-a721-4d35-a4e8-5cc6aca56faa",
+              "event_id": "28c937d6-8499-4bd5-a5e3-a7045460f936",
               "expires_at": "2026-12-31T23:59:59Z",
               "max_uses": 5
             }
@@ -1230,12 +1229,12 @@ collection:
         | **PUT**    | `/api/tickets/:id`       | Update ticket details   |
         | **DELETE** | `/api/tickets/:id`       | Soft delete a ticket    |
     children:
-      - url: "{{local}}/ticket/"
+      - url: "{{ _.Staging }}/ticket/"
         name: Create Ticket
         meta:
           id: req_10935d13ed974718b76f9af6ef0bed48
           created: 1751676656623
-          modified: 1778600604427
+          modified: 1779908776488
           isPrivate: false
           description: >-
             # 🆕 Create an ticket
@@ -1318,16 +1317,18 @@ collection:
         method: POST
         body:
           mimeType: application/json
-          text: |
-            {
-              "event_id": "36763ed8-c9e3-48cc-8160-f7a539029638",
-              "ticket_name": "VI Ticket",
-              "ticket_price": 1500,
-              "ticket_quantity": 200,
-            	"ticket_visibility": [1 , 2],
-            	"start_date": "2026-05-10T00:00:00.000Z",
-              "end_date": "2026-05-11T00:00:00.000Z"
-            }
+          text: |-
+            {                             
+                "event_id": "99aa74d7-293e-478b-816a-2b2c2ddf3347",
+                "ticket_name": "VIP Early Bird",
+                "ticket_price": 5000.00,
+                "ticket_quantity": 100,
+                "ticket_for": 1,
+                "start_date": "2026-06-30T16:00:00.000Z",
+                "end_date": "2026-07-01T02:00:00.000Z",
+                "scope": "institution",
+            		"institutions": [43]
+              }
         headers:
           - name: Content-Type
             value: application/json
@@ -1520,12 +1521,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: "{{local}}/ticket/01309ab6-b6ec-4566-9470-bb88a440019d"
+      - url: "{{ _.Staging }}/ticket/46ad6f9e-5a8e-462c-8ace-0efec3120ec3"
         name: Update Ticket
         meta:
           id: req_9e730538a3634991853b63941e99a46b
           created: 1761830906618
-          modified: 1778600163827
+          modified: 1779905675336
           isPrivate: false
           description: >
             # 🆕 Create an ticket link
@@ -1620,9 +1621,7 @@ collection:
           mimeType: application/json
           text: |
             {
-              "ticket_name": "VIP Ticket",
-              "ticket_price": 1500,
-              "ticket_quantity": 600
+              "ticket_name": "VIP Ticket"
             }
         headers:
           - name: Content-Type
@@ -2437,7 +2436,7 @@ collection:
     meta:
       id: fld_953e8508addb474197bd0c02b5401cf6
       created: 1761825514602
-      modified: 1763831231025
+      modified: 1785334856925
       sortKey: -1761825514602
       description: ""
     children:
@@ -2446,7 +2445,7 @@ collection:
         meta:
           id: req_4d9b8461558b4d53aea07f5c2345ca82
           created: 1761825526376
-          modified: 1776534363225
+          modified: 1780684925972
           isPrivate: false
           description: >
             User API Documentation
@@ -2546,12 +2545,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/user/
+      - url: "{{ _.local }}/user/"
         name: Get user by user id
         meta:
           id: req_ac7f002efd0046799c3bf92a3d46f481
           created: 1763831079021
-          modified: 1768221076209
+          modified: 1786365727010
           isPrivate: false
           description: ""
           sortKey: -1763831079021
@@ -2567,12 +2566,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/user/search?q=ordo
+      - url: "{{Staging}}/user/search?q=big"
         name: Get user by username
         meta:
           id: req_948d5762c12946f7b0d91b3fafa1c6fa
           created: 1769592788471
-          modified: 1776534466811
+          modified: 1780684956489
           isPrivate: false
           description: ""
           sortKey: -1763700139838
@@ -2592,7 +2591,7 @@ collection:
       - id: pair_dc47cafd13224d819cf809e8cac41f0a
         name: Authorization
         value: Bearer
-          eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3ZlcmlzYWZlLm9wZW5jcmFmdHMuaW8vIiwic3ViIjoiNmZkZDU4N2YtZDFkZC00OWFmLTljMTctYTcwOTYxMjI5N2ViIiwiYXVkIjpbImh0dHBzOi8vYWNhZGVtaWEub3BlbmNyYWZ0cy5pby8iXSwiZXhwIjoxNzYyMjAxNDg3LCJpYXQiOjE3NjE1OTY2ODd9.WkYeAv_nClidDnjmWL9fw3jDN_tn3pTA_gy7uBrzfmk
+          eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3ZlcmlzYWZlLm9wZW5jcmFmdHMuaW8vIiwic3ViIjoiNWNkM2YwMDYtMGFlZi00NGI5LTlmOWMtOWIyZDEyNDVlYjY0IiwiYXVkIjpbImh0dHBzOi8vYWNhZGVtaWEub3BlbmNyYWZ0cy5pby8iXSwiZXhwIjoxNzg1MzQxNjIwLCJpYXQiOjE3ODUzMzQ0MjAsImp0aSI6IjAxZjE4YjU3LWIyZDAtNmI1ZS05YTEwLTllNWIzMjFhOTFhNSJ9._P_Ti3dKDN8kb9HyFBQqqHXVoemhw9uPrHHpAI1vexE
         description: ""
         disabled: false
   - name: Purchase Ticket
@@ -2668,7 +2667,7 @@ collection:
         meta:
           id: req_f671a6c5aef7431bbd4f4e2020c06daa
           created: 1768063660618
-          modified: 1776005156679
+          modified: 1783360644714
           isPrivate: false
           description: >
             # 🆕 Create Purchase a ticket
@@ -2758,7 +2757,7 @@ collection:
           text: |-
             {
             	"ticket_quantity": 1,
-            	"ticket_id":"150378f5-79fc-420e-a45c-98f1256f30ed",
+            	"ticket_id":"23ec541d-5a98-4ea2-8bf9-f3c989093746",
             	"user_phone": "0741414892"
             }
         headers:
@@ -3305,12 +3304,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:3000/dashboard/tickets/96321021-133a-4b00-993c-01576f5533cf
+      - url: "{{ _.Staging }}/dashboard/tickets/b897fc9f-ad9d-48b8-a822-f2e1d079cf14"
         name: Ticket Stats
         meta:
           id: req_f49b16db5b3e4fab81ce53b2f0fc03b8
           created: 1769687960787
-          modified: 1772622283455
+          modified: 1779735018242
           isPrivate: false
           description: >
             🔵 Get Ticket by ID
@@ -3368,6 +3367,2163 @@ collection:
             | `500 Internal Server Error` | Database or server error.     |
           sortKey: -1751675623663
         method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+    headers:
+      - id: pair_f9d89e6e393b4fbf9793c4ee42d005dd
+        name: Authorization
+        value: Bearer
+          eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3ZlcmlzYWZlLm9wZW5jcmFmdHMuaW8vIiwic3ViIjoiNmZkZDU4N2YtZDFkZC00OWFmLTljMTctYTcwOTYxMjI5N2ViIiwiYXVkIjpbImh0dHBzOi8vYWNhZGVtaWEub3BlbmNyYWZ0cy5pby8iXSwiZXhwIjoxNzYyMjAxNDg3LCJpYXQiOjE3NjE1OTY2ODd9.WkYeAv_nClidDnjmWL9fw3jDN_tn3pTA_gy7uBrzfmk
+        description: ""
+        disabled: false
+  - name: Dynamic Questions
+    meta:
+      id: fld_8ec05c0be30b45dd8358ccf13c0689a3
+      created: 1789403481433
+      modified: 1789403481433
+      sortKey: -1751635389385.1875
+      description: |
+        | Method     | Endpoint                 | Description             |
+        | ---------- | ------------------------ | ----------------------- |
+        | **POST**   | `/api/tickets`           | Create a new ticket     |
+        | **GET**    | `/api/tickets`           | Get all tickets         |
+        | **GET**    | `/api/tickets/:id`       | Get ticket by ID        |
+        | **GET**    | `/api/tickets/event/:id` | Get tickets by event ID |
+        | **PUT**    | `/api/tickets/:id`       | Update ticket details   |
+        | **DELETE** | `/api/tickets/:id`       | Soft delete a ticket    |
+    children:
+      - url: "{{local}}/question/admin/events/d29c3e26-9d91-4d59-b19b-00887df452fb/ques\
+          tions"
+        name: Create a question
+        meta:
+          id: req_85762c5b945c477691b6e646570e62fb
+          created: 1789403481439
+          modified: 1789404110801
+          isPrivate: false
+          description: |-
+            ## Testing `createQuestionController`
+
+            This endpoint needs **URL params**, **headers**, and a **JSON body**.
+
+            ---
+
+            ### 1. Route Definition
+
+            ```javascript
+            router.post("/admin/events/:eventId/questions", createQuestionController);
+            ```
+
+            ---
+
+            ### 2. Request Breakdown
+
+            | Part | Value |
+            |------|-------|
+            | **Method** | `POST` |
+            | **Path** | `/admin/events/:eventId/questions` |
+            | **Params** | `eventId` |
+            | **Query** | ❌ None |
+            | **Body** | ✅ JSON (question fields) |
+            | **Headers** | `Authorization: Bearer <token>`, `Content-Type: application/json` |
+
+            ---
+
+            ### 3. Endpoint URL
+
+            Using your event id: `d29c3e26-9d91-4d59-b19b-00887df452fb`
+
+            ```
+            POST http://localhost:PORT/api/admin/events/d29c3e26-9d91-4d59-b19b-00887df452fb/questions
+            ```
+
+            ---
+
+            ### 4. Headers
+
+            ```http
+            Authorization: Bearer <your_jwt_token>
+            Content-Type: application/json
+            ```
+
+            ---
+
+            ### 5. Body — All Supported Fields
+
+            | Field | Type | Required | Notes |
+            |-------|------|----------|-------|
+            | `question_text` | string | ✅ | The question itself |
+            | `question_type` | enum | ✅ | `text`, `textarea`, `number`, `email`, `phone`, `date`, `time`, `datetime`, `select`, `multiselect`, `radio`, `checkbox`, `checkboxes`, `file`, `rating`, `url` |
+            | `options` | array | conditional | Required for `select`, `multiselect`, `radio`, `checkboxes`. Format: `[{ label, value }]` |
+            | `validation_rules` | object | ❌ | e.g. `{ min, max, minLength, maxLength, pattern }` |
+            | `placeholder` | string | ❌ | Input placeholder |
+            | `help_text` | string | ❌ | Helper text below input |
+            | `is_required` | boolean | ❌ | Default: `false` |
+            | `is_active` | boolean | ❌ | Default: `true` |
+            | `display_order` | number | ❌ | Default: `0` |
+            | `ask_timing` | enum | ❌ | `before_registration` (default), `after_registration`, `after_event` |
+            | `conditional_logic` | object | ❌ | e.g. `{ depends_on_question_id, operator, value }` |
+            | `is_admin_only` | boolean | ❌ | Default: `false` |
+
+            > ⚠️ Do **not** send `event_id`, `created_by`, `updated_by` — the controller injects them automatically from `req.params.eventId` and `req.user.sub`.
+
+            ---
+
+            ### 6. Postman / Thunder Client Setup
+
+            ```
+            Method: POST
+            URL:    {{base_url}}/api/admin/events/d29c3e26-9d91-4d59-b19b-00887df452fb/questions
+
+            Headers:
+              Authorization: Bearer {{token}}
+              Content-Type: application/json
+
+            Body (raw JSON):
+            ```
+
+            ---
+
+            ### 7. Example Bodies — By Question Type
+
+            #### A. Simple Text Question
+
+            ```json
+            {
+              "question_text": "What is your full name?",
+              "question_type": "text",
+              "is_required": true,
+              "placeholder": "Enter your full name",
+              "ask_timing": "before_registration",
+              "display_order": 0
+            }
+            ```
+
+            #### B. Select (Dropdown)
+
+            ```json
+            {
+              "question_text": "What is your T-shirt size?",
+              "question_type": "select",
+              "options": [
+                { "label": "Small", "value": "S" },
+                { "label": "Medium", "value": "M" },
+                { "label": "Large", "value": "L" },
+                { "label": "XL", "value": "XL" }
+              ],
+              "is_required": true,
+              "ask_timing": "before_registration",
+              "display_order": 1
+            }
+            ```
+
+            #### C. Checkboxes (Multiple Choice)
+
+            ```json
+            {
+              "question_text": "Do you have any dietary restrictions?",
+              "question_type": "checkboxes",
+              "options": [
+                { "label": "Vegetarian", "value": "vegetarian" },
+                { "label": "Vegan", "value": "vegan" },
+                { "label": "Gluten-free", "value": "gluten_free" },
+                { "label": "Nut allergy", "value": "nut_allergy" }
+              ],
+              "is_required": false,
+              "ask_timing": "before_registration",
+              "display_order": 2
+            }
+            ```
+
+            #### D. Rating (After Event)
+
+            ```json
+            {
+              "question_text": "How would you rate the event?",
+              "question_type": "rating",
+              "validation_rules": { "min": 1, "max": 5 },
+              "is_required": true,
+              "ask_timing": "after_event",
+              "display_order": 0
+            }
+            ```
+
+            #### E. Number with Validation
+
+            ```json
+            {
+              "question_text": "How many years of experience do you have?",
+              "question_type": "number",
+              "validation_rules": { "min": 0, "max": 50 },
+              "placeholder": "e.g. 5",
+              "is_required": false,
+              "ask_timing": "before_registration",
+              "display_order": 3
+            }
+            ```
+
+            #### F. Email
+
+            ```json
+            {
+              "question_text": "What is your email address?",
+              "question_type": "email",
+              "validation_rules": { "pattern": "^[^@]+@[^@]+\\.[^@]+$" },
+              "is_required": true,
+              "ask_timing": "before_registration",
+              "display_order": 4
+            }
+            ```
+
+            #### G. Admin-Only Question (hidden from attendees)
+
+            ```json
+            {
+              "question_text": "Internal: Did attendee check in at the door?",
+              "question_type": "checkbox",
+              "is_admin_only": true,
+              "is_required": false,
+              "ask_timing": "after_event",
+              "display_order": 5
+            }
+            ```
+
+            #### H. Conditional Question (show only if another answered)
+
+            ```json
+            {
+              "question_text": "Which dietary meal would you prefer?",
+              "question_type": "select",
+              "options": [
+                { "label": "Vegan meal", "value": "vegan_meal" },
+                { "label": "Vegetarian meal", "value": "veg_meal" }
+              ],
+              "conditional_logic": {
+                "depends_on_question_id": "REPLACE_WITH_QUESTION_UUID",
+                "operator": "includes",
+                "value": "vegan"
+              },
+              "is_required": true,
+              "ask_timing": "before_registration",
+              "display_order": 3
+            }
+            ```
+
+
+
+            > 💡 **Tip**: If you plan to create many questions for the same event at once, use the `bulkCreateQuestionsRepository` inside a service that accepts `{ eventData, questions }` — that's the `createEventWithQuestionsService` pattern we discussed earlier. This single-question endpoint is best for incremental admin edits.
+          sortKey: -1751675384567
+        method: POST
+        body:
+          mimeType: application/json
+          text: >-
+            {
+              "question_text": "Which dietary meal would you prefer?",
+              "question_type": "select",
+              "options": [
+                { "label": "Vegan meal", "value": "vegan_meal" },
+                { "label": "Vegetarian meal", "value": "veg_meal" }
+              ],
+              "conditional_logic": {
+                "depends_on_question_id": "4315674e-f65d-4609-8ce5-561fe8558d2e",
+                "operator": "includes",
+                "value": "vegan"
+              },
+              "is_required": true,
+              "ask_timing": "before_registration",
+              "display_order": 6
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{local}}/question/events/d29c3e26-9d91-4d59-b19b-00887df452fb/questions"
+        name: Get a questions from event id
+        meta:
+          id: req_700595339ed245c1815589a38f1f014d
+          created: 1789403611403
+          modified: 1789403626714
+          isPrivate: false
+          description: >
+            | Field             | Type      | Required |
+            Description                                         |
+
+            | ----------------- | --------- | -------- |
+            --------------------------------------------------- |
+
+            | `event_id`        | `integer` | ✅        | The ID of the event
+            this ticket belongs to.         |
+
+            | `ticket_name`     | `string`  | ✅        | The name or type of the
+            ticket (e.g. VIP, Regular). |
+
+            | `ticket_price`    | `decimal` | ✅        | The cost of the
+            ticket.                             |
+
+            | `ticket_quantity` | `integer` | ✅        | The number of available
+            tickets.                    |
+
+
+
+            `Example Request`
+
+            | Field             | Type    | Required | Example    |
+            Description                                          |
+
+            | ----------------- | ------- | -------- | ---------- |
+            ---------------------------------------------------- |
+
+            | `event_id`        | integer | ✅ Yes    | 12         | The ID of
+            the event this ticket belongs to.          |
+
+            | `ticket_name`     | string  | ✅ Yes    | "VIP Pass" | The name or
+            type of the ticket (e.g., VIP, Regular). |
+
+            | `ticket_price`    | decimal | ✅ Yes    | 2500       | The cost of
+            the ticket.                              |
+
+            | `ticket_quantity` | integer | ✅ Yes    | 100        | The number
+            of available tickets.                     |
+
+
+
+            `Example Response (201 Created)`
+
+            | Field             | Type     | Example                       |
+            Description                     |
+
+            | ----------------- | -------- | ----------------------------- |
+            ------------------------------- |
+
+            | `message`         | string   | "Ticket created successfully" |
+            Status message of the operation |
+
+            | `ticket.id`       | integer  | 1                             |
+            Ticket ID                       |
+
+            | `ticket.event_id` | integer  | 12                            |
+            Event ID the ticket belongs to  |
+
+            | `ticket_name`     | string   | "VIP Pass"                    |
+            Ticket name/type                |
+
+            | `ticket_price`    | decimal  | 2500                          |
+            Ticket price                    |
+
+            | `ticket_quantity` | integer  | 100                           |
+            Number of available tickets     |
+
+            | `delete_tag`      | boolean  | false                         |
+            Soft-delete status              |
+
+            | `createdAt`       | datetime | "2025-10-30T10:00:00.000Z"    |
+            Ticket creation timestamp       |
+
+
+
+            `Example Error Satuses`
+
+
+            | **Status Code**             | **Description**               |
+
+            | --------------------------- | ----------------------------- |
+
+            | `400 Bad Request`           | Missing required fields.      |
+
+            | `500 Internal Server Error` | Database or validation error. |
+          sortKey: -1751675384517
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{local}}/question/events/d29c3e26-9d91-4d59-b19b-00887df452fb/responses"
+        name: Submit a responses
+        meta:
+          id: req_2bd045fcd8694f1798f7c4d3ef7bfe33
+          created: 1789404242933
+          modified: 1789404476302
+          isPrivate: false
+          description: |-
+            ## Testing `submitQuestionResponsesController`
+
+            Using the 5 questions you just created for event `d29c3e26-9d91-4d59-b19b-00887df452fb`.
+
+            ---
+
+            ### 1. Route Definition
+
+            ```javascript
+            router.post("/events/:eventId/questions/responses", submitQuestionResponsesController);
+            ```
+
+            ---
+
+            ### 2. Request Breakdown
+
+            | Part | Value |
+            |------|-------|
+            | **Method** | `POST` |
+            | **Path** | `/events/:eventId/questions/responses` |
+            | **Params** | `eventId` |
+            | **Query** | ❌ None |
+            | **Body** | ✅ JSON — `{ eventId, responses: [...] }` |
+            | **Headers** | `Authorization: Bearer <token>`, `Content-Type: application/json` |
+
+            > 💡 Note: your controller reads `eventId` from **`req.body`**, not from `req.params`. Both are available, but the body one is what's used.
+
+            ---
+
+            ### 3. Endpoint URL
+
+            ```
+            POST http://localhost:PORT/api/events/d29c3e26-9d91-4d59-b19b-00887df452fb/questions/responses
+            ```
+
+            ---
+
+            ### 4. Body Structure
+
+            ```json
+            {
+              "eventId": "<event_uuid>",
+              "responses": [
+                {
+                  "question_id": "<question_uuid>",
+                  "registration_id": "<optional_registration_uuid_or_null>",
+                  "response_value": <string | number | boolean | array | object>
+                }
+              ]
+            }
+            ```
+
+            | Field | Required | Notes |
+            |-------|----------|-------|
+            | `eventId` | ✅ | Must match `eventId` in URL (or just body — controller uses body) |
+            | `responses[]` | ✅ | At least 1 item |
+            | `responses[].question_id` | ✅ | UUID of the question |
+            | `responses[].registration_id` | ❌ | Optional; null if not linked to a registration |
+            | `responses[].response_value` | ✅ | Type depends on question_type |
+
+            ---
+
+            ### 5. Mapping Your 5 Questions → Response Values
+
+            | # | Question | `question_id` | `question_type` | `response_value` type |
+            |---|----------|---------------|-----------------|------------------------|
+            | 1 | Full name | `8ccb0707-09ad-4fac-86cd-b3a380575fb8` | `text` | string |
+            | 2 | T-shirt size | `e97305cb-8b8e-434a-83d2-57b618647bdd` | `select` | string (the `value`, e.g. `"M"`) |
+            | 3 | Years of experience | `1b344d89-4271-4e3d-b1a5-777659d3687c` | `number` | number (0–50) |
+            | 4 | Email | `65533286-eeba-46e2-a84a-873027c8f1c0` | `email` | string |
+            | 5 | Dietary meal | `c83ac1da-f16c-421a-93ab-6597bee38662` | `select` | string (`"vegan_meal"` / `"veg_meal"`) |
+
+            ---
+
+            ### 6. Complete Example Body
+
+            ```json
+            {
+              "eventId": "d29c3e26-9d91-4d59-b19b-00887df452fb",
+              "responses": [
+                {
+                  "question_id": "8ccb0707-09ad-4fac-86cd-b3a380575fb8",
+                  "response_value": "Jane Wanjiku"
+                },
+                {
+                  "question_id": "e97305cb-8b8e-434a-83d2-57b618647bdd",
+                  "response_value": "M"
+                },
+                {
+                  "question_id": "1b344d89-4271-4e3d-b1a5-777659d3687c",
+                  "response_value": 5
+                },
+                {
+                  "question_id": "65533286-eeba-46e2-a84a-873027c8f1c0",
+                  "response_value": "jane@example.com"
+                },
+                {
+                  "question_id": "c83ac1da-f16c-421a-93ab-6597bee38662",
+                  "response_value": "vegan_meal"
+                }
+              ]
+            }
+            ```
+
+
+            ---
+
+            ### 7. Response Value Types — By Question Type
+
+            | `question_type` | Send this `response_value` |
+            |-----------------|----------------------------|
+            | `text` / `textarea` / `email` / `phone` / `url` | `"some string"` |
+            | `number` / `rating` | `5` (a number, not `"5"`) |
+            | `date` | `"2026-05-10"` (ISO date string) |
+            | `time` | `"14:30"` |
+            | `datetime` | `"2026-05-10T14:30:00Z"` |
+            | `select` / `radio` | `"option_value"` (the `value`, not `label`) |
+            | `multiselect` / `checkboxes` | `["vegan", "gluten_free"]` (array of values) |
+            | `checkbox` | `true` or `false` |
+            | `file` | `"https://s3.../file-url"` (uploaded URL) |
+
+            ---
+
+            ### 8. Expected Responses
+
+            #### ✅ Success — `201 Created`
+
+            ```json
+            {
+              "message": "Responses submitted successfully"
+            }
+            ```
+
+            #### ❌ Missing fields — `422 Unprocessable Entity`
+
+            ```json
+            {
+              "error": "eventId and responses array are required"
+            }
+            ```
+
+            Triggered when:
+            - `eventId` is missing
+            - `responses` is not an array
+            - `responses` is an empty array
+
+            #### ❌ Auth failure — `401 Unauthorized`
+
+            ```json
+            {
+              "error": "Access denied. No token provided."
+            }
+            ```
+
+            #### ❌ Database error — `500 Internal Server Error`
+
+            ```json
+            {
+              "error": "Failed to submit responses",
+              "details": "insert or update on table \"question_responses\" violates foreign key constraint..."
+            }
+            ```
+
+            Common causes:
+            - `question_id` doesn't exist
+            - `event_id` doesn't exist
+            - Duplicate response (if you have a unique constraint)
+
+            ---
+
+            ### 9. Full Test Flow (End-to-End)
+
+            1. **Get questions to know the IDs**:
+               ```
+               GET /api/events/d29c3e26-9d91-4d59-b19b-00887df452fb/questions?timing=before_registration
+               ```
+
+            2. **Submit responses** (this endpoint):
+               ```
+               POST /api/events/d29c3e26-9d91-4d59-b19b-00887df452fb/questions/responses
+               ```
+
+            3. **Verify responses were saved** (admin view):
+               ```
+               GET /api/admin/questions/e97305cb-8b8e-434a-83d2-57b618647bdd/responses
+               ```
+
+            4. **See aggregated stats** (admin dashboard):
+               ```
+               GET /api/admin/events/d29c3e26-9d91-4d59-b19b-00887df452fb/questions/dashboard
+               ```
+
+            ---
+
+            ### 10. Conditional Logic Gotcha ⚠️
+
+            Your question #5 (`Which dietary meal would you prefer?`) has:
+
+            ```json
+            "conditional_logic": {
+              "value": "vegan",
+              "operator": "includes",
+              "depends_on_question_id": "4315674e-f65d-4609-8ce5-561fe8558d2e"
+            }
+            ```
+
+            This means **your frontend** should only show that question when the answer to question `4315674e-...` includes `"vegan"`. But your **backend controller doesn't enforce this** — it will accept a response to Q5 regardless.
+
+
+            ---
+
+            ### 11. Quick Reference Table
+
+            | What | Where | Value |
+            |------|-------|-------|
+            | `eventId` (URL) | Path | `d29c3e26-9d91-4d59-b19b-00887df452fb` |
+            | `eventId` (body) | JSON | Same as URL |
+            | Auth | Header | `Authorization: Bearer <token>` |
+            | Content-Type | Header | `application/json` |
+            | Body | Raw JSON | `{ eventId, responses: [...] }` |
+            | Max responses | — | No limit (bulk insert) |
+            | User ID | Auto | From `req.user.sub` |
+
+            ---
+
+            ### 12. Common Gotchas
+
+            | Issue | Cause | Fix |
+            |-------|-------|-----|
+            | `422` | `responses` empty or missing | Send at least one response |
+            | `500` FK violation | Invalid `question_id` | Use IDs from the questions GET |
+            | `"5"` stored instead of `5` | Sent string for number type | Send raw number |
+            | Duplicate row error | Unique constraint on `(question_id, user_id, event_id)` | Delete old response first or use upsert |
+            | Conditional question accepted wrongly | No backend validation | Add conditional validator (see §13) |
+
+            ---
+
+            > 💡 **Tip**: For robustness, consider adding an **upsert** mode to `submitQuestionResponsesController` so users editing their responses don't hit unique-constraint errors. Ask me if you want that variant.
+          sortKey: -1751675384542
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "eventId": "d29c3e26-9d91-4d59-b19b-00887df452fb",
+              "responses": [
+                {
+                  "question_id": "8ccb0707-09ad-4fac-86cd-b3a380575fb8",
+                  "response_value": "Jane Wanjiku"
+                },
+                {
+                  "question_id": "e97305cb-8b8e-434a-83d2-57b618647bdd",
+                  "response_value": "M"
+                },
+                {
+                  "question_id": "1b344d89-4271-4e3d-b1a5-777659d3687c",
+                  "response_value": 5
+                },
+                {
+                  "question_id": "65533286-eeba-46e2-a84a-873027c8f1c0",
+                  "response_value": "jane@example.com"
+                },
+                {
+                  "question_id": "c83ac1da-f16c-421a-93ab-6597bee38662",
+                  "response_value": "vegan_meal"
+                }
+              ]
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{local}}/question/admin/events/d29c3e26-9d91-4d59-b19b-00887df452fb/ques\
+          tions"
+        name: Get a questions from event id by admin
+        meta:
+          id: req_6b1333657e6349d0be34f5c8be60483a
+          created: 1789404527261
+          modified: 1789404551474
+          isPrivate: false
+          description: >
+            | Field             | Type      | Required |
+            Description                                         |
+
+            | ----------------- | --------- | -------- |
+            --------------------------------------------------- |
+
+            | `event_id`        | `integer` | ✅        | The ID of the event
+            this ticket belongs to.         |
+
+            | `ticket_name`     | `string`  | ✅        | The name or type of the
+            ticket (e.g. VIP, Regular). |
+
+            | `ticket_price`    | `decimal` | ✅        | The cost of the
+            ticket.                             |
+
+            | `ticket_quantity` | `integer` | ✅        | The number of available
+            tickets.                    |
+
+
+
+            `Example Request`
+
+            | Field             | Type    | Required | Example    |
+            Description                                          |
+
+            | ----------------- | ------- | -------- | ---------- |
+            ---------------------------------------------------- |
+
+            | `event_id`        | integer | ✅ Yes    | 12         | The ID of
+            the event this ticket belongs to.          |
+
+            | `ticket_name`     | string  | ✅ Yes    | "VIP Pass" | The name or
+            type of the ticket (e.g., VIP, Regular). |
+
+            | `ticket_price`    | decimal | ✅ Yes    | 2500       | The cost of
+            the ticket.                              |
+
+            | `ticket_quantity` | integer | ✅ Yes    | 100        | The number
+            of available tickets.                     |
+
+
+
+            `Example Response (201 Created)`
+
+            | Field             | Type     | Example                       |
+            Description                     |
+
+            | ----------------- | -------- | ----------------------------- |
+            ------------------------------- |
+
+            | `message`         | string   | "Ticket created successfully" |
+            Status message of the operation |
+
+            | `ticket.id`       | integer  | 1                             |
+            Ticket ID                       |
+
+            | `ticket.event_id` | integer  | 12                            |
+            Event ID the ticket belongs to  |
+
+            | `ticket_name`     | string   | "VIP Pass"                    |
+            Ticket name/type                |
+
+            | `ticket_price`    | decimal  | 2500                          |
+            Ticket price                    |
+
+            | `ticket_quantity` | integer  | 100                           |
+            Number of available tickets     |
+
+            | `delete_tag`      | boolean  | false                         |
+            Soft-delete status              |
+
+            | `createdAt`       | datetime | "2025-10-30T10:00:00.000Z"    |
+            Ticket creation timestamp       |
+
+
+
+            `Example Error Satuses`
+
+
+            | **Status Code**             | **Description**               |
+
+            | --------------------------- | ----------------------------- |
+
+            | `400 Bad Request`           | Missing required fields.      |
+
+            | `500 Internal Server Error` | Database or validation error. |
+          sortKey: -1751675384467
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{local}}/question/admin/events/d29c3e26-9d91-4d59-b19b-00887df452fb/dash\
+          board"
+        name: Get all the stats for an event
+        meta:
+          id: req_97cbbb0001474faf85a4988721adfc48
+          created: 1789405245075
+          modified: 1789405272809
+          isPrivate: false
+          description: >
+            | Field             | Type      | Required |
+            Description                                         |
+
+            | ----------------- | --------- | -------- |
+            --------------------------------------------------- |
+
+            | `event_id`        | `integer` | ✅        | The ID of the event
+            this ticket belongs to.         |
+
+            | `ticket_name`     | `string`  | ✅        | The name or type of the
+            ticket (e.g. VIP, Regular). |
+
+            | `ticket_price`    | `decimal` | ✅        | The cost of the
+            ticket.                             |
+
+            | `ticket_quantity` | `integer` | ✅        | The number of available
+            tickets.                    |
+
+
+
+            `Example Request`
+
+            | Field             | Type    | Required | Example    |
+            Description                                          |
+
+            | ----------------- | ------- | -------- | ---------- |
+            ---------------------------------------------------- |
+
+            | `event_id`        | integer | ✅ Yes    | 12         | The ID of
+            the event this ticket belongs to.          |
+
+            | `ticket_name`     | string  | ✅ Yes    | "VIP Pass" | The name or
+            type of the ticket (e.g., VIP, Regular). |
+
+            | `ticket_price`    | decimal | ✅ Yes    | 2500       | The cost of
+            the ticket.                              |
+
+            | `ticket_quantity` | integer | ✅ Yes    | 100        | The number
+            of available tickets.                     |
+
+
+
+            `Example Response (201 Created)`
+
+            | Field             | Type     | Example                       |
+            Description                     |
+
+            | ----------------- | -------- | ----------------------------- |
+            ------------------------------- |
+
+            | `message`         | string   | "Ticket created successfully" |
+            Status message of the operation |
+
+            | `ticket.id`       | integer  | 1                             |
+            Ticket ID                       |
+
+            | `ticket.event_id` | integer  | 12                            |
+            Event ID the ticket belongs to  |
+
+            | `ticket_name`     | string   | "VIP Pass"                    |
+            Ticket name/type                |
+
+            | `ticket_price`    | decimal  | 2500                          |
+            Ticket price                    |
+
+            | `ticket_quantity` | integer  | 100                           |
+            Number of available tickets     |
+
+            | `delete_tag`      | boolean  | false                         |
+            Soft-delete status              |
+
+            | `createdAt`       | datetime | "2025-10-30T10:00:00.000Z"    |
+            Ticket creation timestamp       |
+
+
+
+            `Example Error Satuses`
+
+
+            | **Status Code**             | **Description**               |
+
+            | --------------------------- | ----------------------------- |
+
+            | `400 Bad Request`           | Missing required fields.      |
+
+            | `500 Internal Server Error` | Database or validation error. |
+          sortKey: -1751675384417
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{local}}/question/admin/events/d29c3e26-9d91-4d59-b19b-00887df452fb/reor\
+          der"
+        name: Reorder Questions by id
+        meta:
+          id: req_20a5fc81686441a8aafd5f6f3227d6ca
+          created: 1789405805741
+          modified: 1789405918815
+          isPrivate: false
+          description: |-
+            ## Testing `reorderQuestionsController`
+
+            This endpoint takes **URL params**, **headers**, and a **JSON body** with the new order.
+
+            ---
+
+            ### 1. Route Definition
+
+            ```javascript
+            router.patch("/admin/events/:eventId/reorder", reorderQuestionsController);
+            ```
+
+            ---
+
+            ### 2. Request Breakdown
+
+            | Part | Value |
+            |------|-------|
+            | **Method** | `PATCH` |
+            | **Path** | `/admin/events/:eventId/questions/reorder` |
+            | **Params** | `eventId` |
+            | **Query** | ❌ None |
+            | **Body** | ✅ JSON — `{ order: [{ id, display_order }, ...] }` |
+            | **Headers** | `Authorization: Bearer <token>`, `Content-Type: application/json` |
+
+            ---
+
+            ### 3. Endpoint URL
+
+            ```
+            PATCH http://localhost:PORT/api/admin/events/d29c3e26-9d91-4d59-b19b-00887df452fb/questions/reorder
+            ```
+
+            ---
+
+            ### 4. Body Structure
+
+            ```json
+            {
+              "order": [
+                { "id": "<question_uuid>", "display_order": <number> },
+                ...
+              ]
+            }
+            ```
+
+            | Field | Required | Notes |
+            |-------|----------|-------|
+            | `order` | ✅ | Must be a **non-empty array** |
+            | `order[].id` | ✅ | UUID of the question |
+            | `order[].display_order` | ✅ | New position (0-based or any number — controller just writes it) |
+
+            > ⚠️ Do **not** send `eventId`, `updated_by`, etc. — the controller injects them from the URL and `req.user.sub`.
+
+            ---
+
+            ### 5. Example — Reordering Your 7 Questions
+
+            Suppose you want to move `after_event` questions to the **front** for testing.
+
+            Question IDs from your event:
+
+            | Question | Current `display_order` | Current timing |
+            |----------|------------------------|----------------|
+            | Full name (`8ccb0707-...`) | 0 | before_registration |
+            | T-shirt size (`e97305cb-...`) | 1 | before_registration |
+            | Years of experience (`1b344d89-...`) | 3 | before_registration |
+            | Email (`65533286-...`) | 4 | before_registration |
+            | Dietary meal (`c83ac1da-...`) | 6 | before_registration |
+            | Rate the event (`b3a89de4-...`) | 0 | after_event |
+            | Check-in (`4315674e-...`) | 5 | after_event |
+
+            **Reorder to: rate → check-in → full name → t-shirt → years → email → dietary:**
+
+            ```json
+            {
+              "order": [
+                { "id": "b3a89de4-403c-4bf1-9d69-e7b50c419e80", "display_order": 0 },
+                { "id": "4315674e-f65d-4609-8ce5-561fe8558d2e", "display_order": 1 },
+                { "id": "8ccb0707-09ad-4fac-86cd-b3a380575fb8", "display_order": 2 },
+                { "id": "e97305cb-8b8e-434a-83d2-57b618647bdd", "display_order": 3 },
+                { "id": "1b344d89-4271-4e3d-b1a5-777659d3687c", "display_order": 4 },
+                { "id": "65533286-eeba-46e2-a84a-873027c8f1c0", "display_order": 5 },
+                { "id": "c83ac1da-f16c-421a-93ab-6597bee38662", "display_order": 6 }
+              ]
+            }
+            ```
+
+            ---
+
+            ### 6. Postman / Thunder Client Setup
+
+            ```
+            Method: PATCH
+            URL:    {{base_url}}/api/admin/events/d29c3e26-9d91-4d59-b19b-00887df452fb/questions/reorder
+
+            Headers:
+              Authorization: Bearer {{token}}
+              Content-Type: application/json
+
+            Body (raw JSON):
+            ```
+
+            Paste the JSON above.
+
+            ---
+
+            ### 7. Sample cURL
+
+            ```bash
+            curl -X PATCH "http://localhost:3000/api/admin/events/d29c3e26-9d91-4d59-b19b-00887df452fb/questions/reorder" \
+              -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+              -H "Content-Type: application/json" \
+              -d '{
+                "order": [
+                  { "id": "b3a89de4-403c-4bf1-9d69-e7b50c419e80", "display_order": 0 },
+                  { "id": "4315674e-f65d-4609-8ce5-561fe8558d2e", "display_order": 1 },
+                  { "id": "8ccb0707-09ad-4fac-86cd-b3a380575fb8", "display_order": 2 }
+                ]
+              }'
+            ```
+
+            ---
+
+            ### 8. Axios / Frontend Example
+
+            ```javascript
+            import axios from "axios";
+
+            const reorderQuestions = async (eventId, order) => {
+              const { data } = await axios.patch(
+                `${import.meta.env.VITE_API_URL}/admin/events/${eventId}/questions/reorder`,
+                { order },
+                {
+                  headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    "Content-Type": "application/json"
+                  }
+                }
+              );
+              return data;
+            };
+
+            // Usage — e.g. from a drag-and-drop list
+            reorderQuestions("d29c3e26-9d91-4d59-b19b-00887df452fb", [
+              { id: "b3a89de4-403c-4bf1-9d69-e7b50c419e80", display_order: 0 },
+              { id: "4315674e-f65d-4609-8ce5-561fe8558d2e", display_order: 1 },
+              { id: "8ccb0707-09ad-4fac-86cd-b3a380575fb8", display_order: 2 }
+            ]);
+            ```
+
+            ---
+
+            ### 9. Expected Responses
+
+            #### ✅ Success — `200 OK`
+
+            ```json
+            {
+              "message": "Questions reordered successfully"
+            }
+            ```
+
+            #### ❌ Empty or missing `order` — `422 Unprocessable Entity`
+
+            ```json
+            {
+              "error": "order array is required"
+            }
+            ```
+
+            Triggered by:
+            - `order` not present
+            - `order` isn't an array
+            - `order` is `[]`
+
+            #### ❌ Auth failure — `401 Unauthorized`
+
+            ```json
+            {
+              "error": "Access denied. No token provided."
+            }
+            ```
+
+            #### ❌ DB error — `500 Internal Server Error`
+
+            ```json
+            {
+              "error": "Failed to reorder questions",
+              "details": "invalid input syntax for type uuid: \"not-a-uuid\""
+            }
+            ```
+
+            ---
+
+            ### 10. Verify the Reorder Worked
+
+            After the PATCH, hit:
+
+            ```
+            GET /api/admin/events/d29c3e26-9d91-4d59-b19b-00887df452fb/questions
+            ```
+
+            The `display_order` values should reflect your new order. Note: the admin list **orders by `ask_timing` first, then `display_order`**, so questions with the same `ask_timing` will be sorted by your new `display_order` within that group.
+
+            If you want a **global order regardless of timing**, change the repository order to:
+
+            ```javascript
+            order: [['display_order', 'ASC']]
+            ```
+
+            ---
+
+            ### 11. Recommended Frontend Drag-and-Drop Payload
+
+            When using a DnD library (react-beautiful-dnd, dnd-kit, etc.), send **all** questions in their new order with sequential `display_order`:
+
+            ```javascript
+            const handleDragEnd = (result) => {
+              if (!result.destination) return;
+
+              const reordered = Array.from(questions);
+              const [moved] = reordered.splice(result.source.index, 1);
+              reordered.splice(result.destination.index, 0, moved);
+
+              const order = reordered.map((q, idx) => ({
+                id: q.id,
+                display_order: idx
+              }));
+
+              reorderQuestions(eventId, order);
+            };
+            ```
+
+            ---
+
+            ### 12. Quick Reference Table
+
+            | What | Where | Value |
+            |------|-------|-------|
+            | `eventId` | URL path | `d29c3e26-9d91-4d59-b19b-00887df452fb` |
+            | Auth | Header | `Authorization: Bearer <token>` |
+            | Content-Type | Header | `application/json` |
+            | Body | Raw JSON | `{ order: [{ id, display_order }] }` |
+            | Auto-injected | DB | `updated_by` from `req.user.sub` |
+            | Min items | — | 1 |
+
+            ---
+
+            ### 13. Common Gotchas
+
+            | Issue | Cause | Fix |
+            |-------|-------|-----|
+            | `422` | Sent `order: []` | Send at least 1 item |
+            | `422` | Sent `order` as object | Must be an array |
+            | `500` | Invalid UUID in `order[].id` | Use real question IDs |
+            | Partial update silently succeeds | One ID doesn't belong to the event | The repo filters by `event_id` so unknown IDs are just no-ops |
+            | Wrong order after reload | Reading grouped by `ask_timing` | Change repo order to `['display_order', 'ASC']` if you want global order |
+
+            ---
+
+            > 💡 **Tip**: If you want **strict validation** (e.g. reject any `id` not in the event, or reject duplicate IDs), add a pre-check in the service:
+            > ```javascript
+            > const existing = await DynamicQuestion.findAll({ where: { event_id: eventId }, attributes: ['id'] });
+            > const validIds = new Set(existing.map(q => q.id));
+            > const invalid = order.filter(o => !validIds.has(o.id));
+            > if (invalid.length) throw new Error(`Unknown question IDs: ${invalid.map(o => o.id).join(', ')}`);
+            > ```
+            > Say the word if you want me to add that.
+          sortKey: -1751675384529.5
+        method: PATCH
+        body:
+          mimeType: application/json
+          text: >-
+            {
+              "order": [
+                { "id": "b3a89de4-403c-4bf1-9d69-e7b50c419e80", "display_order": 0 },
+                { "id": "4315674e-f65d-4609-8ce5-561fe8558d2e", "display_order": 1 },
+                { "id": "8ccb0707-09ad-4fac-86cd-b3a380575fb8", "display_order": 2 },
+                { "id": "e97305cb-8b8e-434a-83d2-57b618647bdd", "display_order": 3 },
+                { "id": "1b344d89-4271-4e3d-b1a5-777659d3687c", "display_order": 4 },
+                { "id": "65533286-eeba-46e2-a84a-873027c8f1c0", "display_order": 5 },
+                { "id": "c83ac1da-f16c-421a-93ab-6597bee38662", "display_order": 6 }
+              ]
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{local}}/question/admin/questions/e97305cb-8b8e-434a-83d2-57b618647bdd"
+        name: update Questions by event id
+        meta:
+          id: req_4be7fca69ca94eb88a1a863db6d95dc3
+          created: 1789405965508
+          modified: 1789406069943
+          isPrivate: false
+          description: |-
+            ## Testing `updateQuestionController`
+
+            This endpoint takes **URL params**, **headers**, and a **JSON body** with the fields you want to change.
+
+            ---
+
+            ### 1. Route Definition
+
+            ```javascript
+            router.patch("/admin/questions/:questionId", updateQuestionController);
+            ```
+
+            ---
+
+            ### 2. Request Breakdown
+
+            | Part | Value |
+            |------|-------|
+            | **Method** | `PATCH` |
+            | **Path** | `/admin/questions/:questionId` |
+            | **Params** | `questionId` |
+            | **Query** | ❌ None |
+            | **Body** | ✅ JSON — partial question fields |
+            | **Headers** | `Authorization: Bearer <token>`, `Content-Type: application/json` |
+
+            > `PATCH` = partial update. Send only the fields you want to change. `event_id` and `created_by` are **not** modified.
+
+            ---
+
+            ### 3. Endpoint URL
+
+            Using a real question ID from your event (`e97305cb-8b8e-434a-83d2-57b618647bdd` = "What is your T-shirt size?"):
+
+            ```
+            PATCH http://localhost:PORT/api/admin/questions/e97305cb-8b8e-434a-83d2-57b618647bdd
+            ```
+
+            ---
+
+            ### 4. Updatable Fields
+
+            | Field | Type | Notes |
+            |-------|------|-------|
+            | `question_text` | string | |
+            | `question_type` | enum | `text`, `textarea`, `number`, `email`, `phone`, `date`, `time`, `datetime`, `select`, `multiselect`, `radio`, `checkbox`, `checkboxes`, `file`, `rating`, `url` |
+            | `options` | array | `[{ label, value }]` — only for select/multiselect/radio/checkboxes |
+            | `validation_rules` | object | `{ min, max, minLength, maxLength, pattern }` |
+            | `placeholder` | string | |
+            | `help_text` | string | |
+            | `is_required` | boolean | |
+            | `is_active` | boolean | |
+            | `display_order` | number | |
+            | `ask_timing` | enum | `before_registration`, `after_registration`, `after_event` |
+            | `conditional_logic` | object | |
+            | `is_admin_only` | boolean | |
+
+            > ❌ Do **not** send `id`, `event_id`, `created_by`, `updated_by`, `created_at`, `updated_at`. The controller auto-sets `updated_by`.
+
+            ---
+
+            ### 5. Example Bodies — By Use Case
+
+            #### A. Update the question text only
+
+            ```json
+            {
+              "question_text": "What is your preferred T-shirt size?"
+            }
+            ```
+
+            #### B. Change the options (T-shirt sizes)
+
+            ```json
+            {
+              "options": [
+                { "label": "Small", "value": "S" },
+                { "label": "Medium", "value": "M" },
+                { "label": "Large", "value": "L" },
+                { "label": "XL", "value": "XL" },
+                { "label": "XXL", "value": "XXL" }
+              ]
+            }
+            ```
+
+            #### C. Make it optional + add help text
+
+            ```json
+            {
+              "is_required": false,
+              "help_text": "Optional — for merch ordering only."
+            }
+            ```
+
+            #### D. Change validation rules (email example)
+
+            Question `65533286-eeba-46e2-a84a-873027c8f1c0` (email):
+
+            ```json
+            {
+              "validation_rules": {
+                "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+                "maxLength": 120
+              }
+            }
+            ```
+
+            #### E. Change timing (move to after_event)
+
+            ```json
+            {
+              "ask_timing": "after_event"
+            }
+            ```
+
+            #### F. Make admin-only (hide from attendees)
+
+            ```json
+            {
+              "is_admin_only": true,
+            }
+            ```
+
+            #### G. Change number range validation
+
+            Question `1b344d89-4271-4e3d-b1a5-777659d3687c` (years of experience):
+
+            ```json
+            {
+              "validation_rules": { "min": 0, "max": 40 }
+            }
+            ```
+
+            #### H. Update conditional logic
+
+            Question `c83ac1da-f16c-421a-93ab-6597bee38662` (dietary meal):
+
+            ```json
+            {
+              "conditional_logic": {
+                "value": "vegan",
+                "operator": "includes",
+                "depends_on_question_id": "4315674e-f65d-4609-8ce5-561fe8558d2e"
+              }
+            }
+            ```
+
+            #### I. Full update (multiple fields at once)
+
+            ```json
+            {
+              "question_text": "What is your preferred T-shirt size?",
+              "options": [
+                { "label": "Small", "value": "S" },
+                { "label": "Medium", "value": "M" },
+                { "label": "Large", "value": "L" },
+                { "label": "XL", "value": "XL" }
+              ],
+              "is_required": true,
+              "help_text": "Used for event merch.",
+              "display_order": 2
+            }
+            ```
+
+            ---
+
+            ### 6. Postman / Thunder Client Setup
+
+            ```
+            Method: PATCH
+            URL:    {{base_url}}/api/admin/questions/e97305cb-8b8e-434a-83d2-57b618647bdd
+
+            Headers:
+              Authorization: Bearer {{token}}
+              Content-Type: application/json
+
+            Body (raw JSON):
+            {
+              "question_text": "What is your preferred T-shirt size?",
+              "is_required": false
+            }
+            ```
+
+            ---
+
+            ### 7. Sample cURL
+
+            ```bash
+            curl -X PATCH "http://localhost:3000/api/admin/questions/e97305cb-8b8e-434a-83d2-57b618647bdd" \
+              -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+              -H "Content-Type: application/json" \
+              -d '{
+                "question_text": "What is your preferred T-shirt size?",
+                "help_text": "Used for event merch."
+              }'
+            ```
+
+            ---
+
+            ### 8. Axios / Frontend Example
+
+            ```javascript
+            import axios from "axios";
+
+            const updateQuestion = async (questionId, updates) => {
+              const { data } = await axios.patch(
+                `${import.meta.env.VITE_API_URL}/admin/questions/${questionId}`,
+                updates,
+                {
+                  headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    "Content-Type": "application/json"
+                  }
+                }
+              );
+              return data;
+            };
+
+            // Usage
+            updateQuestion("e97305cb-8b8e-434a-83d2-57b618647bdd", {
+              question_text: "What is your preferred T-shirt size?",
+              help_text: "Used for event merch."
+            });
+            ```
+
+            ---
+
+            ### 9. Expected Responses
+
+            #### ✅ Success — `200 OK`
+
+            ```json
+            {
+              "message": "Question updated successfully",
+              "data": {
+                "id": "e97305cb-8b8e-434a-83d2-57b618647bdd",
+                "event_id": "d29c3e26-9d91-4d59-b19b-00887df452fb",
+                "question_text": "What is your preferred T-shirt size?",
+                "question_type": "select",
+                "options": [
+                  { "label": "Small", "value": "S" },
+                  { "label": "Medium", "value": "M" },
+                  { "label": "Large", "value": "L" },
+                  { "label": "XL", "value": "XL" }
+                ],
+                "validation_rules": null,
+                "placeholder": null,
+                "help_text": "Used for event merch.",
+                "is_required": true,
+                "is_active": true,
+                "display_order": 1,
+                "ask_timing": "before_registration",
+                "conditional_logic": null,
+                "is_admin_only": false,
+                "created_at": "2026-09-14T16:35:11.795Z",
+                "updated_at": "2026-09-14T17:05:22.000Z"
+              }
+            }
+            ```
+
+            Note: `updated_at` changes, `created_at` stays the same, `updated_by` reflects the admin who made the change.
+
+            #### ❌ Question not found — `404 Not Found`
+
+            ```json
+            {
+              "error": "Question not found"
+            }
+            ```
+
+            #### ❌ Auth failure — `401 Unauthorized`
+
+            ```json
+            {
+              "error": "Access denied. No token provided."
+            }
+            ```
+
+            #### ❌ DB error (bad enum value) — `500 Internal Server Error`
+
+            ```json
+            {
+              "error": "Failed to update question",
+              "details": "invalid input value for enum enum_dynamic_questions_question_type: \"wrong_type\""
+            }
+            ```
+
+            ---
+
+            ### 10. Verify the Update
+
+            After the PATCH, fetch it back:
+
+            ```
+            GET /api/events/d29c3e26-9d91-4d59-b19b-00887df452fb/questions?timing=before_registration
+            ```
+
+            Or check the admin list:
+
+            ```
+            GET /api/admin/events/d29c3e26-9d91-4d59-b19b-00887df452fb/questions
+            ```
+
+            The updated fields should reflect your change.
+
+            ---
+
+            ### 11. Quick Reference Table
+
+            | What | Where | Value |
+            |------|-------|-------|
+            | `questionId` | URL path | `e97305cb-8b8e-434a-83d2-57b618647bdd` |
+            | Auth | Header | `Authorization: Bearer <token>` |
+            | Content-Type | Header | `application/json` |
+            | Body | Raw JSON | Partial fields |
+            | Auto-set | DB | `updated_by` from `req.user.sub`, `updated_at` from Sequelize |
+            | Returned | JSON | Full updated question |
+
+            ---
+
+            ### 12. Common Gotchas
+
+            | Issue | Cause | Fix |
+            |-------|-------|-----|
+            | `404` | Wrong `questionId` | Use a real UUID from your list |
+            | `500` enum error | Typo in `question_type` or `ask_timing` | Stick to allowed values |
+            | Options not updating | Sent options for a `text`/`number` question | Options only apply to select/radio/checkbox types |
+            | Conditional logic not updating | Sent flat fields instead of nested object | Must be `{ value, operator, depends_on_question_id }` |
+            | `updated_by` still null | `req.user.sub` missing | Ensure valid JWT |
+            | `event_id` gets overwritten | You sent `event_id` in the body | Don't — it's protected |
+
+            ---
+
+            ### 13. Optional Improvements
+
+            If you want extra safety, add validation in the controller/service:
+
+            - **Type-specific validation**:
+              - `select`/`radio`/`checkboxes` → must have non-empty `options`
+              - `number`/`rating` → `validation_rules.min`/`max` must be numeric
+              - `email` → reasonable regex
+
+            - **Immutable fields guard** (reject if user tries to change `event_id`):
+              ```javascript
+              const protectedFields = ['id', 'event_id', 'created_by', 'created_at'];
+              for (const f of protectedFields) {
+                if (f in req.body) delete req.body[f];
+              }
+              ```
+
+            - **Audit trail**: log old vs new values into an `admin_audit_logs` table for compliance.
+
+            Say the word if you want me to add any of these and I'll write the patch.
+          sortKey: -1751675384523.25
+        method: PATCH
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "question_text": "What is your preferred T-shirt size?"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{local}}/question/admin/questions/e97305cb-8b8e-434a-83d2-57b618647bdd/t\
+          oggle-active"
+        name: Change active status of a question
+        meta:
+          id: req_b7725249ac0247908c6b09c594debbe0
+          created: 1789406093279
+          modified: 1789406167117
+          isPrivate: false
+          description: |-
+            ## Testing `reorderQuestionsController`
+
+            This endpoint takes **URL params**, **headers**, and a **JSON body** with the new order.
+
+            ---
+
+            ### 1. Route Definition
+
+            ```javascript
+            router.patch("/admin/events/:eventId/reorder", reorderQuestionsController);
+            ```
+
+            ---
+
+            ### 2. Request Breakdown
+
+            | Part | Value |
+            |------|-------|
+            | **Method** | `PATCH` |
+            | **Path** | `/admin/events/:eventId/questions/reorder` |
+            | **Params** | `eventId` |
+            | **Query** | ❌ None |
+            | **Body** | ✅ JSON — `{ order: [{ id, display_order }, ...] }` |
+            | **Headers** | `Authorization: Bearer <token>`, `Content-Type: application/json` |
+
+            ---
+
+            ### 3. Endpoint URL
+
+            ```
+            PATCH http://localhost:PORT/api/admin/events/d29c3e26-9d91-4d59-b19b-00887df452fb/questions/reorder
+            ```
+
+            ---
+
+            ### 4. Body Structure
+
+            ```json
+            {
+              "order": [
+                { "id": "<question_uuid>", "display_order": <number> },
+                ...
+              ]
+            }
+            ```
+
+            | Field | Required | Notes |
+            |-------|----------|-------|
+            | `order` | ✅ | Must be a **non-empty array** |
+            | `order[].id` | ✅ | UUID of the question |
+            | `order[].display_order` | ✅ | New position (0-based or any number — controller just writes it) |
+
+            > ⚠️ Do **not** send `eventId`, `updated_by`, etc. — the controller injects them from the URL and `req.user.sub`.
+
+            ---
+
+            ### 5. Example — Reordering Your 7 Questions
+
+            Suppose you want to move `after_event` questions to the **front** for testing.
+
+            Question IDs from your event:
+
+            | Question | Current `display_order` | Current timing |
+            |----------|------------------------|----------------|
+            | Full name (`8ccb0707-...`) | 0 | before_registration |
+            | T-shirt size (`e97305cb-...`) | 1 | before_registration |
+            | Years of experience (`1b344d89-...`) | 3 | before_registration |
+            | Email (`65533286-...`) | 4 | before_registration |
+            | Dietary meal (`c83ac1da-...`) | 6 | before_registration |
+            | Rate the event (`b3a89de4-...`) | 0 | after_event |
+            | Check-in (`4315674e-...`) | 5 | after_event |
+
+            **Reorder to: rate → check-in → full name → t-shirt → years → email → dietary:**
+
+            ```json
+            {
+              "order": [
+                { "id": "b3a89de4-403c-4bf1-9d69-e7b50c419e80", "display_order": 0 },
+                { "id": "4315674e-f65d-4609-8ce5-561fe8558d2e", "display_order": 1 },
+                { "id": "8ccb0707-09ad-4fac-86cd-b3a380575fb8", "display_order": 2 },
+                { "id": "e97305cb-8b8e-434a-83d2-57b618647bdd", "display_order": 3 },
+                { "id": "1b344d89-4271-4e3d-b1a5-777659d3687c", "display_order": 4 },
+                { "id": "65533286-eeba-46e2-a84a-873027c8f1c0", "display_order": 5 },
+                { "id": "c83ac1da-f16c-421a-93ab-6597bee38662", "display_order": 6 }
+              ]
+            }
+            ```
+
+            ---
+
+            ### 6. Postman / Thunder Client Setup
+
+            ```
+            Method: PATCH
+            URL:    {{base_url}}/api/admin/events/d29c3e26-9d91-4d59-b19b-00887df452fb/questions/reorder
+
+            Headers:
+              Authorization: Bearer {{token}}
+              Content-Type: application/json
+
+            Body (raw JSON):
+            ```
+
+            Paste the JSON above.
+
+            ---
+
+            ### 7. Sample cURL
+
+            ```bash
+            curl -X PATCH "http://localhost:3000/api/admin/events/d29c3e26-9d91-4d59-b19b-00887df452fb/questions/reorder" \
+              -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+              -H "Content-Type: application/json" \
+              -d '{
+                "order": [
+                  { "id": "b3a89de4-403c-4bf1-9d69-e7b50c419e80", "display_order": 0 },
+                  { "id": "4315674e-f65d-4609-8ce5-561fe8558d2e", "display_order": 1 },
+                  { "id": "8ccb0707-09ad-4fac-86cd-b3a380575fb8", "display_order": 2 }
+                ]
+              }'
+            ```
+
+            ---
+
+            ### 8. Axios / Frontend Example
+
+            ```javascript
+            import axios from "axios";
+
+            const reorderQuestions = async (eventId, order) => {
+              const { data } = await axios.patch(
+                `${import.meta.env.VITE_API_URL}/admin/events/${eventId}/questions/reorder`,
+                { order },
+                {
+                  headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    "Content-Type": "application/json"
+                  }
+                }
+              );
+              return data;
+            };
+
+            // Usage — e.g. from a drag-and-drop list
+            reorderQuestions("d29c3e26-9d91-4d59-b19b-00887df452fb", [
+              { id: "b3a89de4-403c-4bf1-9d69-e7b50c419e80", display_order: 0 },
+              { id: "4315674e-f65d-4609-8ce5-561fe8558d2e", display_order: 1 },
+              { id: "8ccb0707-09ad-4fac-86cd-b3a380575fb8", display_order: 2 }
+            ]);
+            ```
+
+            ---
+
+            ### 9. Expected Responses
+
+            #### ✅ Success — `200 OK`
+
+            ```json
+            {
+              "message": "Questions reordered successfully"
+            }
+            ```
+
+            #### ❌ Empty or missing `order` — `422 Unprocessable Entity`
+
+            ```json
+            {
+              "error": "order array is required"
+            }
+            ```
+
+            Triggered by:
+            - `order` not present
+            - `order` isn't an array
+            - `order` is `[]`
+
+            #### ❌ Auth failure — `401 Unauthorized`
+
+            ```json
+            {
+              "error": "Access denied. No token provided."
+            }
+            ```
+
+            #### ❌ DB error — `500 Internal Server Error`
+
+            ```json
+            {
+              "error": "Failed to reorder questions",
+              "details": "invalid input syntax for type uuid: \"not-a-uuid\""
+            }
+            ```
+
+            ---
+
+            ### 10. Verify the Reorder Worked
+
+            After the PATCH, hit:
+
+            ```
+            GET /api/admin/events/d29c3e26-9d91-4d59-b19b-00887df452fb/questions
+            ```
+
+            The `display_order` values should reflect your new order. Note: the admin list **orders by `ask_timing` first, then `display_order`**, so questions with the same `ask_timing` will be sorted by your new `display_order` within that group.
+
+            If you want a **global order regardless of timing**, change the repository order to:
+
+            ```javascript
+            order: [['display_order', 'ASC']]
+            ```
+
+            ---
+
+            ### 11. Recommended Frontend Drag-and-Drop Payload
+
+            When using a DnD library (react-beautiful-dnd, dnd-kit, etc.), send **all** questions in their new order with sequential `display_order`:
+
+            ```javascript
+            const handleDragEnd = (result) => {
+              if (!result.destination) return;
+
+              const reordered = Array.from(questions);
+              const [moved] = reordered.splice(result.source.index, 1);
+              reordered.splice(result.destination.index, 0, moved);
+
+              const order = reordered.map((q, idx) => ({
+                id: q.id,
+                display_order: idx
+              }));
+
+              reorderQuestions(eventId, order);
+            };
+            ```
+
+            ---
+
+            ### 12. Quick Reference Table
+
+            | What | Where | Value |
+            |------|-------|-------|
+            | `eventId` | URL path | `d29c3e26-9d91-4d59-b19b-00887df452fb` |
+            | Auth | Header | `Authorization: Bearer <token>` |
+            | Content-Type | Header | `application/json` |
+            | Body | Raw JSON | `{ order: [{ id, display_order }] }` |
+            | Auto-injected | DB | `updated_by` from `req.user.sub` |
+            | Min items | — | 1 |
+
+            ---
+
+            ### 13. Common Gotchas
+
+            | Issue | Cause | Fix |
+            |-------|-------|-----|
+            | `422` | Sent `order: []` | Send at least 1 item |
+            | `422` | Sent `order` as object | Must be an array |
+            | `500` | Invalid UUID in `order[].id` | Use real question IDs |
+            | Partial update silently succeeds | One ID doesn't belong to the event | The repo filters by `event_id` so unknown IDs are just no-ops |
+            | Wrong order after reload | Reading grouped by `ask_timing` | Change repo order to `['display_order', 'ASC']` if you want global order |
+
+            ---
+
+            > 💡 **Tip**: If you want **strict validation** (e.g. reject any `id` not in the event, or reject duplicate IDs), add a pre-check in the service:
+            > ```javascript
+            > const existing = await DynamicQuestion.findAll({ where: { event_id: eventId }, attributes: ['id'] });
+            > const validIds = new Set(existing.map(q => q.id));
+            > const invalid = order.filter(o => !validIds.has(o.id));
+            > if (invalid.length) throw new Error(`Unknown question IDs: ${invalid.map(o => o.id).join(', ')}`);
+            > ```
+            > Say the word if you want me to add that.
+          sortKey: -1751675384526.375
+        method: PATCH
+        headers:
+          - name: User-Agent
+            value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{local}}/question/admin/questions/e97305cb-8b8e-434a-83d2-57b618647bdd"
+        name: Delete a question
+        meta:
+          id: req_5c91dc9d09d24e1282a22932ba01fd58
+          created: 1789406293607
+          modified: 1789406336258
+          isPrivate: false
+          description: |-
+            ## Testing `reorderQuestionsController`
+
+            This endpoint takes **URL params**, **headers**, and a **JSON body** with the new order.
+
+            ---
+
+            ### 1. Route Definition
+
+            ```javascript
+            router.patch("/admin/events/:eventId/reorder", reorderQuestionsController);
+            ```
+
+            ---
+
+            ### 2. Request Breakdown
+
+            | Part | Value |
+            |------|-------|
+            | **Method** | `PATCH` |
+            | **Path** | `/admin/events/:eventId/questions/reorder` |
+            | **Params** | `eventId` |
+            | **Query** | ❌ None |
+            | **Body** | ✅ JSON — `{ order: [{ id, display_order }, ...] }` |
+            | **Headers** | `Authorization: Bearer <token>`, `Content-Type: application/json` |
+
+            ---
+
+            ### 3. Endpoint URL
+
+            ```
+            PATCH http://localhost:PORT/api/admin/events/d29c3e26-9d91-4d59-b19b-00887df452fb/questions/reorder
+            ```
+
+            ---
+
+            ### 4. Body Structure
+
+            ```json
+            {
+              "order": [
+                { "id": "<question_uuid>", "display_order": <number> },
+                ...
+              ]
+            }
+            ```
+
+            | Field | Required | Notes |
+            |-------|----------|-------|
+            | `order` | ✅ | Must be a **non-empty array** |
+            | `order[].id` | ✅ | UUID of the question |
+            | `order[].display_order` | ✅ | New position (0-based or any number — controller just writes it) |
+
+            > ⚠️ Do **not** send `eventId`, `updated_by`, etc. — the controller injects them from the URL and `req.user.sub`.
+
+            ---
+
+            ### 5. Example — Reordering Your 7 Questions
+
+            Suppose you want to move `after_event` questions to the **front** for testing.
+
+            Question IDs from your event:
+
+            | Question | Current `display_order` | Current timing |
+            |----------|------------------------|----------------|
+            | Full name (`8ccb0707-...`) | 0 | before_registration |
+            | T-shirt size (`e97305cb-...`) | 1 | before_registration |
+            | Years of experience (`1b344d89-...`) | 3 | before_registration |
+            | Email (`65533286-...`) | 4 | before_registration |
+            | Dietary meal (`c83ac1da-...`) | 6 | before_registration |
+            | Rate the event (`b3a89de4-...`) | 0 | after_event |
+            | Check-in (`4315674e-...`) | 5 | after_event |
+
+            **Reorder to: rate → check-in → full name → t-shirt → years → email → dietary:**
+
+            ```json
+            {
+              "order": [
+                { "id": "b3a89de4-403c-4bf1-9d69-e7b50c419e80", "display_order": 0 },
+                { "id": "4315674e-f65d-4609-8ce5-561fe8558d2e", "display_order": 1 },
+                { "id": "8ccb0707-09ad-4fac-86cd-b3a380575fb8", "display_order": 2 },
+                { "id": "e97305cb-8b8e-434a-83d2-57b618647bdd", "display_order": 3 },
+                { "id": "1b344d89-4271-4e3d-b1a5-777659d3687c", "display_order": 4 },
+                { "id": "65533286-eeba-46e2-a84a-873027c8f1c0", "display_order": 5 },
+                { "id": "c83ac1da-f16c-421a-93ab-6597bee38662", "display_order": 6 }
+              ]
+            }
+            ```
+
+            ---
+
+            ### 6. Postman / Thunder Client Setup
+
+            ```
+            Method: PATCH
+            URL:    {{base_url}}/api/admin/events/d29c3e26-9d91-4d59-b19b-00887df452fb/questions/reorder
+
+            Headers:
+              Authorization: Bearer {{token}}
+              Content-Type: application/json
+
+            Body (raw JSON):
+            ```
+
+            Paste the JSON above.
+
+            ---
+
+            ### 7. Sample cURL
+
+            ```bash
+            curl -X PATCH "http://localhost:3000/api/admin/events/d29c3e26-9d91-4d59-b19b-00887df452fb/questions/reorder" \
+              -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+              -H "Content-Type: application/json" \
+              -d '{
+                "order": [
+                  { "id": "b3a89de4-403c-4bf1-9d69-e7b50c419e80", "display_order": 0 },
+                  { "id": "4315674e-f65d-4609-8ce5-561fe8558d2e", "display_order": 1 },
+                  { "id": "8ccb0707-09ad-4fac-86cd-b3a380575fb8", "display_order": 2 }
+                ]
+              }'
+            ```
+
+            ---
+
+            ### 8. Axios / Frontend Example
+
+            ```javascript
+            import axios from "axios";
+
+            const reorderQuestions = async (eventId, order) => {
+              const { data } = await axios.patch(
+                `${import.meta.env.VITE_API_URL}/admin/events/${eventId}/questions/reorder`,
+                { order },
+                {
+                  headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    "Content-Type": "application/json"
+                  }
+                }
+              );
+              return data;
+            };
+
+            // Usage — e.g. from a drag-and-drop list
+            reorderQuestions("d29c3e26-9d91-4d59-b19b-00887df452fb", [
+              { id: "b3a89de4-403c-4bf1-9d69-e7b50c419e80", display_order: 0 },
+              { id: "4315674e-f65d-4609-8ce5-561fe8558d2e", display_order: 1 },
+              { id: "8ccb0707-09ad-4fac-86cd-b3a380575fb8", display_order: 2 }
+            ]);
+            ```
+
+            ---
+
+            ### 9. Expected Responses
+
+            #### ✅ Success — `200 OK`
+
+            ```json
+            {
+              "message": "Questions reordered successfully"
+            }
+            ```
+
+            #### ❌ Empty or missing `order` — `422 Unprocessable Entity`
+
+            ```json
+            {
+              "error": "order array is required"
+            }
+            ```
+
+            Triggered by:
+            - `order` not present
+            - `order` isn't an array
+            - `order` is `[]`
+
+            #### ❌ Auth failure — `401 Unauthorized`
+
+            ```json
+            {
+              "error": "Access denied. No token provided."
+            }
+            ```
+
+            #### ❌ DB error — `500 Internal Server Error`
+
+            ```json
+            {
+              "error": "Failed to reorder questions",
+              "details": "invalid input syntax for type uuid: \"not-a-uuid\""
+            }
+            ```
+
+            ---
+
+            ### 10. Verify the Reorder Worked
+
+            After the PATCH, hit:
+
+            ```
+            GET /api/admin/events/d29c3e26-9d91-4d59-b19b-00887df452fb/questions
+            ```
+
+            The `display_order` values should reflect your new order. Note: the admin list **orders by `ask_timing` first, then `display_order`**, so questions with the same `ask_timing` will be sorted by your new `display_order` within that group.
+
+            If you want a **global order regardless of timing**, change the repository order to:
+
+            ```javascript
+            order: [['display_order', 'ASC']]
+            ```
+
+            ---
+
+            ### 11. Recommended Frontend Drag-and-Drop Payload
+
+            When using a DnD library (react-beautiful-dnd, dnd-kit, etc.), send **all** questions in their new order with sequential `display_order`:
+
+            ```javascript
+            const handleDragEnd = (result) => {
+              if (!result.destination) return;
+
+              const reordered = Array.from(questions);
+              const [moved] = reordered.splice(result.source.index, 1);
+              reordered.splice(result.destination.index, 0, moved);
+
+              const order = reordered.map((q, idx) => ({
+                id: q.id,
+                display_order: idx
+              }));
+
+              reorderQuestions(eventId, order);
+            };
+            ```
+
+            ---
+
+            ### 12. Quick Reference Table
+
+            | What | Where | Value |
+            |------|-------|-------|
+            | `eventId` | URL path | `d29c3e26-9d91-4d59-b19b-00887df452fb` |
+            | Auth | Header | `Authorization: Bearer <token>` |
+            | Content-Type | Header | `application/json` |
+            | Body | Raw JSON | `{ order: [{ id, display_order }] }` |
+            | Auto-injected | DB | `updated_by` from `req.user.sub` |
+            | Min items | — | 1 |
+
+            ---
+
+            ### 13. Common Gotchas
+
+            | Issue | Cause | Fix |
+            |-------|-------|-----|
+            | `422` | Sent `order: []` | Send at least 1 item |
+            | `422` | Sent `order` as object | Must be an array |
+            | `500` | Invalid UUID in `order[].id` | Use real question IDs |
+            | Partial update silently succeeds | One ID doesn't belong to the event | The repo filters by `event_id` so unknown IDs are just no-ops |
+            | Wrong order after reload | Reading grouped by `ask_timing` | Change repo order to `['display_order', 'ASC']` if you want global order |
+
+            ---
+
+            > 💡 **Tip**: If you want **strict validation** (e.g. reject any `id` not in the event, or reject duplicate IDs), add a pre-check in the service:
+            > ```javascript
+            > const existing = await DynamicQuestion.findAll({ where: { event_id: eventId }, attributes: ['id'] });
+            > const validIds = new Set(existing.map(q => q.id));
+            > const invalid = order.filter(o => !validIds.has(o.id));
+            > if (invalid.length) throw new Error(`Unknown question IDs: ${invalid.map(o => o.id).join(', ')}`);
+            > ```
+            > Say the word if you want me to add that.
+          sortKey: -1751675384524.8125
+        method: DELETE
         headers:
           - name: User-Agent
             value: insomnia/11.2.0
