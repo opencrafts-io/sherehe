@@ -299,7 +299,7 @@ export const verifyPaymentController = async (req, res) => {
 
     return res.status(200).json({
       status: transaction.status,
-      error: transaction.failure_reason || "Unknown error",
+      error: transaction.failure_reason || null,
     });
   } catch (error) {
     const duration = Number(process.hrtime.bigint() - start) / 1000;
