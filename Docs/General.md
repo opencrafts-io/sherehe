@@ -322,7 +322,7 @@ Verisafe ──▶ RabbitMQ ──▶ Sherehe Consumer
 | Queue | Exchange | Routing Key | Consumer |
 |-------|----------|-------------|----------|
 | (auto-generated) | `verisafe.events.topic` | `user.institution.*` | `consumeInstitutionEvents` |
-| `sherehe_mpesa_success_queue` | `io.opencrafts.veribroke-notifications` | `NDOVUKUU` | `startMpesaSuccessConsumer` |
+| `sherehe_mpesa_success_queue` | `io.opencrafts.veribroke-notifications` | `io.opencrafts.sherehe` | `startMpesaSuccessConsumer` |
 | (defined by V_QUEUE_NAME) | fanout exchange | - | `startVerisafeListener` |
 
 ### Message Format Examples

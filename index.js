@@ -29,6 +29,7 @@ import purchaseTicket from './Routes/Purchase.route.js'
 import eventScanners from './Routes/eventScanners.route.js'
 import organizerDashboard from './Routes/OrganizerDashboard.route.js'
 import eventInviteRouter from './Routes/event_invite.route.js'
+import DynamicQuestionRouter from "./Routes/dynamic_question.routes.js";
 
 app.use('/event', eventRouter)
 app.use('/ticket', ticketRouter)
@@ -38,13 +39,14 @@ app.use('/purchase', purchaseTicket)
 app.use('/eventscanner', eventScanners)
 app.use('/dashboard', organizerDashboard)
 app.use('/invite' , eventInviteRouter)
+app.use('/question' , DynamicQuestionRouter)
 
 
 app.listen(PORT, async () => {
   try {
     await sequelize.authenticate();
 
-    await sequelize.sync({});
+    await sequelize.sync({ alter: true });
     console.log("Models synced...");
     // startVerisafeListener();
     await startMpesaSuccessConsumer();

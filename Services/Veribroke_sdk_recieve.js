@@ -17,7 +17,7 @@ const RABBITMQ_PORT = process.env.RABBITMQ_PORT
 const RABBITMQ_USER = process.env.RABBITMQ_USER
 const RABBITMQ_VHOST = process.env.RABBITMQ_VHOST
 const EXCHANGE_NAME = process.env.RABBITMQ_NOTIFICATION_EXCHANGE || "io.opencrafts.veribroke-notifications"
-const SHEREHE_ROUTING_KEY = process.env.SHEREHE_ROUTING_KEY || "NDOVUKUU"
+const SHEREHE_ROUTING_KEY = process.env.SHEREHE_ROUTING_KEY || "io.opencrafts.sherehe"
 
 const QUEUE = "sherehe_mpesa_success_queue";
 const RABBIT_URL = `amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@${RABBITMQ_HOST}:${RABBITMQ_PORT}${RABBITMQ_VHOST || '/'}`;
